@@ -296,34 +296,454 @@ a {
 
 
 
+/* ----------------------Cart---------------------- */
+.cart {
+    padding: 100px 0; 
+}
 
+/* Thanh hiển thị tiến trình (cart → address → payment) */
+.cart-top-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.cart-top {
+    height: 2px; /* Thanh mảnh nối giữa các icon */
+    width: 70%;
+    background-color: #dddddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 50px 0 100px; 
+}
 
+/* Vòng tròn icon trong thanh tiến trình */
+.cart-top-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; 
+    border: 1px solid #dddddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
 
+.cart-top-cart { border: 1px solid #0DB7EA; } /* Bước hiện tại tô màu khác */
+.cart-top-cart i { color: #0DB7EA; }
 
+/* ----------Bảng sản phẩm (bên trái)---------- */
+.cart-content-left {
+    flex: 2;
+    padding-right: 12px; 
+}
 
+.cart-content-left table {
+    width: 100%;
+    text-align: center;
+}
 
+/* Tiêu đề cột bảng */
+.cart-content-left table th {
+    padding-bottom: 30px;
+    font-size: 15px;
+    text-transform: uppercase;
+    color: #333;
+    border-bottom: 2px solid #dddddd;
+}
 
+/* Nội dung bảng */
+.cart-content-left table td {
+    padding: 20px 0;
+    border-bottom: 2px solid #dddddd;
+}
 
+/* Cỡ ảnh và các cột cụ thể */
+.cart-content-left td:first-child img { width: 130px; } /* Ảnh sản phẩm */
+.cart-content-left td:nth-child(2) { max-width: 130px; } /* Tên sản phẩm */
+.cart-content-left td:nth-child(3) img { width: 30px; } /* Ảnh màu */
 
+/* Ô nhập số lượng */
+.cart-content-left table input { width: 30px;}
 
+/* Nút “X” xóa sản phẩm */
+.cart-content-left table span {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #dddddd;
+    cursor: pointer;
+}
 
+/* ----------Phần tổng kết (bên phải)---------- */
+.cart-content-right {
+    flex: 1;
+    padding-left: 15px;
+    border-left: 2px solid #dddddd; /* Đường phân chia hai phần */
+}
 
+/* Bảng tổng tiền */
+.cart-content-right table {
+    width: 100%;
+}
 
+/* Dòng tiêu đề “TỔNG TIỀN GIỎ HÀNG” */
+.cart-content-right table th {
+    padding-bottom: 30px;
+    font-size: 15px;
+    color: #333;
+    border-bottom: 2px solid #dddddd;
+}
 
+/* Căn phải cột cuối (giá tiền) */
+.cart-content-right tr td:last-child {
+    text-align: right;
+}
 
+/* Dòng gợi ý miễn phí ship */
+.cart-content-right-text {
+    margin: 20px 0;
+    text-align: center;
+    font-size: 15px;
+    color: #333;
+}
 
+/* Các nút hành động (mua tiếp, thanh toán) */
+.cart-content-right-button {
+    text-align: center;
+}
 
+.cart-content-right-button button {
+    padding: 0 18px;
+    border-radius: 8px; /* Bo góc nút */
+    height: 35px;
+    cursor: pointer;
+}
 
+/* Nút “Tiếp tục mua sắm” */
+.cart-content-right-button button:first-child {
+    background-color: #fff;
+    border: 1px solid black;
+    margin-right: 20px;
+}
+.cart-content-right-button button:first-child:hover {
+    background-color: #ddd;
+}
 
+/* Nút “Thanh toán” */
+.cart-content-right-button button:last-child {
+    background-color: black;
+    color: #fff;
+    border: 1px solid black;
+}
+.cart-content-right-button button:last-child:hover {
+    background-color: #dddddd;
+    color: black;
+}
 
+/* Phần nhắc đăng nhập tích điểm */
+.cart-content-right-dangnhap {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #333;
+}
+/*---------------------------------Delivery-----------------------*/
+.delivery {
+    padding: 100px 0;
+}
 
+.delivery-top-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.delivery-top {
+    height: 2px;
+    width: 70%;
+    background-color: #dddddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 50px 0 100px;
+}
+.delivery-top-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #dddddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
 
+.delivery-top-item i {
+    color: #dddddd;
+}
 
+.delivery-top-adress {
+    border: 1px solid #0DB7EA;
+}
 
+.delivery-top-adress i {
+    color: #0DB7EA;
+}
 
+/* --- LEFT SIDE --- */
+.delivery-content-left-khachle {
+    margin: 10px 0;
+}
 
+.delivery-content-left-khachle input {
+    margin-right: 8px;
+}
 
+.delivery-content-left-dangky {
+    margin-bottom: 20px;
+}
 
+.delivery-content-left-dangky input {
+    margin-right: 8px;
+}
 
+/* căn 2 ô input trên 1 hàng */
+.delivery-content-left-input-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.delivery-content-left-input-top-item {
+    width: calc(50% - 6px);
+}
+
+.delivery-content-left-input-top-item input,
+.delivery-content-left-input-bottom input {
+    width: 100%;
+    height: 36px;
+    border: 1px solid #dddddd;
+    padding-left: 8px;
+    font-size: 14px;
+}
+
+.delivery-content-left-input-bottom {
+    margin-bottom: 15px;
+}
+
+.delivery-content-left-button {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 15px;
+}
+
+.delivery-content-left-button p {
+    display: inline-block;
+    font-family: var(--main-text-font);
+    font-size: 12px;
+}
+
+.delivery-content-left-button span {
+    margin-right: 8px;
+}
+
+.delivery-content-left-button button {
+    height: 40px;
+    border: 2px solid black;
+    padding: 0 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    background-color: #fff;
+}
+
+.delivery-content-left-button button:hover {
+    background-color: black;
+    color: #fff;
+}
+
+/* --- RIGHT SIDE --- */
+.delivery-content-right {
+    width: 40%;
+    padding-left: 20px;
+    border-left: 2px solid #dddddd;
+    height: auto;
+}
+
+/* --- TABLE --- */
+.delivery-content-right table {
+    width: 100%;
+    font-family: var(--main-text-font);
+    font-size: 13px;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.delivery-content-right table tr th:first-child,
+.delivery-content-right table tr td:first-child {
+    text-align: left;
+}
+
+.delivery-content-right table tr th {
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dddddd;
+}
+
+.delivery-content-right table tr th:last-child,
+.delivery-content-right table tr td:last-child {
+    text-align: right;
+}
+
+.delivery-content-right table tr td {
+    padding: 8px 0;
+}
+
+.delivery-content-right table tr:nth-child(4) {
+    border-top: 2px solid #dddddd;
+}
+
+/* --- KHUNG CHUNG --- */
+.delivery-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-top: 40px; /* khoảng cách với menu */
+}
+
+/* --- TỔNG CHUNG --- */
+.delivery-content-left {
+    width: 58%;
+}
+
+.delivery-content-right {
+    width: 38%;
+}
+
+/* ----------------------Payment---------------------- */
+.payment {
+    padding: 100px 0;
+}
+
+.payment-top-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.payment-top {
+    height: 2px;
+    width: 70%;
+    background-color: #dddddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 50px 0 100px;
+}
+
+.payment-top-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #dddddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.payment-top-item i {
+    color: #dddddd;
+}
+
+.payment-top-payment {
+    border: 1px solid #0D87EA;
+}
+
+.payment-top-payment i {
+    color: #0D87EA;
+}
+
+.payment-content-left {
+    width: 60%;
+}
+
+.payment-content-right {
+    width: 40%;
+    border-left: 2px solid #ddd;
+    padding-left: 12px;
+}
+
+.payment-content-left p, .payment-content-left label {
+    font-size: 12px;
+    font-family: var(--main-text-font);
+}
+
+.payment-content-right-button {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px dashed #dddddd;
+}
+
+.payment-content-right-button input {
+    height: 30px;
+    width: 200px;
+    margin-right: 100px;
+    padding-left: 12px;
+}
+
+.payment-content-right-button button {
+    height: 30px;
+    width: 100px;
+    background-color:black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.payment-content-right-mnv {
+    margin-top: 20px;
+}
+
+.payment-content-right-mnv select {
+    height: 30px;
+    width: 100%;
+    color: #75578A;
+    padding-left: 12px;
+}
+
+.payment-content-right-payment {
+    margin-top: 50px;
+    align-items: center;
+    text-align: center;
+}
+
+.payment-content-right-payment button {
+    height: 35px;
+    padding: 0 20px;
+    font-size: 12px;
+    color: black;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+
+.payment-content-right-payment button:hover {
+    background-color: black;
+    color: #fff;
+}
+.payment-content-left-method-payment-item-img {
+    display: flex;              /* Hiển thị theo hàng ngang */
+    justify-content: flex-start;/* Căn bên trái */
+    align-items: center;        /* Căn giữa theo chiều cao */
+    gap: 15px;                  /* Khoảng cách giữa các logo */
+    margin: 5px 0;              /* Khoảng cách với phần trên */
+}
+
+.payment-content-left-method-payment-item-img img {
+    max-width: 60px;            /* Giới hạn kích thước logo */
+    height: auto;
+    object-fit: contain;
+}
