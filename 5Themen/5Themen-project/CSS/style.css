@@ -19,7 +19,7 @@ a {
 }
 .container {
     max-width: 1200px;
-    margin: auto;
+    margin: auto; 
 }
 .row {
     display: flex;
@@ -46,6 +46,7 @@ a {
 }
 .top-menu-items {
     flex: 3;
+    display: flex;
 }
 .top-menu-items > li {
     padding: 0 12px;
@@ -111,23 +112,23 @@ a {
     font-family: var(--main-text-font);
 }
 /*--top-menu-icons--*/
-.top.menu-icons {
+.top-menu-icons {
     flex: 1;
 }
-.top.menu-icons ul {
+.top-menu-icons ul {
+    display: flex;
+    height: 100%;
+}
+.top-menu-icons ul li {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 6px 12px;
 }
-.top.menu-icons ul li {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 6px 12px;
+.top-menu-icons ul li {
     position: relative;
 }
-.top.top.menu-icons ul li::before {
+.top-menu-icons ul li::before {
     position: absolute;
     content: "";
     display: block;
@@ -136,22 +137,22 @@ a {
     background-color: #333;
     right: 0;
 }
-.top.menu-icons ul li:last-child::before {
+.top-menu-icons ul li:last-child::before {
     display: none;
 }
-.top.menu-icons ul li:last-child input {
+.top-menu-icons ul li:first-child input {
     width: 150px;
     border: none;
     background-color: transparent;
     border-bottom: 1px solid #333;
     padding: 0 0 4px 6px;
 }
-.top.menu-icons ul li:first-child i {
+.top-menu-icons  ul  li:first-child i {
     position: absolute;
     font-size: 12px;
     right: 12px;
 }
-.top.menu-icons ul i {
+.top-menu-icons ul i {
     cursor: pointer;
 }
 /*-------------------Slider--------------------*/
@@ -184,17 +185,18 @@ a {
     align-items: center;
     text-align: center;
     justify-content: center;
+    margin-top: 6px;
 }
 .dot {
     height: 15px;
     width: 15px;
-    background-color: #cccccc;
+    background-color: #ccc;
     border-radius: 50%;
     margin-right: 12px;
     cursor: pointer;
 }
 .dot.active {
-    background-color: #333333;
+    background-color: #333;
 }
 /*----------------------------footer----------------------------*/
 .footer {
@@ -217,7 +219,7 @@ a {
     margin: 25px 0;
 }
 .appstore-googleplay img {
-    width: 200px;
+    width: 350px;
     cursor: pointer;
 }
 .input-email {
