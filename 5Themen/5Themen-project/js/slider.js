@@ -11,7 +11,7 @@ imgPosition.forEach(function(image,index){
     })
     
 })
-    function imgSlider(){
+function imgSlider(){
     index++;
     console.log(index)
     if (index>=imgNuber) {index=0}
