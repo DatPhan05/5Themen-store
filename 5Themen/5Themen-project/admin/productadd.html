@@ -1,95 +1,76 @@
-<?php
-require_once __DIR__ . "/header.php";
-require_once __DIR__ . "/slider.php";
-require_once __DIR__ . "/Class/product_class.php";
-require_once __DIR__ . "/Class/category_class.php";
-require_once __DIR__ . "/Class/brand_class.php";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Danh mục sản phẩm</title>
+</head>
+<body>
+    <header>
+        <h1>TOP</h1>
+    </header>
+    <section class="admin-content">
+        <div class="admin-content-left">
+            <ul>
+                <li><a href="#">Danh mục</a>
+                    <ul>
+                        <li><a href="">Thêm Danh mục</a></li>
+                        <li><a href="">Danh sách Danh mục</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Loại sản phẩm</a>
+                    <ul>
+                        <li><a href="">Thêm Loại sản phẩm</a></li>
+                        <li><a href="">Danh Loại sản phẩm</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Sản phẩm</a>
+                    <ul>
+                        <li><a href="">Thêm Sản phẩm</a></li>
+                        <li><a href="">Danh sách Sản phẩm</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="admin-content-right">
+            <div class="admin-content-right">
+         <div class="admin-content-right-product_add">
+           <h1>Thêm Sản Phẩm</h1>
+           <form action="" method="POST" enctype="multipart/form-data">
+               <label for="">Nhập tên sản phẩm <span style="color: red;">*</span></label>
+               <input type="text">
+               <label for="">Chọn danh mục <span style="color: red;">*</span></label>
+               <select name="id">
+                   <option value="#">--Chọn--</option>
+               </select>
+               <select name="id"></select>
+                  <label for="">Chọn loại sản phẩm <span style="color: red;">*</span></label>
+                  <option value="#">--Chọn--</option>
+               </select>
 
-$msg = "";
-$pd = new Product();
-$cat = new Category();
-$brand = new Brand();
+               <label for="">Giá sản phẩm <span style="color: red;">*</span></label>
+               <input type="text">
 
-$cat_list = $cat->show_category();
-$brand_list = $brand->show_brand();
+              <label for="">Giá khuyến mãi <span style="color: red;">*</span></label>
+              <input type="text">
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['product_name'] ?? '';
-    $desc = $_POST['product_desc'] ?? '';
-    $price = $_POST['product_price'] ?? '';
-    $discount = $_POST['product_discount'] ?? '';
-    $cat_id = $_POST['category_id'] ?? '';
-    $brand_id = $_POST['brand_id'] ?? '';
-    $image = $_FILES['product_img']['name'] ?? '';
+              <label for="">Mô tả sản phẩm <span style="color: red;">*</span></label>
+              <textarea name="" id="" cols="30" rows="10"></textarea>
 
-    if ($name && $cat_id && $brand_id) {
-        $upload_path = "uploads/" . basename($image);
-        move_uploaded_file($_FILES["product_img"]["tmp_name"], $upload_path);
-        $pd->insert_product($name, $cat_id, $brand_id, $price, $discount, $desc, $upload_path);
-        $msg = "✅ Đã thêm sản phẩm thành công!";
-    } else {
-        $msg = "⚠️ Vui lòng nhập đầy đủ thông tin!";
-    }
-}
-?>
+              <label for="">Ảnh mô tả sản phẩm <span style="color: red;">*</span></label>
+              <input type="file">
 
-<div class="admin-content-right">
-  <div class="admin-content-right-category_add">
-    <h1>Thêm sản phẩm</h1>
-    <?php if($msg) echo "<p style='color: red; font-weight: bold;'>$msg</p>"; ?>
-    <form action="" method="POST" enctype="multipart/form-data" style="font-size: 16px; line-height: 1.8;">
-      <table style="width: 100%; border-spacing: 10px;">
-        <tr>
-          <td><label>Tên sản phẩm:</label></td>
-          <td><input name="product_name" type="text" placeholder="Nhập tên sản phẩm" required></td>
-        </tr>
-        <tr>
-          <td><label>Danh mục:</label></td>
-          <td>
-            <select name="category_id" required>
-              <option value="">-- Chọn danh mục --</option>
-              <?php if($cat_list) while($c=$cat_list->fetch_assoc()){ ?>
-                <option value="<?= $c['category_id'] ?>"><?= htmlspecialchars($c['category_name']) ?></option>
-              <?php } ?>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td><label>Loại sản phẩm:</label></td>
-          <td>
-            <select name="brand_id" required>
-              <option value="">-- Chọn loại sản phẩm --</option>
-              <?php if($brand_list) while($b=$brand_list->fetch_assoc()){ ?>
-                <option value="<?= $b['brand_id'] ?>"><?= htmlspecialchars($b['brand_name']) ?></option>
-              <?php } ?>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td><label>Giá:</label></td>
-          <td><input name="product_price" type="number" min="0" placeholder="VD: 100000" required></td>
-        </tr>
-        <tr>
-          <td><label>Khuyến mãi:</label></td>
-          <td><input name="product_discount" type="number" min="0" placeholder="VD: 90000"></td>
-        </tr>
-        <tr>
-          <td><label>Mô tả:</label></td>
-          <td><textarea name="product_desc" rows="4" placeholder="Mô tả sản phẩm..."></textarea></td>
-        </tr>
-        <tr>
-          <td><label>Ảnh:</label></td>
-          <td><input type="file" name="product_img" accept="image/*"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td><button type="submit">Thêm</button></td>
-        </tr>
-      </table>
-    </form>
-  </div>
-</div>
+              <label for="">Ảnh mô tả sản phẩm <span style="color: red;">*</span></label>
+              <input multiple type="file">
 
-</section>
+              <button type="submit">Thêm</button>
+              </form>
+            </div>
+        </div>
+
+    </section>
+
 </body>
 </html>
