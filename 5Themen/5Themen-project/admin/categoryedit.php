@@ -8,7 +8,7 @@ $id  = (int)($_GET['category_id'] ?? 0);
 $row = $id ? $cg->get_category($id) : null;
 
 if (!$row) {
-    die("❌ Không tìm thấy danh mục.");
+    die(" Không tìm thấy danh mục.");
 }
 
 $msg = "";
