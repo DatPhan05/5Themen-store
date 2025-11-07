@@ -1,97 +1,72 @@
 <?php
-include "database.php";
-?>
-<?php
-class brand {
+require_once __DIR__ . '/../database.php';
+
+class Product {
     private $db;
-    public function __construct()
-    {
-        $this->db = new Database();
+    public function __construct() { 
+        $this->db = new Database(); 
+    }
+
+    // Thêm sản phẩm
+    public function insert_product($name, $category_id, $brand_id, $price, $sale_price, $desc, $thumb, $gallery = []){
+        $name = $this->db->escape($name);
+        $desc = $this->db->escape($desc);
+        $thumb = $this->db->escape($thumb);
+        $cid = (int)$category_id;
+        $bid = (int)$brand_id;
+        $price = (float)$price;
+        $sale = (float)$sale_price;
+
+        $query = "INSERT INTO tbl_product 
+                    (product_name, category_id, brand_id, product_price, product_sale, product_desc, product_img)
+                  VALUES 
+                    ('$name', $cid, $bid, $price, $sale, '$desc', '$thumb')";
+        return $this->db->insert($query);
+    }
+
+    // Hiển thị sản phẩm
+    public function show_product(){
+        $query = "SELECT p.product_id, p.product_name, p.product_price, p.product_sale, p.product_img,
+                         c.category_name, b.brand_name
+                  FROM tbl_product p
+                  JOIN tbl_category c ON p.category_id = c.category_id
+                  JOIN tbl_brand b ON p.brand_id = b.brand_id
+                  ORDER BY p.product_id DESC";
+        return $this->db->select($query);
+    }
+
+    // Lấy sản phẩm theo id
+    public function get_product($id){
+        $id = (int)$id;
+        $query = "SELECT * FROM tbl_product WHERE product_id = $id";
+        $rs = $this->db->select($query);
+        return $rs ? $rs->fetch_assoc() : null;
+    }
+
+    // Cập nhật sản phẩm
+    public function update_product($id, $name, $category_id, $brand_id, $price, $sale_price, $desc, $thumb = null){
+        $id = (int)$id;
+        $cid = (int)$category_id;
+        $bid = (int)$brand_id;
+        $price = (float)$price;
+        $sale = (float)$sale_price;
+        $name = $this->db->escape($name);
+        $desc = $this->db->escape($desc);
+
+        $setThumb = $thumb ? ", product_img = '".$this->db->escape($thumb)."'" : "";
+
+        $query = "UPDATE tbl_product 
+                  SET product_name = '$name', category_id = $cid, brand_id = $bid, 
+                      product_price = $price, product_sale = $sale, product_desc = '$desc' $setThumb
+                  WHERE product_id = $id";
+        return $this->db->update($query);
+    }
+
+    // Xóa sản phẩm
+    public function delete_product($id){
+        $id = (int)$id;
+        $query = "DELETE FROM tbl_product WHERE product_id = $id";
+        return $this->db->delete($query);
     }
 }
-public function show_cartegory(){
-    $query = "SELECT * FROM tbl_cartegory ORDER BY cartegory_id DESC";
-    $result = $this->db->select($query);
-    return $result;
-}
-
-public function show_brand(){
-    // $query = "SELECT * FROM tbl_brand ORDER BY brand_id DESC";
-    $query = "SELECT tbl_brand.*, tbl_cartegory.cartegory_name 
-              FROM tbl_brand INNER JOIN tbl_cartegory ON tbl_brand.cartegory_id = tbl_cartegory.cartegory_id
-              ORDER BY tbl_brand.brand_id DESC";
-    $result = $this->db->select($query);
-    return $result;
-}
-public function show_brand_ajax($cartegory_id) {
-    $query = "SELECT * FROM tbl_brand WHERE cartegory_id = '$cartegory_id'";
-    $result = $this->db->select($query);
-    return $result;
-}
-public function insert_product(){
-    $product_name = $_POST['product_name'];
-    $cartegory_id = $_POST['cartegory_id'];
-    $brand_id = $_POST['brand_id'];
-    $product_price = $_POST['product_price'];
-    $product_price_new = $_POST['product_price_new'];
-    $product_desc = $_POST['product_desc'];
-    $product_img = $_FILES['product_img']['name'];
-    $filetarget = basename($_FILES['product_img']['name']);
-    $filetype = strtolower(pathinfo($product_img, PATHINFO_EXTENSION));
-    $filesize = $_FILES['product_img']['size'];
-    if (file_exists("uploads/".$filetarget)) {
-        $alert = " File đã tồn tại";
-        return $alert;
-    }
-    else {
-        if($filetype != "jpg" && $filetype != "png" && $filetype != "jpeg") {
-            $alert = " Chỉ chọn file jpg, png, jpeg ";
-            return $alert;
-        }
-        else (
-            if ($filesize > 1000000){
-                $alert = " File không được lớn hơn 1MB ";
-                return $alert;
-            }
-            else {
-                move_uploaded_file($_FILES['product_img']['tmp_name'], "uploads/".$_FILES['product_img']['name']);
-                $query = "INSERT INTO tbl_product (
-                product_name,
-                cartegory_id,
-                brand_id,
-                product_price,
-                product_price_new,
-                product_desc,
-                product_img)
-                VALUES (
-                '$product_name',
-                '$cartegory_id',
-                '$brand_id',
-                '$product_price',
-                '$product_price_new',
-                '$product_desc',
-                '$product_img')";
-                $result = $this->db->insert($query);
-                if($result){
-                    $query = "SELECT * FROM tbl_product ORDER BY product_id DESC LIMIT 1";
-                    $result = $this->db->select($query)->fetch_assoc();
-                    $product_di = $result['product_id'];
-                    $filename = $_FILES['product_img_desc']['name'];
-                    $filetmp = $_FILES['product_img_desc']['tmp_name'];
-
-                    foreach ($filename as $key => $value) {
-                        move_uploaded_file( $filetmp[$key], "uploads/".$value);
-                        $query = "INSERT INTO tbl_product_img_desc (product_id, product_img_desc) VALUES ('$product_di', '$value')";
-                        $result = $this->db->insert($query);
-                    }
-                }
-            }
-            
-
-        )
-       
-    }
-    
-    //header('Location:brandlist.php');
-    return $result;
-}
+?>
