@@ -25,7 +25,7 @@ class Brand {
         FROM tbl_brand AS b
         LEFT JOIN tbl_category AS c 
             ON b.category_id = c.category_id
-        ORDER BY b.brand_id DESC
+        ORDER BY b.brand_id ASC
     ";
     return $this->db->select($query);
 }
