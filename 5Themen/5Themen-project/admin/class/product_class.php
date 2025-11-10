@@ -31,7 +31,7 @@ class Product {
                   FROM tbl_product p
                   JOIN tbl_category c ON p.category_id = c.category_id
                   JOIN tbl_brand b ON p.brand_id = b.brand_id
-                  ORDER BY p.product_id DESC";
+                  ORDER BY p.product_id ASC";
         return $this->db->select($query);
     }
 

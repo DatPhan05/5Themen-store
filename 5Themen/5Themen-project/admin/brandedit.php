@@ -9,7 +9,7 @@ $id = (int)($_GET['brand_id'] ?? 0);
 $brand = new Brand();
 $row   = $brand->get_brand($id);
 if (!$row) {
-    die("❌ Không tìm thấy loại sản phẩm.");
+    die(" Không tìm thấy loại sản phẩm.");
 }
 
 $cg    = new category();

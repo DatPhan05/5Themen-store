@@ -17,7 +17,7 @@ class Category {
 
     // Hiển thị tất cả danh mục
     public function show_category(){
-        $query = "SELECT * FROM tbl_category ORDER BY category_id DESC";
+        $query = "SELECT * FROM tbl_category ORDER BY category_id ASC";
         return $this->db->select($query);
     }
 
