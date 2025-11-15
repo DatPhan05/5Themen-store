@@ -22,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $thumb = $_FILES['product_img']['name'] ?? '';
 
     if ($name && $cid && $bid) {
-        $upload_dir = "uploads/";
+        $upload_dir = "/uploads/";
         if (!is_dir($upload_dir)) mkdir($upload_dir);
-
-        $target_file = $upload_dir . basename($thumb);
+// Upload ảnh
+        $target_file = "/uploads/" . basename($thumb);
         move_uploaded_file($_FILES['product_img']['tmp_name'], $target_file);
 
         (new Product())->insert_product($name, $cid, $bid, $price, $sale, $desc, $target_file);

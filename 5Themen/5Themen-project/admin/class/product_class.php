@@ -68,5 +68,31 @@ class Product {
         $query = "DELETE FROM tbl_product WHERE product_id = $id";
         return $this->db->delete($query);
     }
+    // Lấy sản phẩm theo category_id
+public function get_product_by_category($category_id) {
+    $cid = (int)$category_id;
+    $query = "
+        SELECT p.*, c.category_name, b.brand_name
+        FROM tbl_product AS p
+        INNER JOIN tbl_category AS c ON p.category_id = c.category_id
+        LEFT JOIN tbl_brand AS b ON p.brand_id = b.brand_id
+        WHERE p.category_id = $cid
+        ORDER BY p.product_id DESC
+    ";
+    return $this->db->select($query);
+}
+
+// Lấy tất cả sản phẩm
+public function get_all_products() {
+    $query = "
+        SELECT p.*, c.category_name, b.brand_name
+        FROM tbl_product AS p
+        INNER JOIN tbl_category AS c ON p.category_id = c.category_id
+        LEFT JOIN tbl_brand AS b ON p.brand_id = b.brand_id
+        ORDER BY p.product_id DESC
+    ";
+    return $this->db->select($query);
+}
+
 }
 ?>
