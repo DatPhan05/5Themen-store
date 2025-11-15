@@ -25,136 +25,102 @@ a {
     display: flex;
     flex-wrap: wrap;
 }
+
+/* =========================================
+   NEW HEADER (Luxury – Ivy Moda Style)
+   ========================================= */
 .top {
-    padding: 12px 0;
-    align-items: center;
-    display: block;
+    width: 100%;
     position: fixed;
-    width: 100%;
+    padding: 16px 0;
+    top: 0;
     z-index: 999;
-    background-color: rgba(255, 255, 255, 0.3);
-    transition: all 0.3 ease;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(12px);
+    transition: .3s;
 }
+
+.top:hover,
 .top.active {
-    background-color: rgba(255, 255, 255, 1);
+    background: #fff;
 }
-.top:hover {
-    background-color: rgba(255, 255, 255, 1);
+
+.top-logo img {
+    width: 150px;
+    object-fit: contain;
 }
-.top-logo {
-    flex: 1;
-}
-.top-menu-items {
-    flex: 3;
+
+/* Flex header */
+.header-flex {
     display: flex;
-}
-.top-menu-items > li {
-    padding: 0 12px;
-}
-.top-menu-items > ul {
-    height: 100%;
-    display: flex;
-}
-.top-menu-items > ul > li {
-    font-family: var(--main-text-font);
-    padding: 0 12px;
-    height: 100%;
-    display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    font-size: 12px;
-    text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
 }
-.top-menu-item ul li::before {
-    position: relative;
-    content: "";
-    display: block;
-    width: 100%;
-    height: 50px;
-    bottom: -50%;    
-}
-.top-menu-item ul li::nth-child(4) {
-    color: red;
-}
-.top-menu-item ul li::nth-child(5) {
-    color: red;
-}
-.top-menu-item {
-    position: absolute;
-    width: 200px;
-    top: 100px;
-    display: none;
-    opacity: 0;
-    transition: all 0.5s ease;
-    background-color: #ffff;
-    height: auto!important;
-    padding: 6px;
-    border: 1px solid #dddddd;
-}
-.top-menu-items ul li:hover .top-menu-item {
-    display: block;
-    top: 60px;
-    opacity: 1;
-}
-.top-menu-item li {
-    line-height: 25px;
+
+/* MENU */
+.top-menu-items ul {
     display: flex;
-    justify-content: left!important;
+    gap: 32px;
 }
-.top-menu-item li a {
-    font-size: 12px;
-    text-align: left;
-    text-transform: capitalize;
-    color: #333;
+
+.top-menu-items ul li a {
     font-family: var(--main-text-font);
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #333;
+    font-weight: 500;
+    letter-spacing: .5px;
+    transition: .2s;
 }
-/*--top-menu-icons--*/
-.top-menu-icons {
-    flex: 1;
+
+.top-menu-items ul li a:hover {
+    padding-bottom: 4px;
+    border-bottom: 2px solid #000;
 }
+
+/* ICONS */
 .top-menu-icons ul {
     display: flex;
-    height: 100%;
-}
-.top-menu-icons ul li {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 6px 12px;
+    gap: 25px;
 }
-.top-menu-icons ul li {
+
+/* SEARCH BOX */
+.search-box {
     position: relative;
 }
-.top-menu-icons ul li::before {
-    position: absolute;
-    content: "";
-    display: block;
-    width: 1px;
-    height: 15px;
-    background-color: #333;
-    right: 0;
-}
-.top-menu-icons ul li:last-child::before {
-    display: none;
-}
-.top-menu-icons ul li:first-child input {
-    width: 150px;
+
+.search-box input {
+    width: 160px;
+    padding: 5px 25px 5px 6px;
     border: none;
-    background-color: transparent;
-    border-bottom: 1px solid #333;
-    padding: 0 0 4px 6px;
+    border-bottom: 1px solid #444;
+    background: transparent;
 }
-.top-menu-icons  ul  li:first-child i {
+
+.search-box i {
     position: absolute;
-    font-size: 12px;
-    right: 12px;
+    right: 4px;
+    top: 4px;
+    color: #444;
+    font-size: 14px;
 }
-.top-menu-icons ul i {
+
+/* ICONS STYLE */
+.top-menu-icons i {
+    font-size: 18px;
     cursor: pointer;
+    color: #333;
+    transition: .2s;
 }
+
+.top-menu-icons i:hover {
+    color: #000;
+}
+
+
+
+
 /*-------------------Slider--------------------*/
 #Slider {
     padding-bottom: 20px;
@@ -868,13 +834,342 @@ a {
     height: auto;
     object-fit: contain;
 }
+/* ================= AUTH (LOGIN / REGISTER) ================= */
+
+.auth {
+    padding: 140px 0 80px; /* 140 để không bị header fixed che mất */
+    background-color: #f9f9f9;
+}
+
+.auth-title {
+    text-align: center;
+    font-family: var(--main-text-font);
+    font-size: 26px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+.auth-card {
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    border-radius: 4px;
+    padding: 30px;
+}
+
+/* LOGIN: 2 cột */
+.auth-card-login {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+}
+
+/* REGISTER: 1 khối to – dùng cho register.php */
+.auth-card-register {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.auth-col h2 {
+    font-family: var(--main-text-font);
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.auth-col p {
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.auth-form {
+    width: 100%;
+}
+
+.auth-field {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--main-text-font);
+    font-size: 13px;
+}
+
+.auth-field label {
+    margin-bottom: 5px;
+}
+
+.auth-field label span {
+    color: red;
+}
+
+.auth-field input {
+    height: 36px;
+    border: 1px solid #ddd;
+    padding: 0 10px;
+    font-size: 13px;
+}
+
+.auth-remember {
+    margin: 10px 0 20px;
+    font-size: 13px;
+    font-family: var(--main-text-font);
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 10px 26px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    font-size: 13px;
+    font-family: var(--main-text-font);
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.btn-primary:hover {
+    background-color: #333;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.auth-col-right {
+    border-left: 1px solid #eee;
+    padding-left: 30px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .auth-card-login {
+        grid-template-columns: 1fr;
+    }
+    .auth-col-right {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid #eee;
+        margin-top: 25px;
+        padding-top: 20px;
+    }
+    .auth {
+        padding-top: 120px;
+    }
+}
+/* TRANG CHU*/
+ .user-menu {
+            position: relative;
+        }
+        .dropdown-user {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            width: 150px;
+            list-style: none;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 99999;
+        }
+        .dropdown-user li {
+            padding: 8px 5px;
+        }
+        .dropdown-user li a {
+            color: #000;
+            font-size: 14px;
+        }
+        .dropdown-user li:hover {
+            background: #f3f3f3;
+        }
+
+        /* FIX HEADER LỆCH */
+        .header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-menu-items ul {
+            display: flex;
+            gap: 25px;
+        }
+
+        .top-menu-icons ul {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            border: none;
+            border-bottom: 1px solid #555;
+            padding: 5px;
+            outline: none;
+        }
 
 
+/*megamenu*/
+.mega-menu {
+    width: 100%;
+    background: #fff;
+    padding: 30px 50px;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    z-index: 999;
+}
 
+.mega-menu.show {
+    display: block;
+}
 
+.mega-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
 
+.mega-title {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
 
+.mega-content a {
+    display: block;
+    padding: 6px 0;
+    color: #333;
+    font-size: 14px;
+}
 
+.menu-item:hover a {
+    color: #C40012;
+}
+/* ===== CATEGORY PAGE ===== */
+
+.category-page {
+    padding: 130px 0 80px;
+    background: #fafafa;
+}
+
+.breadcrumb {
+    font-size: 14px;
+    margin-bottom: 25px;
+    color: #666;
+}
+
+.breadcrumb a {
+    color: #444;
+}
+
+.category-layout {
+    display: grid;
+    grid-template-columns: 220px auto;
+    gap: 35px;
+}
+
+/* Sidebar */
+.category-sidebar h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.category-sidebar ul {
+    list-style: none;
+}
+
+.category-sidebar ul li {
+    margin-bottom: 14px;
+}
+
+.category-sidebar ul li a {
+    color: #333;
+    font-size: 15px;
+}
+
+.category-sidebar ul li a:hover {
+    color: #000;
+    font-weight: bold;
+}
+
+/* Right side */
+.category-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+}
+
+.product-item {
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.05);
+    transition: .25s;
+}
+
+.product-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+.product-item img {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.product-name {
+    font-size: 15px;
+    margin: 10px 0;
+}
+
+.price {
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.btn-buy {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-buy:hover {
+    background: #333;
+}
+/* BUTTON ADD TO CART */
+.btn-add-cart {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: .2s;
+    text-transform: uppercase;
+}
+
+.btn-add-cart:hover {
+    background: #333;
+}
 
 
 
