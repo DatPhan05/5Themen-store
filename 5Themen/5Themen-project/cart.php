@@ -134,7 +134,7 @@ if (isset($_GET["delete"])) {
 
                 <div class="cart-content-right-button">
                     <button onclick="window.location='trangchu.php'">TIẾP TỤC MUA SẮM</button>
-                    <button onclick="window.location='thanhtoan.php'">THANH TOÁN</button>
+                    <button onclick="window.location='giaohang.php'">THANH TOÁN</button>
                 </div>
             </div>
 

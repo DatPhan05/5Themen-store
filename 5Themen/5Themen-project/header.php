@@ -28,8 +28,6 @@
                 <nav class="top-menu-items">
                     <ul>
                         <li class="menu-item" data-menu="nam"><a href="category.php?type=nam">NAM</a></li>
-                        <li class="menu-item" data-menu="nu"><a href="category.php?type=nu">NỮ</a></li>
-                        <li class="menu-item" data-menu="tre-em"><a href="category.php?type=tre-em">TRẺ EM</a></li>
                         <li class="menu-item" data-menu="sale"><a href="category.php?type=sale">SALE</a></li>
                         <li class="menu-item" data-menu="bst"><a href="category.php?type=bo-suu-tap">BỘ SƯU TẬP</a></li>
                         <li><a href="#">THÔNG TIN</a></li>
@@ -50,7 +48,7 @@
                         </li>
 
                         <li><a href="login.php"><i class="fas fa-user"></i></a></li>
-                        <li><a href="giohang.php"><i class="fas fa-shopping-cart"></i></a></li>
+                        <li><a href="cart.php"><i class="fas fa-shopping-cart"></i></a></li>
                     </ul>
                 </div>
 

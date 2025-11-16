@@ -9,7 +9,7 @@ class Database {
     }
 
     private function connectDB() {
-        $this->link = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        $this->link = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME,port:3307);
         if ($this->link->connect_errno) {
             die(" Kết nối CSDL thất bại: " . $this->link->connect_error);
         }
