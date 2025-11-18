@@ -1,49 +1,36 @@
-const megaData = {
-    "nam": [
-        { title: "Áo Nam", items: ["Áo thun", "Áo polo", "Áo sơ mi", "Áo khoác"] },
-        { title: "Quần Nam", items: ["Quần jeans", "Quần tây", "Quần short"] },
-        { title: "Giày dép", items: ["Giày thể thao", "Dép sandal"] }
-    ],
-    "nu": [
-        { title: "Áo Nữ", items: ["Áo kiểu", "Áo thun", "Áo sơ mi", "Áo polo"] },
-        { title: "Đầm", items: ["Đầm suông", "Đầm dự tiệc", "Đầm công sở"] },
-        { title: "Chân váy", items: ["Váy chữ A", "Váy dài", "Váy ôm"] }
-    ],
-    "tre-em": [
-        { title: "Áo Trẻ Em", items: ["Áo bé trai", "Áo bé gái", "Áo thun", "Áo sơ mi"] },
-        { title: "Quần Trẻ Em", items: ["Quần jean", "Quần kaki", "Quần short"] }
-    ],
-    "sale": [
-        { title: "SALE HOT", items: ["Dưới 100k", "100-200k", "200-300k"] },
-        { title: "Flash Sale", items: ["24h", "Giảm sâu 70%"] }
-    ],
-    "bst": [
-        { title: "Bộ sưu tập mới", items: ["Thu Đông", "Xuân Hè"] },
-        { title: "Limited Edition", items: ["IVY Signature", "Design Premium"] }
-    ]
-};
+document.addEventListener("DOMContentLoaded", function () {
 
-const megaMenu = document.getElementById("mega-menu");
-const megaContent = document.getElementById("mega-content");
+    const menuItems = document.querySelectorAll(".menu-item");
+    let hideTimer;
 
-document.querySelectorAll(".menu-item").forEach(item => {
-    item.addEventListener("mouseenter", () => {
-        const key = item.dataset.menu;
-        const data = megaData[key];
+    menuItems.forEach(item => {
 
-        let html = "";
-        data.forEach(col => {
-            html += `<div>
-                        <div class="mega-title">${col.title}</div>
-                        ${col.items.map(i => `<a href="#">${i}</a>`).join("")}
-                    </div>`;
+        const mega = item.querySelector(".mega-menu");
+
+        if (!mega) return;
+
+        // Hover vào menu cha → hiện
+        item.addEventListener("mouseenter", () => {
+            clearTimeout(hideTimer);
+            mega.style.display = "block";
         });
 
-        megaContent.innerHTML = html;
-        megaMenu.classList.add("show");
-    });
-});
+        // Rời menu cha → ẩn
+        item.addEventListener("mouseleave", () => {
+            hideTimer = setTimeout(() => mega.style.display = "none", 150);
+        });
 
-document.querySelector("header").addEventListener("mouseleave", () => {
-    megaMenu.classList.remove("show");
+        // Nếu rê chuột vào mega menu → vẫn hiện
+        mega.addEventListener("mouseenter", () => {
+            clearTimeout(hideTimer);
+            mega.style.display = "block";
+        });
+
+        // Rời khỏi mega menu → ẩn
+        mega.addEventListener("mouseleave", () => {
+            hideTimer = setTimeout(() => mega.style.display = "none", 150);
+        });
+
+    });
+
 });

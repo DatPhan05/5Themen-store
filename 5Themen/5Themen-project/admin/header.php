@@ -8,6 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>TRANG QUẢN TRỊ</h1>
+    <h1><a href="admin_home.php" style="color:white;text-decoration:none;">TRANG QUẢN TRỊ</a></h1>
+
   </header>
   <section class="admin-content">

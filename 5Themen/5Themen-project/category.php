@@ -1,106 +1,184 @@
-<?php 
+<?php
 include "header.php";
 
 require_once __DIR__ . "/admin/class/product_class.php";
 require_once __DIR__ . "/admin/class/category_class.php";
+require_once __DIR__ . "/admin/class/brand_class.php";
 
 $productModel  = new Product();
 $categoryModel = new Category();
+$brandModel    = new Brand();
 
 /* =============================
-    1. Mapping type → category_id
+   1. Lấy ID từ URL
 ============================= */
-$categoryMap = [
-    'nam'        => 7,
-    'nu'         => 8,
-    'tre-em'     => 9,
-    'sale'       => 10,
-    'bo-suu-tap' => 11
-];
+$catId   = isset($_GET['cat'])   ? (int)$_GET['cat']   : 0;
+$brandId = isset($_GET['brand']) ? (int)$_GET['brand'] : 0;
 
 /* =============================
-    2. Mapping type → tiêu đề
+   2. Lấy thông tin danh mục / brand
 ============================= */
-$titleMap = [
-    'nam'        => 'Thời trang Nam',
-    'nu'         => 'Thời trang Nữ',
-    'tre-em'     => 'Thời trang Trẻ Em',
-    'sale'       => 'Khuyến mãi',
-    'bo-suu-tap' => 'Bộ sưu tập'
-];
+$categoryInfo = null;
+$brandInfo    = null;
+$pageTitle    = "Tất cả sản phẩm";
 
-$type = $_GET['type'] ?? 'all';
+if ($catId > 0) {
+    $categoryInfo = $categoryModel->get_category($catId);
+}
 
-$categoryId = $categoryMap[$type] ?? null;
-$title      = $titleMap[$type] ?? "Tất cả sản phẩm";
+if ($brandId > 0) {
+    $brandInfo = $brandModel->get_brand($brandId);
+}
+
+$categoryName = $categoryInfo ? $categoryInfo['category_name'] : "";
 
 /* =============================
-    3. Lấy sản phẩm từ Database
+   3. Lấy danh sách brand trong danh mục
 ============================= */
-if ($categoryId) {
-    $productList = $productModel->get_product_by_category($categoryId);
+$brandList = ($catId > 0) ? $brandModel->get_brand_by_category($catId) : null;
+
+/* =============================
+   4. Lấy sản phẩm theo điều kiện
+============================= */
+if ($catId > 0 && $brandId > 0 && $brandInfo) {
+    // Lọc theo danh mục + loại sản phẩm
+    $productList = $productModel->get_product_by_category_brand($catId, $brandId);
+    $pageTitle   = $categoryName . " – " . $brandInfo['brand_name'];
+} elseif ($catId > 0) {
+    // Lọc theo danh mục
+    $productList = $productModel->get_product_by_category($catId);
+    $pageTitle   = $categoryName ?: $pageTitle;
 } else {
+    // Xem tất cả sản phẩm
     $productList = $productModel->get_all_products();
+}
+
+/* =============================
+   5. Breadcrumb dùng component chung
+============================= */
+$breadcrumbs = [
+    ['text' => 'Trang chủ', 'url' => 'trangchu.php'],
+];
+
+if ($catId && $categoryName) {
+    if ($brandId && $brandInfo) {
+        // Trang chủ / Áo Nam / Áo thun
+        $breadcrumbs[] = [
+            'text' => $categoryName,
+            'url'  => 'category.php?cat=' . $catId,
+        ];
+        $breadcrumbs[] = ['text' => $brandInfo['brand_name']];
+    } else {
+        // Trang chủ / Áo Nam
+        $breadcrumbs[] = ['text' => $categoryName];
+    }
+} else {
+    // Trang chủ / Tất cả sản phẩm
+    $breadcrumbs[] = ['text' => $pageTitle];
 }
 ?>
 
 <section class="category-page">
     <div class="container">
 
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb">
-            <a href="trangchu.php">Trang chủ</a> /
-            <?php echo $title; ?>
-        </div>
+        <!-- BREADCRUMB COMPONENT -->
+        <?php include 'breadcrumb.php'; ?>
 
-        <div class="category-products" style="width:100%;">
-
-
-            
-
-            <!-- PRODUCT LIST -->
+        <div class="category-layout">
+            <!-- KHỐI SẢN PHẨM -->
             <div class="category-products">
 
-                <h2 class="category-title"><?php echo $title; ?></h2>
+                <h1 class="category-title">
+                    <?= htmlspecialchars($pageTitle) ?>
+                </h1>
 
-                <div class="product-grid">
-
-                    <?php 
-                    if ($productList && $productList->num_rows > 0):
-                        while ($row = $productList->fetch_assoc()):
-                    ?>
-                        <div class="product-item">
-
-                            <!-- Ảnh sản phẩm -->
-                            <img src="<?php echo $row['product_img']; ?>" alt="" />
-
-                            <!-- Tên -->
-                            <h3 class="product-name">
-                                <?php echo htmlspecialchars($row['product_name']); ?>
-                            </h3>
-
-                            <!-- Giá -->
-                            <p class="price">
-                                <?php echo number_format($row['product_price'], 0, ',', '.'); ?>đ
-                            </p>
-
-                            <!-- Nút thêm giỏ -->
-                            <a href="cart.php?action=add&id=<?php echo $row['product_id']; ?>" class="btn-buy">
-                                Thêm vào giỏ
+                <!-- HÀNG FILTER LOẠI SẢN PHẨM THEO BRAND -->
+                <?php if ($brandList && $brandList->num_rows > 0 && $catId): ?>
+                    <div class="category-filter">
+                        <?php while ($b = $brandList->fetch_assoc()): ?>
+                            <a
+                                class="filter-pill <?= ($brandId == $b['brand_id']) ? 'active' : '' ?>"
+                                href="category.php?cat=<?= $catId ?>&brand=<?= (int)$b['brand_id'] ?>"
+                            >
+                                <?= htmlspecialchars($b['brand_name']) ?>
                             </a>
+                        <?php endwhile; ?>
+                    </div>
+                <?php endif; ?>
 
-                        </div>
-                    <?php 
-                        endwhile;
-                    else:
-                        echo "<p>Chưa có sản phẩm nào</p>";
-                    endif;
-                    ?>
+                <!-- GRID SẢN PHẨM -->
+                <div class="product-grid">
+                    <?php if ($productList && $productList->num_rows > 0): ?>
+                        <?php while ($row = $productList->fetch_assoc()): ?>
+                            <div class="product-item">
 
+                                <!-- Khối media: ảnh + nút hover -->
+                                <div class="product-media">
+                                    <!-- Ảnh sản phẩm (khung vuông cố định) -->
+                                    <a href="product_detail.php?id=<?= (int)$row['product_id'] ?>" class="product-thumb">
+                                        <img
+                                            src="<?= htmlspecialchars($row['product_img']) ?>"
+                                            alt="<?= htmlspecialchars($row['product_name']) ?>"
+                                        >
+                                    </a>
+
+                                    <!-- Nút hover: Thêm giỏ + Xem nhanh -->
+                                    <div class="product-hover-actions">
+                                        <div class="product-hover-actions-inner">
+                                            <a
+                                                href="cart.php?action=add&id=<?= (int)$row['product_id'] ?>"
+                                                class="hover-btn"
+                                                title="Thêm vào giỏ"
+                                            >
+                                                <i class="fa-solid fa-cart-shopping"></i>
+                                            </a>
+                                            <a
+                                                href="product_detail.php?id=<?= (int)$row['product_id'] ?>"
+                                                class="hover-btn"
+                                                title="Xem chi tiết"
+                                            >
+                                                <i class="fa-regular fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin: tên + giá -->
+                                <div class="product-info">
+                                    <h3 class="product-name">
+                                        <a href="product_detail.php?id=<?= (int)$row['product_id'] ?>">
+                                            <?= htmlspecialchars($row['product_name']) ?>
+                                        </a>
+                                    </h3>
+
+                                    <p class="product-price">
+                                        <?= number_format($row['product_price'], 0, ',', '.') ?>đ
+                                    </p>
+                                </div>
+
+                                <!-- Ô màu / biến thể (demo: 1 ô dùng lại ảnh chính) -->
+                                <div class="product-extra">
+                                    <div class="product-color-list">
+                                        <div class="product-color">
+                                            <img
+                                                src="<?= htmlspecialchars($row['product_img']) ?>"
+                                                alt="<?= htmlspecialchars($row['product_name']) ?>"
+                                            >
+                                        </div>
+                                        <!-- Sau này nếu có nhiều màu, bạn lặp thêm nhiều .product-color ở đây -->
+                                    </div>
+                                </div>
+
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <p>Không có sản phẩm nào.</p>
+                    <?php endif; ?>
                 </div>
 
             </div>
         </div>
+
     </div>
 </section>
 

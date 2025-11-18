@@ -1,6 +1,5 @@
 <?php 
 session_start();
-include "header.php";
 
 require_once __DIR__ . "/admin/class/product_class.php";
 $productModel = new Product();
@@ -35,18 +34,29 @@ if (isset($_GET['action']) && $_GET['action'] === "add") {
         }
     }
 
-    header("Location: cart.php");
+    header("Location: giohang.php");
     exit;
 }
 
 /* ================== XÓA SẢN PHẨM TRONG GIỎ ================== */
 if (isset($_GET["delete"])) {
     $id = (int)$_GET["delete"];
-    unset($_SESSION["cart"][$id]);
-    header("Location: cart.php");
+    if (isset($_SESSION["cart"][$id])) {
+        unset($_SESSION["cart"][$id]);
+    }
+    header("Location: giohang.php");
     exit;
 }
 
+/* ================== SAU KHI XỬ LÝ XONG MỚI LOAD GIAO DIỆN ================== */
+include "header.php";      // GIỮ 1 LẦN DUY NHẤT
+
+/* BREADCRUMB CHO TRANG GIỎ HÀNG */
+$breadcrumbItems = [
+    ['label' => 'Trang chủ', 'url' => 'trangchu.php'],
+    ['label' => 'Giỏ hàng',  'url' => '']
+];
+include "breadcrumb.php";
 ?>
 
 <section class="cart">
@@ -77,27 +87,33 @@ if (isset($_GET["delete"])) {
                     </tr>
 
                     <?php 
-                    if(!empty($_SESSION['cart'])):
+                    if (!empty($_SESSION['cart'])):
                         foreach($_SESSION['cart'] as $key => $item):
                     ?>
                     <tr>
-                        <td><img src="<?= $item['image'] ?>" width="100"></td>
-                        <td><?= $item['name'] ?></td>
+                        <td><img src="<?= htmlspecialchars($item['image']) ?>" width="100"></td>
+                        <td><?= htmlspecialchars($item['name']) ?></td>
 
                         <!-- màu tạm thời (chưa có hệ thống màu thật) -->
-                        <td><?= $item['color'] ?: "<div style='width:20px;height:20px;background:#000;border-radius:50%;margin:auto'></div>" ?></td>
+                        <td>
+                            <?php if ($item['color']): ?>
+                                <?= htmlspecialchars($item['color']) ?>
+                            <?php else: ?>
+                                <div style="width:20px;height:20px;background:#000;border-radius:50%;margin:auto"></div>
+                            <?php endif; ?>
+                        </td>
 
                         <!-- size -->
-                        <td><?= $item['size'] ?></td>
+                        <td><?= htmlspecialchars($item['size']) ?></td>
 
                         <!-- SL -->
-                        <td><?= $item['qty'] ?></td>
+                        <td><?= (int)$item['qty'] ?></td>
 
                         <!-- Thành tiền -->
                         <td><?= number_format($item['price'] * $item['qty']) ?>đ</td>
 
                         <!-- Xóa -->
-                        <td><a href="cart.php?delete=<?= $key ?>">X</a></td>
+                        <td><a href="giohang.php?delete=<?= (int)$key ?>">X</a></td>
                     </tr>
 
                     <?php 

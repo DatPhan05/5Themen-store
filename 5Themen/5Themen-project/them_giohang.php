@@ -18,5 +18,5 @@ $_SESSION['cart'][$id] = [
     "qty"   => $qty
 ];
 
-header("Location: cart.php");
+header("Location: giohang.php");
 exit;

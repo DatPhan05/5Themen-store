@@ -1,39 +1,59 @@
-<section class="footer">
+<footer class="footer-5themen">
     <div class="footer-container">
-        <p>Tải ứng dụng 5Themen</p>
-        <div class="appstore-googleplay">
-            <a href=""><img src="images/appstore-googleplay.png" alt=""></a>
-        </div>
-        <p>Nhận bản tin 5Themen</p>
-        <div class="input-email">
-            <input type="text" placeholder="Nhập email của bạn...">
-            <i class="fas fa-arrow-left"></i>
-        </div>
-        <div class="footer-items">
-            <li><a href=""><img src="images/dathongbao.png" alt=""></a></li>
-            <li><a href="">Liên hệ</a></li>
-            <li><a href="">Tuyển dụng</a></li>
-            <li><a href="">Giới thiệu</a></li>
-            <li>
-                <a href=""><i class="fab fa-facebook-f"></i></a>
-                <a href=""><i class="fab fa-twitter"></i></a>
-                <a href=""><i class="fab fa-youtube"></i></a>
-            </li>
-        </div>
-        <div class="footer-text">
-            <p>
-                Công ty cổ phần 5Themen với số đăng ký kinh doanh: 0123456789 <br>
-                Địa chỉ đăng ký: Số 70 Tô Ký, phường Tân Chánh hiệp, quận 12,
-                Thành phố Hồ Chí Minh, Việt Nam - 0123 6789 6789 <br>
-                Đặt hàng online : <b>0876 419 291</b>.
-            </p>
-        </div>
-        <div class="footer-bottom">
-            @5Themen All rights reserved
-        </div>
-    </div>
-</section>
 
-<script src="js/megamenu.js"></script>
-</body>
-</html>
+        <div class="footer-row">
+
+            <!-- Cột 1 -->
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="5Themen">
+                </div>
+
+                <ul class="footer-info">
+                    <li><i class="fa fa-phone"></i><a href="tel:0876419291">0876 419 291</a></li>
+                    <li><i class="fa fa-envelope"></i><a href="mailto:contact@5themen.com">contact@5themen.com</a></li>
+                    <li><i class="fa fa-map-marker"></i>70 Tô Ký, Q.12, TP.HCM</li>
+                </ul>
+
+                <h4>Kết nối với chúng tôi</h4>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <!-- Cột 2 -->
+            <div class="footer-col">
+                <h4>Hỗ trợ khách hàng</h4>
+                <ul class="footer-links">
+                    <li><a href="#">5 trai đẹp tư vấn nhiệt tình</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Giao hàng nhanh nhất có thể</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                </ul>
+            </div>
+
+            <!-- Cột 3 -->
+            <div class="footer-col">
+                <h4>Fanpage chúng tôi</h4>
+                <div class="footer-fanpage">
+                    <img src="images/fanpage.jpg" alt="Fanpage">
+                </div>
+
+                <h4>Phương thức thanh toán</h4>
+                <div class="payment-methods">
+                    <img src="images/vnpay.png" alt="">
+                    <img src="images/cod.png" alt="">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            © 2025 5Themen. All rights reserved.
+        </div>
+
+    </div>
+</footer>
