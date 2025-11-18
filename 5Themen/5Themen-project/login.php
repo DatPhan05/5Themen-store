@@ -1,7 +1,25 @@
 <?php
+// Bắt đầu session nếu chưa có
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Tạo CSRF token cho form đăng nhập
+if (empty($_SESSION['csrf_token'])) {
+    try {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } catch (Exception $e) {
+        // Fallback nếu random_bytes không dùng được
+        $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+    }
+}
+
+// Lấy flash data (error + old input) từ session
+$errorMessage = $_SESSION['error'] ?? '';
+$oldEmail     = $_SESSION['old']['email'] ?? '';
+
+// Xóa flash data để không bị lặp lại
+unset($_SESSION['error'], $_SESSION['old']);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -24,22 +42,43 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="auth-col">
                 <h2>Bạn đã có tài khoản 5Themen</h2>
 
-                <form method="POST" action="login_process.php" class="auth-form">
+                <?php if ($errorMessage): ?>
+                    <div class="auth-error" role="alert">
+                        <?= htmlspecialchars($errorMessage) ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="login_process.php" class="auth-form" novalidate>
+                    <!-- CSRF token -->
+                    <input type="hidden" name="csrf_token"
+                           value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
                     <div class="auth-field">
-                        <label>Email / Số điện thoại *</label>
-                        <input type="text" name="email" required>
+                        <label for="email">Email / Số điện thoại *</label>
+                        <input id="email"
+                               type="text"
+                               name="email"
+                               required
+                               autocomplete="username"
+                               value="<?= htmlspecialchars($oldEmail) ?>"
+                               placeholder="Email hoặc số điện thoại">
                     </div>
 
                     <div class="auth-field">
-                        <label>Mật khẩu *</label>
-                        <input type="password" name="password" required>
+                        <label for="password">Mật khẩu *</label>
+                        <input id="password"
+                               type="password"
+                               name="password"
+                               required
+                               autocomplete="current-password">
                     </div>
 
                     <div class="auth-remember">
-                        <input type="checkbox"> Ghi nhớ đăng nhập
+                        <input id="remember" type="checkbox" name="remember" value="1">
+                        <label for="remember">Ghi nhớ đăng nhập</label>
                     </div>
 
-                    <button class="btn-primary btn-full">Đăng nhập</button>
+                    <button type="submit" class="btn-primary btn-full">Đăng nhập</button>
                 </form>
             </div>
 

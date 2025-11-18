@@ -8,40 +8,71 @@ class Category {
         $this->db = new Database();
     }
 
-    // Thêm danh mục
-    public function insert_category($name){
+    // Thêm category cha + category con
+    public function insert_category($name, $parent_id = null) {
         $name = $this->db->escape($name);
-        $query = "INSERT INTO tbl_category (category_name) VALUES ('$name')";
-        return $this->db->insert($query);
+        $parent = $parent_id !== null ? (int)$parent_id : "NULL";
+
+        $sql = "INSERT INTO tbl_category (category_name, parent_id) 
+                VALUES ('$name', $parent)";
+        return $this->db->insert($sql);
     }
 
-    // Hiển thị tất cả danh mục
-    public function show_category(){
-        $query = "SELECT * FROM tbl_category ORDER BY category_id ASC";
-        return $this->db->select($query);
+    // Lấy tất cả category
+    public function show_category() {
+        $sql = "SELECT * FROM tbl_category ORDER BY parent_id ASC, category_id ASC";
+        return $this->db->select($sql);
     }
 
-    // Lấy 1 danh mục theo ID
-    public function get_category($id){
+    // Lấy category cha (không có parent_id)
+    public function get_parent_categories() {
+    // Lấy tất cả category cha, sắp theo ID tăng dần
+    $sql = "SELECT * FROM tbl_category 
+            WHERE parent_id IS NULL 
+            ORDER BY category_id ASC";
+    return $this->db->select($sql);
+}
+
+
+    // Lấy category con theo cha
+    public function get_children($parent_id) {
+        $id = (int)$parent_id;
+        $sql = "SELECT * FROM tbl_category WHERE parent_id = $id ORDER BY category_name ASC";
+        return $this->db->select($sql);
+    }
+
+    // Lấy 1 category
+    public function get_category($id) {
         $id = (int)$id;
-        $query = "SELECT * FROM tbl_category WHERE category_id = $id";
-        $result = $this->db->select($query);
-        return $result ? $result->fetch_assoc() : null;
+        $sql = "SELECT * FROM tbl_category WHERE category_id = $id LIMIT 1";
+
+        $rs = $this->db->select($sql);
+        return $rs ? $rs->fetch_assoc() : null;
     }
 
-    // Cập nhật danh mục
-    public function update_category($id, $name){
+    public function update_category($id, $name, $parent_id = null) {
         $id = (int)$id;
         $name = $this->db->escape($name);
-        $query = "UPDATE tbl_category SET category_name = '$name' WHERE category_id = $id";
-        return $this->db->update($query);
+        $parent = $parent_id !== null ? (int)$parent_id : "NULL";
+
+        $sql = "UPDATE tbl_category 
+                SET category_name = '$name', parent_id = $parent 
+                WHERE category_id = $id";
+
+        return $this->db->update($sql);
     }
 
-    // Xóa danh mục
-    public function delete_category($id){
+    public function delete_category($id) {
         $id = (int)$id;
-        $query = "DELETE FROM tbl_category WHERE category_id = $id";
-        return $this->db->delete($query);
+        $sql = "DELETE FROM tbl_category WHERE category_id = $id";
+        return $this->db->delete($sql);
     }
+    public function get_group_info($id) {
+    $id = (int)$id;
+    $sql = "SELECT * FROM tbl_category WHERE category_id = $id LIMIT 1";
+    $rs  = $this->db->select($sql);
+    return $rs ? $rs->fetch_assoc() : null;
+}
+
 }
 ?>

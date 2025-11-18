@@ -4,7 +4,7 @@ require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/Class/product_class.php";
 
 $pd   = new Product();
-$list = $pd->show_product();
+$list = $pd->get_all_products();
 ?>
 
 <div class="admin-content-right">
@@ -34,7 +34,7 @@ $list = $pd->show_product();
                         <td><?= number_format($r['product_sale']) ?> đ</td>
                         <td>
                             <?php if ($r['product_img']) : ?>
-                                <img src="<?= htmlspecialchars($r['product_img']) ?>" width="60" alt="Ảnh sản phẩm">
+                                <img src="../<?= htmlspecialchars($r['product_img']) ?>" width="60" alt="Ảnh sản phẩm">
                             <?php endif; ?>
                         </td>
                         <td>
