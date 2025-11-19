@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../database.php';
+$filepath = realpath(dirname(__FILE__));
+
+require_once $filepath . '/../../include/database.php';
+require_once $filepath . '/../../include/helpers.php';
 
 class Product {
     private $db;

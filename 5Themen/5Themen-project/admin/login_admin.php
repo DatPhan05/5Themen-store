@@ -1,6 +1,6 @@
 <?php
 session_start();
-include __DIR__ . "/database.php";   // <-- Đúng 100%
+include __DIR__ . "/../include/database.php";   // <-- Đúng 100%
 
 $db = new Database();
 

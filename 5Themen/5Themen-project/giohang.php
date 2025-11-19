@@ -1,10 +1,15 @@
-<?php 
-session_start();
+<?php
+/***********************************************
+ * 1. SESSION & IMPORT CLASS
+ ***********************************************/
+require_once __DIR__ . '/include/session.php';
 
-require_once __DIR__ . "/admin/class/product_class.php";
+require_once __DIR__ . '/admin/class/product_class.php';
 $productModel = new Product();
 
-/* ================== XỬ LÝ THÊM SẢN PHẨM VÀO GIỎ ================== */
+/***********************************************
+ * 2. XỬ LÝ THÊM SẢN PHẨM VÀO GIỎ
+ ***********************************************/
 if (isset($_GET['action']) && $_GET['action'] === "add") {
 
     $id = (int)$_GET['id'];
@@ -27,9 +32,9 @@ if (isset($_GET['action']) && $_GET['action'] === "add") {
                 "name"  => $product["product_name"],
                 "price" => $product["product_price"],
                 "qty"   => 1,
-                "image" => $product["product_img"],   // ảnh từ DB
-                "color" => "",                        // chưa dùng
-                "size"  => "L"                        // tạm mặc định để không lỗi
+                "image" => $product["product_img"], 
+                "color" => "",
+                "size"  => "L"    // tạm mặc định
             ];
         }
     }
@@ -38,25 +43,31 @@ if (isset($_GET['action']) && $_GET['action'] === "add") {
     exit;
 }
 
-/* ================== XÓA SẢN PHẨM TRONG GIỎ ================== */
+/***********************************************
+ * 3. XÓA SẢN PHẨM
+ ***********************************************/
 if (isset($_GET["delete"])) {
     $id = (int)$_GET["delete"];
+
     if (isset($_SESSION["cart"][$id])) {
         unset($_SESSION["cart"][$id]);
     }
+
     header("Location: giohang.php");
     exit;
 }
 
-/* ================== SAU KHI XỬ LÝ XONG MỚI LOAD GIAO DIỆN ================== */
-include "header.php";      // GIỮ 1 LẦN DUY NHẤT
+/***********************************************
+ * 4. GIAO DIỆN
+ ***********************************************/
+require_once __DIR__ . "/partials/header.php";
 
-/* BREADCRUMB CHO TRANG GIỎ HÀNG */
-$breadcrumbItems = [
-    ['label' => 'Trang chủ', 'url' => 'trangchu.php'],
-    ['label' => 'Giỏ hàng',  'url' => '']
+/* Breadcrumb */
+$breadcrumbs = [
+    ['text' => 'Trang chủ', 'url' => 'trangchu.php'],
+    ['text' => 'Giỏ hàng']
 ];
-include "breadcrumb.php";
+require_once __DIR__ . "/partials/breadcrumb.php";
 ?>
 
 <section class="cart">
@@ -73,7 +84,7 @@ include "breadcrumb.php";
 
         <div class="cart-content row">
 
-            <!---------------------- BÊN TRÁI ---------------------->
+            <!-- BÊN TRÁI -->
             <div class="cart-content-left">
                 <table>
                     <tr>
@@ -88,13 +99,13 @@ include "breadcrumb.php";
 
                     <?php 
                     if (!empty($_SESSION['cart'])):
-                        foreach($_SESSION['cart'] as $key => $item):
+                        foreach ($_SESSION['cart'] as $key => $item):
                     ?>
                     <tr>
                         <td><img src="<?= htmlspecialchars($item['image']) ?>" width="100"></td>
+
                         <td><?= htmlspecialchars($item['name']) ?></td>
 
-                        <!-- màu tạm thời (chưa có hệ thống màu thật) -->
                         <td>
                             <?php if ($item['color']): ?>
                                 <?= htmlspecialchars($item['color']) ?>
@@ -103,19 +114,14 @@ include "breadcrumb.php";
                             <?php endif; ?>
                         </td>
 
-                        <!-- size -->
                         <td><?= htmlspecialchars($item['size']) ?></td>
 
-                        <!-- SL -->
                         <td><?= (int)$item['qty'] ?></td>
 
-                        <!-- Thành tiền -->
                         <td><?= number_format($item['price'] * $item['qty']) ?>đ</td>
 
-                        <!-- Xóa -->
                         <td><a href="giohang.php?delete=<?= (int)$key ?>">X</a></td>
                     </tr>
-
                     <?php 
                         endforeach;
                     endif;
@@ -123,10 +129,11 @@ include "breadcrumb.php";
                 </table>
             </div>
 
-            <!---------------------- BÊN PHẢI ---------------------->
+            <!-- BÊN PHẢI -->
             <div class="cart-content-right">
                 <?php 
                 $total = 0;
+
                 if (!empty($_SESSION['cart'])) {
                     foreach ($_SESSION['cart'] as $item) {
                         $total += $item['price'] * $item['qty'];
@@ -158,4 +165,4 @@ include "breadcrumb.php";
     </div>
 </section>
 
-<?php include "footer.php"; ?>
+<?php require_once __DIR__ . "/partials/footer.php"; ?>

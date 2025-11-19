@@ -1,10 +1,11 @@
 <?php
-session_start();
+// Sử dụng hệ thống session chung
+require_once __DIR__ . '/include/session.php';
 
-// Xoá toàn bộ session
+// Xoá tất cả session
 session_unset();
 session_destroy();
 
-// Chuyển về trang chủ hoặc trang đăng nhập
-header('Location: trangchu.php'); // hoặc login.php tuỳ bạn
+// Chuyển hướng sau khi đăng xuất
+header('Location: trangchu.php'); 
 exit;

@@ -1,19 +1,30 @@
 <?php
-session_start();
-require_once __DIR__ . "/admin/database.php";
+/***********************************************
+ * 1. IMPORT SESSION + DATABASE
+ ***********************************************/
+require_once __DIR__ . '/include/session.php';
+require_once __DIR__ . '/include/database.php';
 
-$db = new Database();   // tạo object Database
-$conn = $db->link;      // lấy kết nối mysqli
+$db   = new Database();
+$conn = $db->link;
 
-// 1. Kiểm tra CSRF token
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+/***********************************************
+ * 2. KIỂM TRA CSRF TOKEN
+ ***********************************************/
+if (
+    !isset($_POST['csrf_token']) 
+    || !isset($_SESSION['csrf_token']) 
+    || $_POST['csrf_token'] !== $_SESSION['csrf_token']
+) {
     $_SESSION['error'] = "Yêu cầu không hợp lệ!";
     header("Location: login.php");
     exit;
 }
 
-// 2. Lấy dữ liệu
-$email = trim($_POST['email'] ?? '');
+/***********************************************
+ * 3. LẤY DỮ LIỆU FORM
+ ***********************************************/
+$email    = trim($_POST['email'] ?? '');
 $password = trim($_POST['password'] ?? '');
 
 $_SESSION['old']['email'] = $email;
@@ -24,15 +35,25 @@ if ($email === '' || $password === '') {
     exit;
 }
 
-// Escape input để tránh SQL Injection
+/***********************************************
+ * 4. Escape input chống SQL Injection
+ ***********************************************/
 $emailEscaped = $conn->real_escape_string($email);
 
-// 4. Query kiểm tra user
-$sql = "SELECT * FROM tbl_user WHERE email = '$emailEscaped' OR phone = '$emailEscaped' LIMIT 1";
+/***********************************************
+ * 5. QUERY KIỂM TRA USER
+ ***********************************************/
+$sql = "
+    SELECT *
+    FROM tbl_user
+    WHERE email = '$emailEscaped'
+       OR phone = '$emailEscaped'
+    LIMIT 1
+";
 
 $result = $conn->query($sql);
 
-if ($result->num_rows === 0) {
+if (!$result || $result->num_rows === 0) {
     $_SESSION['error'] = "Tài khoản không tồn tại!";
     header("Location: login.php");
     exit;
@@ -40,24 +61,27 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// Kiểm tra mật khẩu (password_hash chuẩn)
+/***********************************************
+ * 6. KIỂM TRA MẬT KHẨU HASH
+ ***********************************************/
 if (!password_verify($password, $user['password'])) {
     $_SESSION['error'] = "Mật khẩu không đúng!";
     header("Location: login.php");
     exit;
 }
 
-
-// 6. Tạo session đăng nhập - ĐỒNG BỘ VỚI tbl_user
-$_SESSION['user_id']   = $user['user_id'];   // cột khóa chính trong bảng tbl_user
-$_SESSION['user_name'] = $user['fullname'];  // tên hiển thị
-
+/***********************************************
+ * 7. TẠO SESSION ĐĂNG NHẬP
+ ***********************************************/
+$_SESSION['user_id']      = $user['user_id'];
+$_SESSION['user_name']    = $user['fullname'];
 $_SESSION['is_logged_in'] = true;
 
-// (tuỳ chọn) Xoá CSRF token cũ sau khi login
+// Xoá CSRF token sau khi login
 unset($_SESSION['csrf_token']);
 
-// Redirect sang trang tài khoản
+/***********************************************
+ * 8. TRẢ VỀ TRANG TÀI KHOẢN
+ ***********************************************/
 header("Location: account.php");
 exit;
-
