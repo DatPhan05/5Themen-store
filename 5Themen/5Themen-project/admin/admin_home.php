@@ -1,6 +1,6 @@
 <?php
-include "session.php";
-include "database.php";
+include "../include/session.php";
+include "../include/database.php";
 include "header.php"; 
 
 

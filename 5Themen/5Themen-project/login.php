@@ -1,24 +1,26 @@
 <?php
-// Bắt đầu session nếu chưa có
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+/***********************************************
+ * 1. IMPORT SESSION
+ ***********************************************/
+require_once __DIR__ . '/include/session.php';
 
-// Tạo CSRF token cho form đăng nhập
+/***********************************************
+ * 2. TẠO CSRF TOKEN
+ ***********************************************/
 if (empty($_SESSION['csrf_token'])) {
     try {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     } catch (Exception $e) {
-        // Fallback nếu random_bytes không dùng được
         $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
     }
 }
 
-// Lấy flash data (error + old input) từ session
+/***********************************************
+ * 3. LẤY FLASH DATA
+ ***********************************************/
 $errorMessage = $_SESSION['error'] ?? '';
 $oldEmail     = $_SESSION['old']['email'] ?? '';
 
-// Xóa flash data để không bị lặp lại
 unset($_SESSION['error'], $_SESSION['old']);
 ?>
 <!DOCTYPE html>
@@ -31,7 +33,7 @@ unset($_SESSION['error'], $_SESSION['old']);
 </head>
 <body>
 
-<?php include __DIR__ . "/header.php"; ?>
+<?php require_once __DIR__ . "/partials/header.php"; ?>
 
 <section class="auth">
     <div class="container">
@@ -49,6 +51,7 @@ unset($_SESSION['error'], $_SESSION['old']);
                 <?php endif; ?>
 
                 <form method="POST" action="login_process.php" class="auth-form" novalidate>
+
                     <!-- CSRF token -->
                     <input type="hidden" name="csrf_token"
                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -58,9 +61,9 @@ unset($_SESSION['error'], $_SESSION['old']);
                         <input id="email"
                                type="text"
                                name="email"
+                               value="<?= htmlspecialchars($oldEmail) ?>"
                                required
                                autocomplete="username"
-                               value="<?= htmlspecialchars($oldEmail) ?>"
                                placeholder="Email hoặc số điện thoại">
                     </div>
 
@@ -91,7 +94,7 @@ unset($_SESSION['error'], $_SESSION['old']);
     </div>
 </section>
 
-<?php include __DIR__ . "/footer.php"; ?>
+<?php require_once __DIR__ . "/partials/footer.php"; ?>
 
 </body>
 </html>

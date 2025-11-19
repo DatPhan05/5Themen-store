@@ -1,4 +1,17 @@
-<?php session_start(); ?>
+<?php
+require_once __DIR__ . '/include/session.php';
+require_once __DIR__ . '/include/database.php';
+
+// Nếu trang chủ có dùng Category/Product:
+require_once __DIR__ . '/admin/class/category_class.php';
+require_once __DIR__ . '/admin/class/product_class.php';
+
+$db = new Database();
+$conn = $db->link;
+
+$categoryModel = new Category();
+$productModel  = new Product();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +26,7 @@
 </head>
 <body>
 
-<?php include "header.php"; ?>
+<?php require_once __DIR__ . "/partials/header.php"; ?>
 
 
 <!---------------------------------- SLIDER ------------------------------>
@@ -37,11 +50,13 @@
 
 
 <!---------------------------------- FOOTER ------------------------------>
-<?php include "footer.php"; ?>
+<?php require_once __DIR__ . "/partials/footer.php"; ?>
 
 
 
 <script src="js/slider.js"></script>
+<script src="js/megamenu.js"></script>
+<script src="js/main.js"></script>
 
 </body>
 </html>

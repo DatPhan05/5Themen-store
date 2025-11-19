@@ -1,8 +1,16 @@
 <?php
-include "admin/database.php";
-$db = new Database();
-$conn = $db->link;   // lấy mysqli connection
+/***********************************************
+ * 1. SESSION + DATABASE
+ ***********************************************/
+require_once __DIR__ . '/include/session.php';
+require_once __DIR__ . '/include/database.php';
 
+$db   = new Database();
+$conn = $db->link;
+
+/***********************************************
+ * 2. XỬ LÝ ĐĂNG KÝ
+ ***********************************************/
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $fullname = trim($_POST['fullname']);
@@ -11,14 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $phone    = trim($_POST['phone']);
     $address  = trim($_POST['address']);
 
-    // Kiểm tra trùng email
+    // Escape input
     $emailEscaped = $conn->real_escape_string($email);
+
+    // Kiểm tra trùng email
     $check = $conn->query("SELECT * FROM tbl_user WHERE email = '$emailEscaped' LIMIT 1");
-    if ($check->num_rows > 0) {
+    if ($check && $check->num_rows > 0) {
         echo "<script>alert('Email đã tồn tại. Vui lòng dùng email khác!');</script>";
     } else {
 
-        // HASH mật khẩu chuẩn PHP
+        // HASH mật khẩu tiêu chuẩn PHP
         $passHash = password_hash($password, PASSWORD_DEFAULT);
 
         $fullnameEsc = $conn->real_escape_string($fullname);
@@ -26,14 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $addressEsc  = $conn->real_escape_string($address);
 
         $query = "
-        INSERT INTO tbl_user(fullname, email, password, phone, address)
-        VALUES ('$fullnameEsc', '$emailEscaped', '$passHash', '$phoneEsc', '$addressEsc')";
+            INSERT INTO tbl_user(fullname, email, password, phone, address)
+            VALUES ('$fullnameEsc', '$emailEscaped', '$passHash', '$phoneEsc', '$addressEsc')
+        ";
 
         if ($conn->query($query)) {
             header("Location: login.php?registered=1");
             exit();
         } else {
-            echo "<script>alert('Đăng ký thất bại.');</script>";
+            echo "<script>alert('Đăng ký thất bại. Vui lòng thử lại!');</script>";
         }
     }
 }
@@ -50,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
 
-<?php include "header.php"; ?>
+<?php require_once __DIR__ . "/partials/header.php"; ?>
 
 <section class="auth">
     <div class="container">
@@ -90,14 +101,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <button type="submit" class="btn-primary btn-full">Đăng ký</button>
 
-                <p style="margin-top:10px;">Đã có tài khoản <a href="login.php">Đăng nhập</a></p>
+                <p style="margin-top:10px;">
+                    Đã có tài khoản?
+                    <a href="login.php">Đăng nhập</a>
+                </p>
 
             </form>
         </div>
     </div>
 </section>
 
-<?php include "footer.php"; ?>
+<?php require_once __DIR__ . "/partials/footer.php"; ?>
 
 </body>
 </html>
