@@ -5,46 +5,35 @@ include "../include/database.php";
 
 require_once __DIR__ . "/header.php";
 require_once __DIR__ . "/slider.php"; // Thêm menu bên trái
-require_once __DIR__ . "/Class/brand_class.php";
-require_once __DIR__ . "/Class/category_class.php";
+require_once __DIR__ . "/class/category_content_class.php";
+require_once __DIR__ . "/class/category_class.php";
 
-$id = (int)($_GET['brand_id'] ?? 0);
+$cg = new Category();
+$ct = new CategoryContent();
 
-$brand = new Brand();
-$row  = $brand->get_brand($id);
-
-// Xử lý khi không tìm thấy loại sản phẩm
-if (!$row) {
-    die('<div style="text-align: center; margin-top: 50px; font-size: 18px; color: #dc3545;">
-        ❌ Lỗi: Không tìm thấy loại sản phẩm ID: ' . htmlspecialchars($id) . '
-        <br><a href="brandlist.php" style="color: #007bff; text-decoration: none;">Quay lại danh sách</a>
-    </div>');
-}
-
-$cg = new category();
-$cates = $cg->show_category();
+// Lấy danh sách danh mục
+$categories = $cg->show_category();
 
 $msg = "";
 $msg_type = ""; // success | error
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $cid = (int)($_POST['category_id'] ?? 0);
-    $name = trim($_POST['brand_name'] ?? '');
+    // Lọc và chuẩn hóa dữ liệu
+    $catId = (int)($_POST['category_id'] ?? 0);
+    $title = trim($_POST['title'] ?? '');
+    $content = $_POST['content'] ?? ''; // CKEditor đã xử lý nội dung
 
-    if ($cid && $name !== "") {
-        $result = $brand->update_brand($id, $cid, $name);
-        
-        if ($result) {
-            $msg = "✔ Đã lưu thay đổi loại sản phẩm thành công.";
+    // Kiểm tra dữ liệu bắt buộc
+    if ($catId > 0 && !empty($title)) {
+        if ($ct->insert($catId, $title, $content)) {
+            $msg = "✔ Thêm nội dung thành công!";
             $msg_type = "success";
-            // Lấy lại dữ liệu mới nhất
-            $row = $brand->get_brand($id);
         } else {
-            $msg = "❌ Lỗi: Không thể cập nhật loại sản phẩm. Vui lòng kiểm tra Class/Database.";
+            $msg = "❌ Lỗi khi thêm nội dung vào Database, vui lòng kiểm tra kết nối/Class.";
             $msg_type = "error";
         }
     } else {
-        $msg = "⚠️ Vui lòng chọn danh mục và nhập tên loại.";
+        $msg = "⚠️ Vui lòng chọn Danh mục và nhập Tiêu đề.";
         $msg_type = "error";
     }
 }
@@ -64,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ================= FORM CARD (GLASSMORPHISM) ================= */
     .form-container {
         width: 100%;
-        max-width: 500px;
+        max-width: 900px;
         padding: 40px;
         border-radius: 20px;
         
@@ -75,16 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border: 1px solid rgba(255, 255, 255, 0.6);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         
-        animation: fadeIn 0.5s ease-out;
+        animation: slideIn 0.5s ease-out;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .form-title {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
         color: #333;
         margin-bottom: 30px;
@@ -96,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ================= INPUT FIELDS & SELECT ================= */
     .form-group {
         margin-bottom: 25px;
+        position: relative;
     }
 
     .form-label {
@@ -107,27 +97,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin-left: 5px;
     }
 
-    .form-control {
+    .form-control, select.form-control {
         width: 100%;
         padding: 14px 18px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.8);
         background: rgba(255, 255, 255, 0.5);
         font-family: "Poppins", sans-serif;
-        font-size: 16px;
+        font-size: 15px;
         color: #333;
         transition: all 0.3s ease;
         outline: none;
-        box-sizing: border-box; 
+        box-sizing: border-box;
     }
 
-    .form-control:focus {
+    .form-control:focus, select.form-control:focus {
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.15); /* Màu xanh ngọc cho focus */
-        border-color: #4ecdc4;
+        box-shadow: 0 0 0 4px rgba(16, 172, 132, 0.15); 
+        border-color: #10ac84;
     }
-    
-    /* Style cho Select box */
+
     select.form-control {
         appearance: none; 
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -136,6 +125,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-size: 16px;
         cursor: pointer;
     }
+    
+    /* ================= CKEditor CUSTOM STYLES (SỬA LỖI) ================= */
+    /* Định dạng cho container của CKEditor */
+    .cke_chrome {
+        border-radius: 12px !important; /* Áp dụng bo góc cho toàn bộ CKEditor */
+        border: 1px solid rgba(255, 255, 255, 0.8) !important; /* Thêm border nhẹ */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Thêm box shadow nhẹ */
+        overflow: hidden; /* Quan trọng để bo góc hoạt động tốt */
+    }
+    
+    /* Làm cho thanh công cụ Glassmorphism hơn (nếu có thể) */
+    .cke_top {
+        /* Màu nền toolbar có thể làm trong suốt một chút nếu muốn Glassmorphism */
+        background: rgba(255, 255, 255, 0.7) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Loại bỏ border không cần thiết */
+    .cke_bottom {
+        border-top: 1px solid #ccc !important; 
+        border-radius: 0 0 12px 12px !important; /* Bo góc dưới */
+    }
 
     /* ================= BUTTON ================= */
     .btn-submit {
@@ -143,20 +154,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         padding: 15px;
         border: none;
         border-radius: 12px;
-        /* Gradient màu teal/xanh ngọc cho nút Sửa Brand */
-        background: linear-gradient(135deg, #4ecdc4, #1abc9c); 
+        /* Gradient xanh đậm */
+        background: linear-gradient(135deg, #10ac84, #00d2d3); 
         color: white;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
-        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(16, 172, 132, 0.3);
+        margin-top: 25px; 
     }
 
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+        box-shadow: 0 8px 20px rgba(16, 172, 132, 0.4);
         filter: brightness(1.1);
     }
 
@@ -189,14 +200,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         position: absolute;
         width: 300px;
         height: 300px;
-        background: linear-gradient(180deg, #b2fefd 0%, #a6c0fe 100%);
+        background: linear-gradient(180deg, #a1c4fd 0%, #c2e9fb 100%);
         border-radius: 50%;
         filter: blur(80px);
         opacity: 0.4;
         z-index: -1;
         top: 20%;
-        right: 15%;
-        transform: translate(50%, -50%);
+        left: 20%;
+        transform: translate(-50%, -50%);
     }
 </style>
 
@@ -205,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="blob-decor"></div>
 
     <div class="form-container">
-        <h1 class="form-title"><i class="fa-solid fa-list-ul"></i> SỬA LOẠI SẢN PHẨM</h1>
+        <h1 class="form-title"><i class="fa-solid fa-file-circle-plus"></i> Thêm nội dung chi tiết cho Danh mục</h1>
 
         <?php if (!empty($msg)) : ?>
             <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
@@ -217,43 +228,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="" method="POST">
             
             <div class="form-group">
-                <label class="form-label" for="category_id">Chọn danh mục (*)</label>
-                <select name="category_id" id="category_id" class="form-control" required>
+                <label class="form-label">Chọn danh mục (*)</label>
+                <select name="category_id" class="form-control" required>
                     <option value="">-- Chọn danh mục --</option>
-                    <?php if ($cates) : 
-                        $cates->data_seek(0); // Đảm bảo con trỏ ở đầu
-                        while ($c = $cates->fetch_assoc()) : ?>
-                            <option 
-                                value="<?= $c['category_id'] ?>" 
-                                <?= ($row['category_id'] == $c['category_id']) ? 'selected' : '' ?>
-                            >
-                                <?= htmlspecialchars($c['category_name']) ?>
+                    <?php if ($categories && $categories->num_rows > 0): 
+                        $categories->data_seek(0);
+                        while ($r = $categories->fetch_assoc()): ?>
+                            <option value="<?= $r['category_id'] ?>">
+                                <?= htmlspecialchars($r['category_name']) ?>
                             </option>
-                        <?php endwhile; ?>
-                    <?php endif; ?>
+                        <?php endwhile; 
+                    endif; ?>
                 </select>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="brand_name">Tên loại (*)</label>
-                <input 
-                    type="text" 
-                    name="brand_name" 
-                    id="brand_name" 
-                    class="form-control"
-                    value="<?= htmlspecialchars($row['brand_name']) ?>" 
-                    placeholder="Nhập tên loại sản phẩm mới"
-                    required
-                >
+                <label class="form-label">Tiêu đề (*)</label>
+                <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề nội dung (Ví dụ: Giới thiệu về Áo Nam)" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nội dung chi tiết</label>
+                <textarea name="content" id="editor" rows="10" placeholder="Nhập nội dung chi tiết..."></textarea>
             </div>
 
             <button type="submit" class="btn-submit">
-                <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                <i class="fa-solid fa-upload"></i> Thêm nội dung
             </button>
+            
         </form>
     </div>
 </div>
 
 </section>
+
+<script src="../ckeditor/ckeditor.js"></script>
+<script>
+    // Khởi tạo CKEditor sau khi DOM đã load
+    document.addEventListener('DOMContentLoaded', function() {
+        CKEDITOR.replace("editor", {
+            toolbar: 'Full', 
+            height: 350, 
+            // Cấu hình thêm: Đảm bảo class 'cke_chrome' là nơi áp dụng styling Glassmorphism 
+            // Cần CSS bên trên để định kiểu cho .cke_chrome
+        });
+    });
+</script>
+
 </body>
 </html>

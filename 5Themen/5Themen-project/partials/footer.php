@@ -37,16 +37,20 @@
 
             <!-- Cột 3 -->
             <div class="footer-col">
-                <h4>Fanpage chúng tôi</h4>
+                <h4>Bộ Công Thương Việt Nam</h4>
                 <div class="footer-fanpage">
-                    <img src="images/fanpage.jpg" alt="Fanpage">
+                   
+                    <img src="images/dathongbao.png" alt="">
                 </div>
+
 
                 <h4>Phương thức thanh toán</h4>
                 <div class="payment-methods">
                     <img src="images/vnpay.png" alt="">
+                    <img src="images/momo.png" alt="">
                     <img src="images/cod.png" alt="">
                 </div>
+                
             </div>
 
         </div>

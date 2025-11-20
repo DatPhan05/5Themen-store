@@ -2,7 +2,6 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 require_once __DIR__ . '/../admin/class/category_class.php';
 require_once __DIR__ . '/../admin/class/brand_class.php';
 
@@ -143,20 +142,21 @@ $rootCategories = $categoryModel->get_parent_categories();
             </div>
             
             <!-- User Icon with Dropdown -->
-            <div class="user-menu">
-                <?php if (isset($_SESSION['customer_id'])): ?>
+             <div class="user-menu">
+                <?php if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true): ?>
                     <a href="#" id="user-toggle">
-                        <i class="fa fa-user"></i>
+                    <i class="fa fa-user"></i>
                     </a>
                     <ul class="dropdown-user" id="dropdown-user">
-                        <li><a href="account.php">Tài khoản</a></li>
-                        <li><a href="order_history.php">Đơn hàng</a></li>
-                        <li><a href="logout.php">Đăng xuất</a></li>
-                    </ul>
+                    <li><a href="account.php">Tài khoản</a></li>
+                    <li><a href="order_history.php">Đơn hàng</a></li>
+                    <li><a href="logout.php">Đăng xuất</a></li>
+                </ul>
                 <?php else: ?>
                     <a href="login.php"><i class="fa fa-user"></i></a>
-                <?php endif; ?>
-            </div>
+                    <?php endif; ?>
+                </div>
+
             
             <!-- Cart Icon -->
             <a href="giohang.php">

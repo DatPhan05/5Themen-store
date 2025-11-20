@@ -4,13 +4,11 @@ include "../include/session.php";
 include "../include/database.php"; 
 
 require_once __DIR__ . "/header.php";
-require_once __DIR__ . "/slider.php";
-// Đường dẫn Class đã được điều chỉnh về chữ thường 'class'
-require_once __DIR__ . "/class/category_class.php"; 
+require_once __DIR__ . "/slider.php"; // Thêm slider/menu bên trái
+require_once __DIR__ . "/class/category_content_class.php";
 
-$cg = new Category();
-// Kiểm tra dữ liệu trả về có phải là object result set không
-$list = $cg->show_category();
+$ct = new CategoryContent();
+$list = $ct->getAll();
 ?>
 
 <style>
@@ -36,6 +34,7 @@ $list = $cg->show_category();
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         
         animation: fadeIn 0.5s ease-out;
+        overflow-x: auto; 
     }
 
     @keyframes fadeIn {
@@ -55,22 +54,23 @@ $list = $cg->show_category();
     
     /* ================= TABLE STYLE ================= */
     table {
-        width: 100%;
+        min-width: 800px; 
         border-collapse: separate;
         border-spacing: 0;
         text-align: left;
         font-size: 14px;
-        overflow: hidden; /* Quan trọng để bo góc được */
+        overflow: hidden; 
     }
 
     /* Tiêu đề bảng */
     table th {
-        background: linear-gradient(90deg, #4b7bec, #3867d6);
+        /* Gradient màu xanh lá/xanh dương như các trang khác */
+        background: linear-gradient(90deg, #10ac84, #00d2d3); 
         color: white;
         padding: 15px 15px;
         font-weight: 600;
         text-transform: uppercase;
-        white-space: nowrap; /* Ngăn tiêu đề bị xuống dòng */
+        white-space: nowrap; 
     }
     
     /* Bo góc cho hàng tiêu đề */
@@ -85,6 +85,7 @@ $list = $cg->show_category();
         background: rgba(255, 255, 255, 0.7);
         color: #333;
         font-weight: 500;
+        vertical-align: middle;
     }
 
     /* Hiệu ứng Hover cho hàng */
@@ -100,16 +101,18 @@ $list = $cg->show_category();
     table tbody tr:last-child td {
         border-bottom: none;
     }
-
-    /* Cột Danh mục cha */
-    table td:nth-child(4) { 
-        color: #777; 
-        font-style: italic;
-    }
     
+    /* Cột tiêu đề để dài hơn */
+    table td:nth-child(3) {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     /* ================= BUTTONS STYLE ================= */
     .action-link {
-        display: inline-flex; /* Dùng flex để căn giữa icon và text */
+        display: inline-flex; 
         align-items: center;
         gap: 5px;
         text-decoration: none;
@@ -124,7 +127,7 @@ $list = $cg->show_category();
     
     .edit-btn {
         background: #ffeaa7; /* Vàng nhạt */
-        color: #d63031;
+        color: #d63031; /* Đỏ sậm cho nổi bật */
     }
     .edit-btn:hover {
         background: #fed330;
@@ -143,7 +146,7 @@ $list = $cg->show_category();
         position: absolute;
         width: 350px;
         height: 350px;
-        background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(180deg, #a1c4fd 0%, #c2e9fb 100%);
         border-radius: 50%;
         filter: blur(100px);
         opacity: 0.3;
@@ -164,50 +167,44 @@ $list = $cg->show_category();
     <div class="blob-decor-list"></div>
 
     <div class="list-container">
-        <h1 class="list-title"><i class="fa-solid fa-list-check"></i> Danh sách Danh mục</h1>
+        <h1 class="list-title"><i class="fa-solid fa-file-lines"></i> Danh sách Nội dung Danh mục</h1>
 
         <table>
             <thead>
                 <tr>
-                    <th>STT</th>
                     <th>ID</th>
-                    <th>Tên danh mục</th>
-                    <th>Danh mục cha</th>
+                    <th>Danh mục</th>
+                    <th>Tiêu đề</th>
                     <th>Tùy chỉnh</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if ($list && $list->num_rows > 0): ?>
-                    <?php 
-                        $i = 1; 
-                        while ($r = $list->fetch_assoc()): 
-                    ?>
+                <?php if ($list && $list->num_rows > 0) : ?>
+                    <?php while ($r = $list->fetch_assoc()): ?>
                         <tr>
-                            <td><?= $i++ ?></td>
-                            <td><?= $r['category_id'] ?></td>
+                            <td><?= htmlspecialchars($r['id']) ?></td>
                             <td><?= htmlspecialchars($r['category_name']) ?></td>
+                            <td><?= htmlspecialchars($r['title']) ?></td>
                             <td>
-                                <?= ($r['parent_id'] && $r['parent_id'] != 0) ? $r['parent_id'] : "—" ?>
-                            </td>
-                            <td>
-                                <a href="categoryedit.php?category_id=<?= $r['category_id'] ?>" class="action-link edit-btn">
+                                <a href="category_content_edit.php?id=<?= $r['id'] ?>" class="action-link edit-btn">
                                     <i class="fa-solid fa-pen-to-square"></i> Sửa
                                 </a> 
-                                <a onclick="return confirm('Bạn có chắc muốn xóa danh mục ID: <?= $r['category_id'] ?>? LƯU Ý: Nếu có danh mục con, chúng có thể bị lỗi.')" 
-                                   href="categorydelete.php?category_id=<?= $r['category_id'] ?>" class="action-link delete-btn">
+                                <a onclick="return confirm('Bạn có chắc muốn xóa nội dung ID: <?= $r['id'] ?>?');" 
+                                   href="category_content_delete.php?id=<?= $r['id'] ?>" class="action-link delete-btn">
                                     <i class="fa-solid fa-trash-can"></i> Xóa
                                 </a>
                             </td>
                         </tr>
                     <?php endwhile; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #777; font-style: italic;">Chưa có danh mục nào được thêm.</td>
+                        <td colspan="4" style="text-align:center; color: #777; font-style: italic;">
+                            Chưa có nội dung danh mục nào được thêm.
+                        </td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
-
     </div>
 </div>
 
