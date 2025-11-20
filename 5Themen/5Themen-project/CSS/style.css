@@ -438,9 +438,9 @@ a {
 
 /* ===== FANPAGE ===== */
 .footer-fanpage img {
-    width: 100%;
-    border-radius: 6px;
-    margin-bottom: 15px;
+    width: 30%;
+    border-radius: 6%;
+    margin-bottom: 100px;
 }
 
 /* ===== PAYMENT METHODS ===== */
@@ -2378,4 +2378,356 @@ a {
     max-width: 100%;
     margin: 0 auto;
     padding: 0 30px;     /* thẳng với breadcrumb, category, product */
+}
+/************************************************************
+    CHECKOUT PAGE – 5THEMEN (ICONDENIM STYLE)
+*************************************************************/
+.checkout {
+    max-width: 1200px;
+    margin: 40px auto;
+    display: flex;
+    gap: 40px;
+    padding: 0 20px;
+}
+
+.checkout-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: left;
+}
+
+.checkout-form {
+    width: 100%;
+    display: flex;
+    gap: 40px;
+}
+
+/* ===========================
+   LEFT SIDE (User info)
+=========================== */
+.checkout-left {
+    flex: 1;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    border: 1px solid #ececec;
+}
+
+.checkout-left h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 20px 0;
+}
+
+.checkout-left label {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.checkout-left input[type="text"],
+.checkout-left input[type="email"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: .2s;
+}
+
+.checkout-left input:focus {
+    border-color: #000;
+}
+
+/* PAYMENT METHOD */
+.payment-method {
+    margin-top: 10px;
+}
+
+.payment-method label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* ===========================
+   RIGHT SIDE (Order summary)
+=========================== */
+.checkout-right {
+    width: 40%;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    border: 1px solid #ececec;
+}
+
+.checkout-right h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* CART ITEM */
+.cart-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.cart-thumb {
+    width: 85px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+
+.cart-info {
+    flex: 1;
+    padding-left: 15px;
+}
+
+.cart-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.cart-price {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* TOTAL PRICE */
+.checkout-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 10px 0;
+}
+
+.checkout-total.grand {
+    font-size: 18px;
+    font-weight: 600;
+    border-top: 2px solid #000;
+    margin-top: 10px;
+    padding-top: 14px;
+}
+
+/* BUTTON */
+.btn-checkout {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 14px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn-checkout:hover {
+    background: #333;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 992px) {
+    .checkout {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .checkout-right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .checkout {
+        padding: 0 10px;
+    }
+
+    .checkout-left,
+    .checkout-right {
+        padding: 20px;
+    }
+
+    .cart-thumb {
+        width: 60px;
+        height: 60px;
+    }
+}
+/* ============================================
+   CART PAGE – ICONDENIM STYLE
+============================================ */
+
+.cart {
+    padding: 40px 0;
+    background: #fff;
+}
+
+.cart .container {
+    max-width: 1250px;
+    margin: auto;
+}
+
+.cart-top-wrap {
+    width: 100%;
+    margin: 20px 0 40px 0;
+}
+
+.cart-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.cart-top-item {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #000;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    color: #000;
+    background: #fff;
+    position: relative;
+    z-index: 2;
+}
+
+.cart-top::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 40px;
+    right: 40px;
+    height: 2px;
+    background: #000;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+/* LEFT TABLE */
+.cart-content-left table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.cart-content-left table th {
+    background: #f5f5f5;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-content-left table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-content-left img {
+    width: 90px;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* RIGHT AREA */
+.cart-content-right {
+    padding: 20px;
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    height: max-content;
+}
+
+.cart-content-right table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-content-right table td,
+.cart-content-right table th {
+    padding: 10px 0;
+    font-size: 15px;
+}
+
+.cart-content-right table th {
+    text-align: left;
+    font-size: 16px;
+    padding-bottom: 12px;
+}
+
+.cart-content-right-button {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cart-content-right-button button {
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.cart-content-right-button button:first-child {
+    background: #fff;
+    border: 1px solid #000;
+}
+
+.cart-content-right-button button:first-child:hover {
+    background: #f3f3f3;
+}
+
+.cart-content-right-button button:last-child {
+    background: #000;
+    color: #fff;
+}
+
+.cart-content-right-button button:last-child:hover {
+    opacity: .85;
+}
+
+/* REMOVE LINK */
+.cart-content-left a {
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.cart-content-left a:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media(max-width: 900px){
+    .cart-content {
+        flex-direction: column;
+    }
+
+    .cart-content-right {
+        margin-top: 25px;
+    }
 }

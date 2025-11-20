@@ -22,5 +22,13 @@
                </ul>
                </ul>
             </li>
+            <li><a href="#">Thông tin website</a>
+               <ul>
+                <li><a href="category_content_add.php">➕ Thêm nội dung</a></li>
+               <li><a href="category_content_list.php">Quản lý nội dung </a></li>
+               
+               </ul>
+               </ul>
+            </li>
   </ul>
 </div>

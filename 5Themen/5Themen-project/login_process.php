@@ -73,9 +73,10 @@ if (!password_verify($password, $user['password'])) {
 /***********************************************
  * 7. TẠO SESSION ĐĂNG NHẬP
  ***********************************************/
-$_SESSION['user_id']      = $user['user_id'];
-$_SESSION['user_name']    = $user['fullname'];
-$_SESSION['is_logged_in'] = true;
+Session::set('user_login', true);
+Session::set('user_id', $user['user_id']);
+Session::set('user_name', $user['fullname']);
+
 
 // Xoá CSRF token sau khi login
 unset($_SESSION['csrf_token']);
