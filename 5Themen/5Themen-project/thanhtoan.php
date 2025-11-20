@@ -1,119 +1,240 @@
 <?php
-require_once __DIR__ . '/include/session.php';
-require_once __DIR__ . '/include/database.php';
-require_once __DIR__ . '/partials/header.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Nếu giỏ hàng trống → quay lại giỏ hàng
+require_once __DIR__ . "/include/session.php";
+require_once __DIR__ . "/include/database.php";
+
+// Nếu giỏ hàng trống thì về lại giỏ hàng
 if (empty($_SESSION['cart'])) {
     header("Location: giohang.php");
     exit;
 }
 
-$db = new Database();
+// Tính tổng tiền từ session cart
+$total = 0;
+foreach ($_SESSION['cart'] as $pid => $item) {
+    $total += $item['price'] * $item['qty'];
+}
 
-// Nếu user đã đăng nhập → tự lấy thông tin
-$userInfo = null;
-if (!empty($_SESSION['user_id'])) {
-    $uid = (int)$_SESSION['user_id'];
-    $sql = "SELECT * FROM tbl_user WHERE user_id = $uid LIMIT 1";
-    $rs  = $db->select($sql);
-    if ($rs && $rs->num_rows > 0) {
-        $userInfo = $rs->fetch_assoc();
+// Lấy phương thức thanh toán + step (riêng VNPay)
+$method = strtolower($_GET['method'] ?? 'cod');      // cod | vnpay | momo
+$step   = strtolower($_GET['step'] ?? 'select');     // select | qr (chỉ dùng cho vnpay)
+
+$error   = null;
+$orderId = null;
+
+// Validate method
+if (!in_array($method, ['cod', 'vnpay', 'momo'], true)) {
+    $error = "Phương thức thanh toán không hợp lệ.";
+} else {
+    // Kết nối DB (dùng class Database của bạn)
+    $db   = new Database();
+    $conn = $db->link;
+
+    // ===== HÀM LƯU ĐƠN HÀNG VÀO DB =====
+    function saveOrder(mysqli $conn, $total, $method) {
+        $methodEscaped = $conn->real_escape_string($method);
+        $total         = (int)$total;
+
+        $sqlOrder = "
+            INSERT INTO tbl_orders(total_amount, payment_method, status, created_at)
+            VALUES ($total, '$methodEscaped', 'pending', NOW())
+        ";
+
+        if (!$conn->query($sqlOrder)) {
+            return false;
+        }
+
+        $orderId = $conn->insert_id;
+
+        // Lưu từng item
+        foreach ($_SESSION['cart'] as $pid => $item) {
+            $pid   = (int)$pid;
+            $name  = $conn->real_escape_string($item['name']);
+            $price = (int)$item['price'];
+            $qty   = (int)$item['qty'];
+
+            $sqlItem = "
+                INSERT INTO tbl_order_items(order_id, product_id, product_name, price, quantity)
+                VALUES ($orderId, $pid, '$name', $price, $qty)
+            ";
+
+            $conn->query($sqlItem);
+        }
+
+        return $orderId;
+    }
+
+    // ===== XỬ LÝ TẠO ĐƠN THEO PHƯƠNG THỨC =====
+    if ($method === 'cod') {
+        // COD: tạo đơn + set status = processing, xoá giỏ
+        $orderId = saveOrder($conn, $total, 'cod');
+
+        if ($orderId === false) {
+            $error = "Không thể lưu đơn hàng. Vui lòng thử lại.";
+        } else {
+            $conn->query("UPDATE tbl_orders SET status='processing' WHERE id = $orderId");
+            unset($_SESSION['cart']);
+            unset($_SESSION['pending_order']); // xoá pending nếu có
+        }
+
+    } else {
+        // VNPAY & MOMO: tạo đơn 1 lần, lưu trong session 'pending_order'
+        if (!isset($_SESSION['pending_order']) ||
+            $_SESSION['pending_order']['method'] !== $method) {
+
+            $orderId = saveOrder($conn, $total, $method);
+
+            if ($orderId === false) {
+                $error = "Không thể tạo đơn hàng. Vui lòng thử lại.";
+            } else {
+                $_SESSION['pending_order'] = [
+                    'id'     => $orderId,
+                    'method' => $method,
+                    'total'  => $total
+                ];
+            }
+        } else {
+            // Đã có đơn pending cho method này → dùng lại
+            $orderId = $_SESSION['pending_order']['id'];
+        }
     }
 }
+
+require __DIR__ . "/partials/header.php";
 ?>
 
-<link rel="stylesheet" href="CSS/style.css">
+<section class="pay-page">
+    <div class="container">
 
-<section class="checkout container">
+        <?php if ($error): ?>
 
-    <h1 class="checkout-title">THANH TOÁN</h1>
-
-    <form method="POST" action="thanhtoan_xuly.php" class="checkout-form">
-
-        <div class="checkout-left">
-
-            <h2>Thông tin giao hàng</h2>
-
-            <label>Họ và tên *</label>
-            <input type="text" name="fullname" required
-                   value="<?= $userInfo['fullname'] ?? '' ?>">
-
-            <label>Email *</label>
-            <input type="email" name="email" required
-                   value="<?= $userInfo['email'] ?? '' ?>">
-
-            <label>Số điện thoại *</label>
-            <input type="text" name="phone" required
-                   value="<?= $userInfo['phone'] ?? '' ?>">
-
-            <label>Địa chỉ giao hàng *</label>
-            <input type="text" name="address" required
-                   value="<?= $userInfo['address'] ?? '' ?>">
-
-            <h2>Phương thức thanh toán</h2>
-
-            <div class="payment-method">
-                <label>
-                    <input type="radio" name="method" value="cod" checked>
-                    Thanh toán khi nhận hàng (COD)
-                </label>
-
-                <label>
-                    <input type="radio" name="method" value="vnpay">
-                    VNPAY
-                </label>
-
-                <label>
-                    <input type="radio" name="method" value="momo">
-                    Ví Momo
-                </label>
-            </div>
-
-        </div>
-
-        <div class="checkout-right">
-
-            <h2>Đơn hàng của bạn</h2>
-
-            <?php
-            $total = 0;
-            foreach ($_SESSION['cart'] as $pid => $item):
-                $total += $item['price'] * $item['qty'];
-            ?>
-
-            <div class="cart-item">
-                <img src="<?= $item['image'] ?>" class="cart-thumb">
-
-                <div class="cart-info">
-                    <p class="cart-name"><?= $item['name'] ?></p>
-                    <p>Size: <?= $item['size'] ?></p>
-                    <p>Số lượng: <?= $item['qty'] ?></p>
+            <div class="pay-box">
+                <h2 class="pay-title">Có lỗi xảy ra</h2>
+                <div class="pay-msg pay-msg-error">
+                    <?= htmlspecialchars($error) ?>
                 </div>
-
-                <div class="cart-price">
-                    <?= number_format($item['price'] * $item['qty']) ?>đ
+                <div class="pay-btn">
+                    <a href="giohang.php">Quay lại giỏ hàng</a>
                 </div>
             </div>
 
-            <?php endforeach; ?>
+        <?php elseif ($method === 'cod'): ?>
 
-            <div class="checkout-total">
-                <p>Tạm tính:</p>
-                <p><?= number_format($total) ?>đ</p>
+            <!-- GIAO DIỆN COD: ĐẶT HÀNG THÀNH CÔNG -->
+            <div class="pay-box">
+                <h2 class="pay-title">Đặt hàng thành công</h2>
+                <div class="pay-msg">
+                    Cảm ơn bạn đã đặt hàng!<br>
+                    Đơn hàng đang được xử lý và sẽ giao trong thời gian sớm nhất.
+                </div>
+                <div class="pay-total">
+                    Tổng tiền: <?= number_format($total, 0, ',', '.') ?>đ
+                </div>
+                <div class="pay-btn">
+                    <a href="trangchu.php">Về trang chủ</a>
+                </div>
             </div>
 
-            <div class="checkout-total grand">
-                <p><strong>Tổng cộng:</strong></p>
-                <p><strong><?= number_format($total) ?>đ</strong></p>
+        <?php elseif ($method === 'vnpay' && $step === 'select'): ?>
+
+            <!-- GIAO DIỆN CHỌN PHƯƠNG THỨC VNPAY -->
+            <div class="vnpay-card">
+                <div class="vnpay-header">
+                    <img src="images/vnpay.png" alt="VNPay" class="vnpay-logo">
+                    <h2 class="vnpay-title">Chọn phương thức thanh toán</h2>
+                </div>
+
+                <div class="vnpay-method-list">
+                    <!-- Cả 3 dòng đều link sang step=qr (demo QR giống nhau) -->
+                    <a href="thanhtoan.php?method=vnpay&step=qr" class="vnpay-method">
+                        <div class="vnpay-method-text">
+                            <div class="vnpay-method-main">App Ngân hàng và Ví điện tử (VNPayQR)</div>
+                            <div class="vnpay-method-sub">Quét mã VNPAYQR bằng app ngân hàng / ví điện tử</div>
+                        </div>
+                        <span class="vnpay-arrow">&rsaquo;</span>
+                    </a>
+
+                    <a href="thanhtoan.php?method=vnpay&step=qr" class="vnpay-method">
+                        <div class="vnpay-method-text">
+                            <div class="vnpay-method-main">Thẻ nội địa và tài khoản ngân hàng</div>
+                            <div class="vnpay-method-sub">Thanh toán bằng thẻ ATM / Internet Banking</div>
+                        </div>
+                        <span class="vnpay-arrow">&rsaquo;</span>
+                    </a>
+
+                    <a href="thanhtoan.php?method=vnpay&step=qr" class="vnpay-method">
+                        <div class="vnpay-method-text">
+                            <div class="vnpay-method-main">App VNPAY</div>
+                            <div class="vnpay-method-sub">Sử dụng ứng dụng VNPAY để thanh toán</div>
+                        </div>
+                        <span class="vnpay-arrow">&rsaquo;</span>
+                    </a>
+                </div>
+
+                <div class="vnpay-footer">
+                    Số tiền: <strong><?= number_format($total, 0, ',', '.') ?>đ</strong><br>
+                    Đơn hàng #<?= (int)$orderId ?>
+                </div>
             </div>
 
-            <button type="submit" class="btn-checkout">HOÀN TẤT ĐƠN HÀNG</button>
+        <?php elseif ($method === 'vnpay' && $step === 'qr'): ?>
 
-        </div>
+            <!-- GIAO DIỆN QR VNPAY DEMO -->
+            <div class="pay-box">
+                <h2 class="pay-title">Thanh toán qua VNPay</h2>
+                <img src="images/vnpay.png" class="gateway-logo" alt="VNPay">
 
-    </form>
+                <div class="pay-msg">
+                    Đơn hàng #<?= (int)$orderId ?> đang chờ thanh toán.<br>
+                    Quét QR bên dưới bằng app ngân hàng / ví VNPay để thanh toán.
+                </div>
 
+                <div class="pay-total">
+                    Số tiền: <?= number_format($total, 0, ',', '.') ?>đ
+                </div>
+
+                <div class="qr-box">
+                    <!-- DEMO: QR tĩnh -->
+                    <img src="images/qr_vnpay_demo.png" alt="VNPay QR">
+                </div>
+
+                <div class="pay-btn">
+                    <a href="trangchu.php">Về trang chủ</a>
+                </div>
+            </div>
+
+        <?php elseif ($method === 'momo'): ?>
+
+            <!-- GIAO DIỆN QR MOMO -->
+            <div class="pay-box">
+                <h2 class="pay-title">Thanh toán qua MoMo</h2>
+                <img src="images/momo.png" class="gateway-logo" alt="MoMo">
+
+                <div class="pay-msg">
+                    Đơn hàng #<?= (int)$orderId ?> đang chờ thanh toán.<br>
+                    Quét QR bằng app MoMo để hoàn tất thanh toán.
+                </div>
+
+                <div class="pay-total">
+                    Số tiền: <?= number_format($total, 0, ',', '.') ?>đ
+                </div>
+
+                <div class="qr-box">
+                    <!-- DEMO: QR tĩnh -->
+                    <img src="images/qr_momo_demo.png" alt="MoMo QR">
+                </div>
+
+                <div class="pay-btn">
+                    <a href="trangchu.php">Về trang chủ</a>
+                </div>
+            </div>
+
+        <?php endif; ?>
+
+    </div>
 </section>
 
-<?php require_once __DIR__ . '/partials/footer.php'; ?>
+<?php require __DIR__ . "/partials/footer.php"; ?>
