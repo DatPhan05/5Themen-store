@@ -28,10 +28,10 @@
             <div class="footer-col">
                 <h4>Hỗ trợ khách hàng</h4>
                 <ul class="footer-links">
-                    <li><a href="#">5 trai đẹp tư vấn nhiệt tình</a></li>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Giao hàng nhanh nhất có thể</a></li>
-                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">5 ANH SIÊU ĐẸP TRAI TƯ VẤN TẬN TÂM</a></li>
+                    <li><a href="#">5 ANH SIÊU ĐẸP TRAI SẼ GIỮ BÍ MẬT </a></li>
+                    <li><a href="#">5 ANH SIÊU ĐẸP TRAI GIAO HÀNG SIÊU NHANH</a></li>
+                    <li><a href="#">5 ANH SIÊU ĐẸP TRAI SẼ HƯỚNG DẪN MUA HÀNG</a></li>
                 </ul>
             </div>
 

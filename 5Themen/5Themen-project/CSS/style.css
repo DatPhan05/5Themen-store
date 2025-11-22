@@ -161,7 +161,6 @@ body {
             color: #990000;
             font-size: 14px;
         }
-
 /* =====================================================================
    2. FRONTEND CSS (TỪ CSS/style.css cũ)
    ===================================================================== */
@@ -194,6 +193,35 @@ a {
     display: flex;
     flex-wrap: wrap;
 }
+
+/*suatuday*/
+/* NEW modern account page */
+.account-container{
+  max-width:1200px;margin:40px auto;display:flex;gap:40px
+}
+.account-sidebar{
+  width:260px;background:#fff;padding:20px;border:1px solid #eee;border-radius:8px
+}
+.account-sidebar ul{list-style:none;padding:0;margin:0}
+.account-sidebar li{margin:10px 0}
+.account-sidebar a{color:#333;text-decoration:none;font-size:15px;transition:.2s}
+.account-sidebar a:hover{color:#000;padding-left:4px}
+.account-content{
+  flex:1;background:#fff;padding:30px;border:1px solid #eee;border-radius:8px
+}
+.account-content h2{
+  font-size:26px;margin-bottom:20px;font-weight:700;text-align:center
+}
+.account-form{max-width:500px;margin:auto;display:flex;flex-direction:column;gap:18px}
+.account-form label{font-size:14px;color:#444}
+.account-form input{
+  padding:12px;border:1px solid #ccc;border-radius:6px;font-size:15px
+}
+.account-form button{
+  padding:12px;background:#000;color:#fff;border:none;border-radius:6px;
+  font-weight:600;cursor:pointer;transition:.2s
+}
+.account-form button:hover{background:#444}
 
 /* =========================================
    NEW HEADER (Luxury – Ivy Moda Style)
@@ -1339,127 +1367,57 @@ a {
 
 
 /* =============================
-   ACCOUNT PAGE (Trang Tài Khoản)
-   Giao diện giống ICON DENIM
+   RESPONSIVE
    ============================= */
 
-.account-container {
-    padding: 40px 0;
-    background: #f8f8f8;
+@media (max-width: 992px) {
+    .account-wrapper {
+        width: 100%;
+        padding: 0 15px;
+        flex-direction: column;
+    }
+
+    .account-sidebar {
+        width: 100%;
+    }
+
+    .account-content {
+        width: 100%;
+    }
+
+    .order-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .order-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
 }
 
-.account-wrapper {
-    width: 1200px;
-    margin: auto;
-    display: flex;
-    gap: 40px;
+@media (max-width: 576px) {
+    .order-item {
+        align-items: flex-start;
+    }
+
+    .order-item-thumb img {
+        width: 60px;
+        height: 80px;
+    }
+
+    .account-orders-tabs {
+        gap: 8px;
+    }
+
+    .account-orders-tabs a {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
 }
 
-/* SIDEBAR */
-.account-sidebar {
-    width: 260px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 6px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.05);
-}
-
-.account-sidebar h3 {
-    margin-bottom: 15px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.account-sidebar ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.account-sidebar li {
-    margin: 12px 0;
-}
-
-.account-sidebar a {
-    color: #333;
-    text-decoration: none;
-    font-size: 16px;
-    transition: 0.2s;
-}
-
-.account-sidebar a:hover {
-    color: #000;
-    padding-left: 5px;
-}
-
-.account-sidebar a.active {
-    font-weight: bold;
-    color: #000;
-    text-decoration: underline;
-}
-
-.account-sidebar .logout {
-    color: red;
-    font-weight: bold;
-}
-
-/* MAIN CONTENT */
-.account-content {
-    flex: 1;
-    background: #fff;
-    padding: 30px;
-    border-radius: 6px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.05);
-}
-
-.account-content h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-.account-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.account-form label {
-    font-size: 15px;
-    margin-top: 5px;
-}
-
-.account-form input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 15px;
-}
-
-.account-form button {
-    padding: 12px;
-    width: 150px;
-    background: #000;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 10px;
-    font-weight: bold;
-    transition: .2s;
-}
-
-.account-form button:hover {
-    background: #444;
-}
-
-.msg {
-    padding: 12px;
-    background: #dff0d8;
-    color: #3c763d;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    border: 1px solid #c8e5bc;
-}
 /* ============================================================
    FIX: Category page full width (ĐÃ SỬA)
    ============================================================ */
@@ -2516,6 +2474,9 @@ a {
     }
 }
 /* = css của thanh toán= */
+/* =========================================================
+   PAGE THANH TOÁN CHUNG
+   ========================================================= */
 
 .pay-page {
     padding: 60px 0 80px;
@@ -2526,17 +2487,21 @@ a {
 .pay-page .container {
     max-width: 900px;
     margin: 0 auto;
+    padding: 0 15px; /* fix lỗi mobile bị sát lề */
 }
 
-/* CARD CHUNG (COD, QR VNPAY, QR MOMO) */
+/* =========================================================
+   CARD CHUNG (COD, QR VNPAY, QR MOMO)
+   ========================================================= */
+
 .pay-box {
-    max-width: 600px;
+    max-width: 640px;
     margin: 0 auto;
     background: #ffffff;
     border-radius: 10px;
     border: 1px solid #e1e1e1;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    padding: 28px 32px 32px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05); /* nhẹ hơn, giống ICONDENIM */
+    padding: 30px 34px 34px;
     text-align: center;
 }
 
@@ -2563,9 +2528,9 @@ a {
 }
 
 .pay-total {
-    margin-top: 6px;
+    margin-top: 10px;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: #000;
 }
 
@@ -2575,32 +2540,34 @@ a {
 
 .pay-btn a {
     display: inline-block;
-    padding: 10px 26px;
+    padding: 11px 28px;
     border-radius: 6px;
     background: #0c5adb;
     color: #fff;
     text-decoration: none;
     font-size: 15px;
+    transition: 0.2s ease;
 }
 
 .pay-btn a:hover {
     background: #003c9c;
 }
 
-/* LOGO CỔNG THANH TOÁN + QR */
+/* LOGO & QR */
 .gateway-logo {
     height: 46px;
-    margin: 8px 0 12px;
+    margin: 8px 0 14px;
 }
 
 .qr-box {
-    margin-top: 18px;
+    margin-top: 20px;
 }
 
 .qr-box img {
-    width: 220px;
-    height: 220px;
+    width: 230px;
+    height: 230px;
     object-fit: contain;
+    border-radius: 6px;
 }
 
 /* =========================================================
@@ -2611,22 +2578,22 @@ a {
     max-width: 720px;
     margin: 0 auto;
     background: #ffffff;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid #e1e1e1;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    padding: 24px 32px 28px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    padding: 28px 34px 32px;
 }
 
 .vnpay-header {
     text-align: center;
-    margin-bottom: 18px;
+    margin-bottom: 22px;
     border-bottom: 1px solid #eee;
-    padding-bottom: 14px;
+    padding-bottom: 16px;
 }
 
 .vnpay-logo {
     height: 40px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .vnpay-title {
@@ -2636,7 +2603,7 @@ a {
 }
 
 .vnpay-method-list {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .vnpay-method {
@@ -2644,13 +2611,13 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 18px;
-    border-radius: 8px;
+    padding: 16px 18px;
+    border-radius: 10px;
     border: 1px solid #e1e1e1;
     background: #fafafa;
     text-decoration: none;
     color: #222;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     transition: 0.2s ease;
 }
 
@@ -2661,6 +2628,7 @@ a {
 
 .vnpay-method-text {
     text-align: left;
+    width: 100%;
 }
 
 .vnpay-method-main {
@@ -2675,29 +2643,38 @@ a {
 }
 
 .vnpay-arrow {
-    font-size: 22px;
+    font-size: 28px;
     color: #999;
+    line-height: 1; /* fix lệch icon */
+    margin-left: 6px;
 }
 
 .vnpay-footer {
-    margin-top: 14px;
+    margin-top: 18px;
     font-size: 14px;
     color: #555;
-    text-align: right;
+    text-align: center;
 }
 
-/* MOBILE */
+/* =========================================================
+   MOBILE RESPONSIVE
+   ========================================================= */
+
 @media (max-width: 768px) {
-    .pay-page .container {
-        padding: 0 12px;
+    .pay-box {
+        padding: 24px 20px;
     }
 
     .vnpay-card {
-        padding: 20px 16px 22px;
+        padding: 24px 18px;
     }
 
     .vnpay-method {
-        padding: 12px 12px;
+        padding: 14px 14px;
+    }
+
+    .qr-box img {
+        width: 200px;
+        height: 200px;
     }
 }
-

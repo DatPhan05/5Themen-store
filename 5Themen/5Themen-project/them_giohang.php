@@ -1,127 +1,135 @@
 <?php
-require_once __DIR__ . '/include/session.php';
-require_once __DIR__ . '/admin/class/product_class.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-$productModel = new Product();
+require_once __DIR__ . '/include/database.php';
 
-/*************************************************
- * KHỞI TẠO GIỎ NẾU CHƯA CÓ
- *************************************************/
-if (!isset($_SESSION['cart'])) {
+// --------------------
+// FIX PATH ẢNH (HÀM QUAN TRỌNG)
+// --------------------
+function fixImagePath($path)
+{
+    if (!$path) return '';
+
+    // Xóa trường hợp double uploads/uploads
+    $path = str_replace('uploads/uploads/', 'uploads/', $path);
+
+    // Nếu DB lưu dạng "uploads/xxx.jpg"
+    if (strpos($path, 'uploads/') === 0) {
+        return 'admin/' . $path;
+    }
+
+    // Nếu DB lưu dạng "admin/uploads/xxx.jpg"
+    if (strpos($path, 'admin/uploads/') === 0) {
+        return $path;
+    }
+
+    // Nếu chỉ là tên file "abc.jpg"
+    if (!str_contains($path, '/')) {
+        return 'admin/uploads/' . $path;
+    }
+
+    return $path;
+}
+
+// ----------------------------------------------------
+// Đảm bảo luôn có giỏ hàng
+// ----------------------------------------------------
+if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-/*************************************************
- * 1. UPDATE SỐ LƯỢNG (+ / -)
- *    URL dạng: them_giohang.php?action=update&id=10&qty=2
- *************************************************/
-if (isset($_GET['action']) && $_GET['action'] == "update") {
+$action = $_GET['action'] ?? 'add';
 
-    $id  = (int)$_GET['id'];
-    $qty = (int)$_GET['qty'];
+// Lấy product_id
+$product_id = isset($_POST['product_id'])
+    ? (int)$_POST['product_id']
+    : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
 
-    if ($qty < 1) $qty = 1;
+if ($product_id <= 0) {
+    header("Location: trangchu.php");
+    exit;
+}
 
-    if (isset($_SESSION['cart'][$id])) {
-        $_SESSION['cart'][$id]['qty'] = $qty;
+// ================= UPDATE QTY =================
+if ($action === 'update') {
+    $qty = isset($_GET['qty']) ? (int)$_GET['qty'] : 1;
+    if ($qty <= 0) $qty = 1;
+
+    if (isset($_SESSION['cart'][$product_id])) {
+        $_SESSION['cart'][$product_id]['qty'] = $qty;
     }
 
     header("Location: giohang.php");
     exit;
 }
 
+// ================= CHANGE SIZE =================
+if ($action === 'changesize') {
+    $size = $_GET['size'] ?? 'L';
 
-/*************************************************
- * 2. THAY ĐỔI SIZE
- *    URL dạng: them_giohang.php?action=changesize&id=10&size=M
- *************************************************/
-if (isset($_GET['action']) && $_GET['action'] == "changesize") {
-
-    $id   = (int)$_GET['id'];
-    $size = $_GET['size'] ?? "L";
-
-    if (isset($_SESSION['cart'][$id])) {
-        $_SESSION['cart'][$id]['size'] = $size;
+    if (isset($_SESSION['cart'][$product_id])) {
+        $_SESSION['cart'][$product_id]['size'] = $size;
     }
 
     header("Location: giohang.php");
     exit;
 }
 
-
-/*************************************************
- * 3. THÊM SẢN PHẨM VÀO GIỎ (POST từ trang chi tiết)
- *************************************************/
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $id    = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
-    $qty   = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
-    $size  = $_POST['option2'] ?? "L";
-
-    if ($id <= 0) {
-        header("Location: giohang.php");
-        exit;
-    }
-
-    // Lấy sản phẩm
-    $product = $productModel->get_product($id);
-
-    if (!$product) {
-        header("Location: giohang.php");
-        exit;
-    }
-
-    // Nếu chưa có thì thêm mới
-    if (!isset($_SESSION['cart'][$id])) {
-        $_SESSION['cart'][$id] = [
-            "name"  => $product["product_name"],
-            "price" => (float) $product["product_price"],
-            "qty"   => $qty,
-            "image" => $product["product_img"],
-            "size"  => $size,
-            "color" => ""
-        ];
-    }
-    // Nếu đã có → cộng dồn
-    else {
-        $_SESSION['cart'][$id]['qty'] += $qty;
-    }
-
+// ================= REMOVE =================
+if ($action === 'remove') {
+    unset($_SESSION['cart'][$product_id]);
     header("Location: giohang.php");
     exit;
 }
 
+// ================= ADD PRODUCT =================
+$size = $_POST['option2'] ?? ($_GET['size'] ?? 'L');
 
-/*************************************************
- * 4. THÊM TỪ GET (category.php?action=add)
- *************************************************/
-if (isset($_GET['action']) && $_GET['action'] == "add") {
+$qty = isset($_POST['quantity'])
+    ? (int)$_POST['quantity']
+    : (isset($_GET['qty']) ? (int)$_GET['qty'] : 1);
 
-    $id = (int)$_GET['id'];
+if ($qty <= 0) $qty = 1;
 
-    if ($id > 0) {
-        $product = $productModel->get_product($id);
+// Query sản phẩm
+$db   = new Database();
+$conn = $db->link;
 
-        if ($product) {
-            if (!isset($_SESSION['cart'][$id])) {
-                $_SESSION['cart'][$id] = [
-                    "name"  => $product["product_name"],
-                    "price" => (float) $product["product_price"],
-                    "qty"   => 1,
-                    "image" => $product["product_img"],
-                    "size"  => "L",
-                    "color" => ""
-                ];
-            } else {
-                $_SESSION['cart'][$id]['qty']++;
-            }
-        }
-    }
+$sql = "SELECT * FROM tbl_product WHERE product_id = $product_id LIMIT 1";
+$rs  = $conn->query($sql);
 
-    header("Location: giohang.php");
+if (!$rs || $rs->num_rows === 0) {
+    header("Location: trangchu.php");
+    exit;
+}
+
+$product = $rs->fetch_assoc();
+
+// PATH ẢNH CHUẨN 100%
+$imgPath = fixImagePath($product['product_img']);
+
+if (isset($_SESSION['cart'][$product_id])) {
+    $_SESSION['cart'][$product_id]['qty']  += $qty;
+    $_SESSION['cart'][$product_id]['size'] = $size;
+} else {
+    $_SESSION['cart'][$product_id] = [
+        'id'    => $product_id,
+        'name'  => $product['product_name'],
+        'price' => (float)$product['product_price'],
+        'qty'   => $qty,
+        'size'  => $size,
+        'img'   => $imgPath,
+        'image' => $imgPath
+    ];
+}
+
+// Nếu bấm Mua Ngay → vào giỏ ngay
+if (isset($_POST['buy_now'])) {
+    header("Location: giohang.php?buynow=1");
     exit;
 }
 
 header("Location: giohang.php");
 exit;
-?>
