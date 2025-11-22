@@ -62,115 +62,193 @@ $breadcrumbs = [
 
 <?php require __DIR__ . "/partials/header.php"; ?>
 
-<!-- BREADCRUMB -->
 <?php require __DIR__ . "/partials/breadcrumb.php"; ?>
 
-<section class="cart">
-    <div class="container">
+<section class="cart-icondenim">
+    <div class="container cart-container">
 
-        <!-- Thanh bước -->
-        <div class="cart-top-wrap">
-            <div class="cart-top">
-                <div class="cart-top-cart cart-top-item"><i class="fas fa-shopping-cart"></i></div>
-                <div class="cart-top-adress cart-top-item"><i class="fas fa-map-marker-alt"></i></div>
-                <div class="cart-top-payment cart-top-item"><i class="fas fa-money-check-alt"></i></div>
-            </div>
+        <!-- CỘT TRÁI -->
+        <div class="cart-left">
+
+            <h2 class="section-title">Thông tin đơn hàng</h2>
+
+            <form class="cart-form">
+                <div class="form-group">
+                    <input class="input" type="text" name="fullname" placeholder="Họ và tên">
+                    <span class="error-msg" id="err-fullname"></span>
+                </div>
+
+                <div class="form-group">
+                    <input class="input" type="text" name="phone" placeholder="Số điện thoại">
+                    <span class="error-msg" id="err-phone"></span>
+                </div>
+                <div class="form-group">
+                    <input class="input" type="text" name="address" placeholder="Địa chỉ nhận hàng">
+                    <span class="error-msg" id="err-address"></span>
+                </div>
+            </form>
+
+            <h2 class="section-title">Phương thức vận chuyển</h2>
+
+            <label class="ship-option active">
+                <input type="radio" name="ship" checked>
+                Freeship đơn hàng
+            </label>
+
+            <h2 class="section-title">Hình thức thanh toán</h2>
+
+            <label class="pay-item active">
+                <input type="radio" name="payment" value="cod" checked>
+                <img src="images/cod.png" alt="COD">
+                Thanh toán khi nhận hàng (COD)
+            </label>
+
+            <label class="pay-item">
+                <input type="radio" name="payment" value="vnpay">
+                <img src="images/vnpay.png" alt="VNPay">
+                Thanh toán qua VNPay
+            </label>
+
+            <label class="pay-item">
+                <input type="radio" name="payment" value="momo">
+                <img src="images/momo.png" alt="MoMo">
+                Thanh toán MoMo
+            </label>
+
         </div>
 
-        <div class="cart-content row">
+        <!-- CỘT PHẢI -->
+        <div class="cart-right">
 
-            <!---------------------- BÊN TRÁI ---------------------->
-            <div class="cart-content-left">
-                <table>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>Tên</th>
-                        <th>Màu</th>
-                        <th>Size</th>
-                        <th>SL</th>
-                        <th>Thành tiền</th>
-                        <th>Xóa</th>
-                    </tr>
+            <h2 class="section-title">Giỏ hàng</h2>
 
-                    <?php 
-                    if (!empty($_SESSION['cart'])):
-                        foreach($_SESSION['cart'] as $key => $item):
-                            $thanhtien = $item['price'] * $item['qty'];
-                    ?>
-                    <tr>
-                        <td>
-                            <img src="<?= htmlspecialchars($item['image']) ?>" width="100" alt="">
-                        </td>
-                        <td><?= htmlspecialchars($item['name']) ?></td>
+            <?php if (!empty($_SESSION['cart'])): ?>
+                <?php foreach ($_SESSION['cart'] as $id => $item): ?>
+                    <div class="cart-item">
+                        <img src="<?= htmlspecialchars($item['image']) ?>" class="cart-thumb" alt="Ảnh sản phẩm">
+                        
+                        <div class="item-info">
+                            <div class="item-name"><?= htmlspecialchars($item['name']) ?></div>
+                            <div class="item-size">
+                                <form action="them_giohang.php" method="GET">
+                                    <input type="hidden" name="action" value="changesize">
+                                    <input type="hidden" name="id" value="<?= $id ?>">
 
-                        <!-- màu tạm thời -->
-                        <td>
-                            <?php if ($item['color']): ?>
-                                <?= htmlspecialchars($item['color']) ?>
-                            <?php else: ?>
-                                <div style="width:20px;height:20px;background:#000;border-radius:50%;margin:auto"></div>
-                            <?php endif; ?>
-                        </td>
+                                    <select name="size" onchange="this.form.submit()">
+                                        <option value="S" <?= $item['size'] == 'S' ? 'selected' : '' ?>>S</option>
+                                        <option value="M" <?= $item['size'] == 'M' ? 'selected' : '' ?>>M</option>
+                                        <option value="L" <?= $item['size'] == 'L' ? 'selected' : '' ?>>L</option>
+                                        <option value="XL" <?= $item['size'] == 'XL' ? 'selected' : '' ?>>XL</option>
+                                    </select>
+                                </form>
+                            </div>
 
-                        <!-- size -->
-                        <td><?= htmlspecialchars($item['size']) ?></td>
+                            
 
-                        <!-- SL -->
-                        <td><?= (int)$item['qty'] ?></td>
+                            <div class="qty-box">
+                                <a href="them_giohang.php?action=update&id=<?= $id ?>&qty=<?= max(1, $item['qty'] - 1) ?>">−</a>
+                                <span><?= $item['qty'] ?></span>
+                                <a href="them_giohang.php?action=update&id=<?= $id ?>&qty=<?= $item['qty'] + 1 ?>">+</a>
+                            </div>
+                        </div>
 
-                        <!-- Thành tiền -->
-                        <td><?= number_format($thanhtien, 0, ',', '.') ?>đ</td>
+                        <div class="price"><?= number_format($item['price'] * $item['qty'], 0, ',', '.') ?>đ</div>
 
-                        <!-- Xóa -->
-                        <td><a href="giohang.php?delete=<?= (int)$key ?>">X</a></td>
-                    </tr>
+                        <a href="giohang.php?delete=<?= $id ?>" class="remove">&times;</a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Giỏ hàng trống.</p>
+            <?php endif; ?>
 
-                    <?php 
-                        endforeach;
-                    else:
-                    ?>
-                    <tr>
-                        <td colspan="7" style="text-align:center; padding: 20px 0;">
-                            Giỏ hàng của bạn đang trống.
-                        </td>
-                    </tr>
-                    <?php endif; ?>
-                </table>
-            </div>
-
-            <!---------------------- BÊN PHẢI ---------------------->
-            <div class="cart-content-right">
-                <?php 
+            <?php
                 $total = 0;
                 if (!empty($_SESSION['cart'])) {
                     foreach ($_SESSION['cart'] as $item) {
                         $total += $item['price'] * $item['qty'];
                     }
                 }
-                ?>
+            ?>
 
-                <table>
-                    <tr>
-                        <th colspan="2">TỔNG TIỀN GIỎ HÀNG</th>
-                    </tr>
-                    <tr>
-                        <td>Tạm tính:</td>
-                        <td><?= number_format(      $total, 0, ',', '.') ?>đ</td>
-                    </tr>
-                    <tr>
-                        <td>Tổng cộng:</td>
-                        <td><strong><?= number_format($total, 0, ',', '.') ?>đ</strong></td>
-                    </tr>
-                </table>
-
-                <div class="cart-content-right-button">
-                    <button onclick="window.location='trangchu.php'">TIẾP TỤC MUA SẮM</button>
-                    <button onclick="window.location='thanhtoan.php'">THANH TOÁN</button>
+            <div class="cart-total">
+                <div class="total-row">
+                    <span>Tạm tính:</span>
+                    <span><?= number_format($total, 0, ',', '.') ?>đ</span>
                 </div>
+
+                <div class="total-row total-final">
+                    <strong>Tổng cộng:</strong>
+                    <span class="text-main"><strong><?= number_format($total, 0, ',', '.') ?>đ</strong></span>
+                </div>
+
+                <button type="button" class="btn-checkout" onclick="processCheckout()">
+                    Thanh toán
+                </button>
             </div>
 
-        </div>                      
+        </div>
+
     </div>
 </section>
+
+<script>
+function processCheckout() {
+
+    let ok = true;
+
+    // Lấy input
+    const fullname = document.querySelector('input[name="fullname"]');
+    const phone    = document.querySelector('input[name="phone"]');
+    const address  = document.querySelector('input[name="address"]');
+
+    // Reset lỗi cũ
+    document.querySelectorAll('.error-msg').forEach(e => e.innerText = "");
+    document.querySelectorAll('.input').forEach(e => e.classList.remove('input-error'));
+
+    // Validate fullname
+    if (fullname.value.trim() === "") {
+        ok = false;
+        fullname.classList.add('input-error');
+        document.getElementById('err-fullname').innerText = "Vui lòng nhập họ tên!";
+    }
+
+    // Validate phone
+    const phoneRegex = /^(0[0-9]{9})$/;
+
+    if (phone.value.trim() === "") {
+        ok = false;
+        phone.classList.add('input-error');
+        document.getElementById('err-phone').innerText = "Số điện thoại không được trống!";
+    }
+    else if (!phoneRegex.test(phone.value.trim())) {
+        ok = false;
+        phone.classList.add('input-error');
+        document.getElementById('err-phone').innerText = "Số điện thoại không hợp lệ!";
+    }
+
+    // Validate address
+    if (address.value.trim() === "") {
+        ok = false;
+        address.classList.add('input-error');
+        document.getElementById('err-address').innerText = "Địa chỉ không được trống!";
+    }
+
+    // Nếu có lỗi → DỪNG
+    if (!ok) return;
+
+    // Kiểm tra phương thức thanh toán
+    const checked = document.querySelector('input[name="payment"]:checked');
+    if (!checked) {
+        alert('Vui lòng chọn phương thức thanh toán');
+        return;
+    }
+
+    const method = checked.value;
+
+    // TẤT CẢ OK → chuyển trang
+    window.location.href = 'thanhtoan.php?method=' + method;
+}
+
+</script>
 
 <?php require __DIR__ . "/partials/footer.php"; ?>

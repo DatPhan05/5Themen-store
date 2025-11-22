@@ -614,163 +614,6 @@ a {
 }
 
 
-
-
-/* ----------------------Cart---------------------- */
-/* Khối bọc toàn bộ nội dung giỏ hàng */
-.cart {
-    padding: 0 0 80px;   /* top = 0, bottom = 80px */
-    background: #fff;
-    min-height: 500px;   /* cho footer không bò lên khi giỏ ít / trống */
-}
-
-/* Thanh hiển thị tiến trình (cart → address → payment) */
-.cart-top-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.cart-top {
-    height: 2px; /* Thanh mảnh nối giữa các icon */
-    width: 70%;
-    background-color: #dddddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 50px 0 100px; 
-}
-
-/* Vòng tròn icon trong thanh tiến trình */
-.cart-top-item {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%; 
-    border: 1px solid #dddddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
-}
-
-.cart-top-cart { border: 1px solid #0DB7EA; } /* Bước hiện tại tô màu khác */
-.cart-top-cart i { color: #0DB7EA; }
-
-/* ----------Bảng sản phẩm (bên trái)---------- */
-.cart-content-left {
-    flex: 2;
-    padding-right: 12px; 
-}
-
-.cart-content-left table {
-    width: 100%;
-    text-align: center;
-}
-
-/* Tiêu đề cột bảng */
-.cart-content-left table th {
-    padding-bottom: 30px;
-    font-size: 15px;
-    text-transform: uppercase;
-    color: #333;
-    border-bottom: 2px solid #dddddd;
-}
-
-/* Nội dung bảng */
-.cart-content-left table td {
-    padding: 20px 0;
-    border-bottom: 2px solid #dddddd;
-}
-
-/* Cỡ ảnh và các cột cụ thể */
-.cart-content-left td:first-child img { width: 130px; } /* Ảnh sản phẩm */
-.cart-content-left td:nth-child(2) { max-width: 130px; } /* Tên sản phẩm */
-.cart-content-left td:nth-child(3) img { width: 30px; } /* Ảnh màu */
-
-/* Ô nhập số lượng */
-.cart-content-left table input { width: 30px;}
-
-/* Nút “X” xóa sản phẩm */
-.cart-content-left table span {
-    display: block;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #dddddd;
-    cursor: pointer;
-}
-
-/* ----------Phần tổng kết (bên phải)---------- */
-.cart-content-right {
-    flex: 1;
-    padding-left: 15px;
-    border-left: 2px solid #dddddd; /* Đường phân chia hai phần */
-}
-
-/* Bảng tổng tiền */
-.cart-content-right table {
-    width: 100%;
-}
-
-/* Dòng tiêu đề “TỔNG TIỀN GIỎ HÀNG” */
-.cart-content-right table th {
-    padding-bottom: 30px;
-    font-size: 15px;
-    color: #333;
-    border-bottom: 2px solid #dddddd;
-}
-
-/* Căn phải cột cuối (giá tiền) */
-.cart-content-right tr td:last-child {
-    text-align: right;
-}
-
-/* Dòng gợi ý miễn phí ship */
-.cart-content-right-text {
-    margin: 20px 0;
-    text-align: center;
-    font-size: 15px;
-    color: #333;
-}
-
-/* Các nút hành động (mua tiếp, thanh toán) */
-.cart-content-right-button {
-    text-align: center;
-}
-
-.cart-content-right-button button {
-    padding: 0 18px;
-    border-radius: 8px; /* Bo góc nút */
-    height: 35px;
-    cursor: pointer;
-}
-
-/* Nút “Tiếp tục mua sắm” */
-.cart-content-right-button button:first-child {
-    background-color: #fff;
-    border: 1px solid black;
-    margin-right: 20px;
-}
-.cart-content-right-button button:first-child:hover {
-    background-color: #ddd;
-}
-
-/* Nút “Thanh toán” */
-.cart-content-right-button button:last-child {
-    background-color: black;
-    color: #fff;
-    border: 1px solid black;
-}
-.cart-content-right-button button:last-child:hover {
-    background-color: #dddddd;
-    color: black;
-}
-
-/* Phần nhắc đăng nhập tích điểm */
-.cart-content-right-dangnhap {
-    margin-top: 20px;
-    font-size: 15px;
-    color: #333;
-}
 /*---------------------------------Delivery-----------------------*/
 .delivery {
     padding: 100px 0;
@@ -944,133 +787,7 @@ a {
 .delivery-content-right {
     width: 38%;
 }
-
-/* ----------------------Payment---------------------- */
-.payment {
-    padding: 100px 0;
-}
-
-.payment-top-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.payment-top {
-    height: 2px;
-    width: 70%;
-    background-color: #dddddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 50px 0 100px;
-}
-
-
-.payment-top-item {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid #dddddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
-}
-
-.payment-top-item i {
-    color: #dddddd;
-}
-
-.payment-top-payment {
-    border: 1px solid #0D87EA;
-}
-
-.payment-top-payment i {
-    color: #0D87EA;
-}
-
-.payment-content-left {
-    width: 60%;
-}
-
-.payment-content-right {
-    width: 40%;
-    border-left: 2px solid #ddd;
-    padding-left: 12px;
-}
-
-.payment-content-left p, .payment-content-left label {
-    font-size: 12px;
-    font-family: var(--main-text-font);
-}
-
-.payment-content-right-button {
-    display: flex;
-    padding: 12px 0;
-    border-bottom: 1px dashed #dddddd;
-}
-
-.payment-content-right-button input {
-    height: 30px;
-    width: 200px;
-    margin-right: 100px;
-    padding-left: 12px;
-}
-
-.payment-content-right-button button {
-    height: 30px;
-    width: 100px;
-    background-color:black;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.payment-content-right-mnv {
-    margin-top: 20px;
-}
-
-.payment-content-right-mnv select {
-    height: 30px;
-    width: 100%;
-    color: #75578A;
-    padding-left: 12px;
-}
-
-.payment-content-right-payment {
-    margin-top: 50px;
-    align-items: center;
-    text-align: center;
-}
-
-.payment-content-right-payment button {
-    height: 35px;
-    padding: 0 20px;
-    font-size: 12px;
-    color: black;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid;
-}
-
-.payment-content-right-payment button:hover {
-    background-color: black;
-    color: #fff;
-}
-.payment-content-left-method-payment-item-img {
-    display: flex;              /* Hiển thị theo hàng ngang */
-    justify-content: flex-start;/* Căn bên trái */
-    align-items: center;        /* Căn giữa theo chiều cao */
-    gap: 15px;                  /* Khoảng cách giữa các logo */
-    margin: 5px 0;              /* Khoảng cách với phần trên */
-}
-
-.payment-content-left-method-payment-item-img img {
-    max-width: 60px;            /* Giới hạn kích thước logo */
-    height: auto;
-    object-fit: contain;
-}
+ 
 /* ================= AUTH (LOGIN / REGISTER) ================= */
 
 .auth {
@@ -2571,163 +2288,416 @@ a {
         height: 60px;
     }
 }
-/* ============================================
-   CART PAGE – ICONDENIM STYLE
-============================================ */
+/* = CSS CỦA GIỎ HÀNG = */
 
-.cart {
-    padding: 40px 0;
+.cart-icondenim {
+    padding: 40px 0 80px;
     background: #fff;
+    font-family: Arial, sans-serif;
 }
 
-.cart .container {
-    max-width: 1250px;
-    margin: auto;
-}
-
-.cart-top-wrap {
-    width: 100%;
-    margin: 20px 0 40px 0;
-}
-
-.cart-top {
-    width: 100%;
+.cart-icondenim .cart-container {
     display: flex;
-    justify-content: space-between;
-    position: relative;
+    gap: 40px;
 }
 
-.cart-top-item {
-    width: 40px;
-    height: 40px;
-    border: 1px solid #000;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 40px;
-    font-size: 18px;
-    color: #000;
-    background: #fff;
-    position: relative;
-    z-index: 2;
+/* LEFT */
+.cart-icondenim .cart-left {
+    width: 55%;
 }
 
-.cart-top::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 40px;
-    right: 40px;
-    height: 2px;
-    background: #000;
-    transform: translateY(-50%);
-    z-index: 1;
+.cart-icondenim .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #222;
 }
 
-/* LEFT TABLE */
-.cart-content-left table {
+.cart-icondenim .cart-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.cart-icondenim .cart-form .input {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 30px;
-}
-
-.cart-content-left table th {
-    background: #f5f5f5;
     padding: 12px;
-    text-align: left;
-    font-size: 14px;
-    border-bottom: 1px solid #ddd;
-}
-
-.cart-content-left table td {
-    padding: 14px 12px;
-    border-bottom: 1px solid #eee;
-}
-
-.cart-content-left img {
-    width: 90px;
-    height: auto;
-    border-radius: 4px;
-}
-
-/* RIGHT AREA */
-.cart-content-right {
-    padding: 20px;
-    background: #fafafa;
-    border: 1px solid #eee;
     border-radius: 6px;
-    height: max-content;
-}
-
-.cart-content-right table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.cart-content-right table td,
-.cart-content-right table th {
-    padding: 10px 0;
+    border: 1px solid #d7d7d7;
+    outline: none;
     font-size: 15px;
 }
 
-.cart-content-right table th {
-    text-align: left;
-    font-size: 16px;
-    padding-bottom: 12px;
+.cart-icondenim .cart-form .input:focus {
+    border-color: #0c5adb;
 }
 
-.cart-content-right-button {
-    margin-top: 20px;
+/* SHIP METHOD */
+.cart-icondenim .ship-option {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    background: #fafafa;
+}
+
+.cart-icondenim .ship-option.active {
+    border-color: #0c5adb;
+    background: #eef5ff;
+}
+
+.cart-icondenim .ship-option input {
+    transform: scale(1.3);
+}
+
+/* PAYMENT METHOD */
+.cart-icondenim .pay-item {
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #fafafa;
+}
+
+.cart-icondenim .pay-item img {
+    height: 40px;
+}
+
+.cart-icondenim .pay-item.active,
+.cart-icondenim .pay-item:hover {
+    border-color: #0c5adb;
+    background: #eef5ff;
+}
+
+.cart-icondenim .pay-item input {
+    transform: scale(1.3);
+}
+
+/* RIGHT */
+.cart-icondenim .cart-right {
+    width: 45%;
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.cart-icondenim .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.cart-icondenim .cart-thumb {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.cart-icondenim .item-info {
+    flex: 1;
+}
+
+.cart-icondenim .item-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.cart-icondenim .item-size {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+/* Qty box */
+.cart-icondenim .qty-box {
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-.cart-content-right-button button {
-    width: 100%;
-    padding: 12px 0;
-    border: none;
-    cursor: pointer;
+.cart-icondenim .qty-box a {
+    width: 26px;
+    height: 26px;
+    background: #eee;
     border-radius: 4px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Price + remove */
+.cart-icondenim .price {
     font-weight: bold;
+    font-size: 16px;
+    color: #222;
+}
+
+.cart-icondenim .remove {
+    font-size: 22px;
+    color: red;
+    text-decoration: none;
+    padding: 0 8px;
+}
+
+/* TOTAL */
+.cart-icondenim .cart-total {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 2px solid #ddd;
+}
+
+.cart-icondenim .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 16px;
+}
+
+.cart-icondenim .total-final {
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 12px;
+}
+
+/* BUTTON */
+.cart-icondenim .btn-checkout {
+    width: 100%;
+    background: #0c5adb;
+    color: #fff;
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    transition: 0.25s;
+}
+
+.cart-icondenim .btn-checkout:hover {
+    background: #003c9c;
+}
+/* chữ đỏ báo lỗi */    
+.input-error {
+    border: 1px solid #e53935 !important;
+}
+
+.error-msg {
+    color: #e53935;
+    font-size: 13px;
+    margin-top: 3px;
+    display: block;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .cart-icondenim .cart-container {
+        flex-direction: column;
+    }
+    .cart-icondenim .cart-left,
+    .cart-icondenim .cart-right {
+        width: 100%;
+    }
+}
+/* = css của thanh toán= */
+
+.pay-page {
+    padding: 60px 0 80px;
+    background: #f5f5f5;
+    font-family: var(--main-text-font, Arial, Helvetica, sans-serif);
+}
+
+.pay-page .container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* CARD CHUNG (COD, QR VNPAY, QR MOMO) */
+.pay-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e1e1e1;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    padding: 28px 32px 32px;
+    text-align: center;
+}
+
+.pay-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.pay-msg {
+    margin: 15px 0 20px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: #eef7ff;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.pay-msg-error {
+    background: #ffecec;
+    color: #c00;
+}
+
+.pay-total {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #000;
+}
+
+.pay-btn {
+    margin-top: 22px;
+}
+
+.pay-btn a {
+    display: inline-block;
+    padding: 10px 26px;
+    border-radius: 6px;
+    background: #0c5adb;
+    color: #fff;
+    text-decoration: none;
     font-size: 15px;
 }
 
-.cart-content-right-button button:first-child {
-    background: #fff;
-    border: 1px solid #000;
+.pay-btn a:hover {
+    background: #003c9c;
 }
 
-.cart-content-right-button button:first-child:hover {
-    background: #f3f3f3;
+/* LOGO CỔNG THANH TOÁN + QR */
+.gateway-logo {
+    height: 46px;
+    margin: 8px 0 12px;
 }
 
-.cart-content-right-button button:last-child {
-    background: #000;
-    color: #fff;
+.qr-box {
+    margin-top: 18px;
 }
 
-.cart-content-right-button button:last-child:hover {
-    opacity: .85;
+.qr-box img {
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
 }
 
-/* REMOVE LINK */
-.cart-content-left a {
-    color: red;
-    font-weight: bold;
+/* =========================================================
+   VNPAY – TRANG CHỌN PHƯƠNG THỨC
+   ========================================================= */
+
+.vnpay-card {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e1e1e1;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    padding: 24px 32px 28px;
+}
+
+.vnpay-header {
+    text-align: center;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 14px;
+}
+
+.vnpay-logo {
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+.vnpay-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+}
+
+.vnpay-method-list {
+    margin-top: 8px;
+}
+
+.vnpay-method {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+    background: #fafafa;
     text-decoration: none;
+    color: #222;
+    margin-bottom: 10px;
+    transition: 0.2s ease;
 }
 
-.cart-content-left a:hover {
-    text-decoration: underline;
+.vnpay-method:hover {
+    border-color: #0c5adb;
+    background: #eef5ff;
 }
 
-/* RESPONSIVE */
-@media(max-width: 900px){
-    .cart-content {
-        flex-direction: column;
+.vnpay-method-text {
+    text-align: left;
+}
+
+.vnpay-method-main {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.vnpay-method-sub {
+    font-size: 13px;
+    color: #666;
+}
+
+.vnpay-arrow {
+    font-size: 22px;
+    color: #999;
+}
+
+.vnpay-footer {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #555;
+    text-align: right;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .pay-page .container {
+        padding: 0 12px;
     }
 
-    .cart-content-right {
-        margin-top: 25px;
+    .vnpay-card {
+        padding: 20px 16px 22px;
+    }
+
+    .vnpay-method {
+        padding: 12px 12px;
     }
 }
+
