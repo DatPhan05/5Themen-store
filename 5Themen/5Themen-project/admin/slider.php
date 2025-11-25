@@ -1,5 +1,12 @@
 <?php ob_start(); ?>
-  <style>
+<style>
+    /* BỔ SUNG: layout chung cho khối admin */
+    .admin-content {
+        display: flex;
+        gap: 0;
+        min-height: calc(100vh - var(--header-height, 70px));
+        margin-top: 10px;
+    }
     .admin-content-left {
         /* Kích thước và vị trí */
         width: 260px;
