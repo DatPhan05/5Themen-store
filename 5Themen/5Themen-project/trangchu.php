@@ -11,6 +11,9 @@ $conn = $db->link;
 
 $categoryModel = new Category();
 $productModel  = new Product();
+// LẤY DỮ LIỆU SẢN PHẨM MỚI + KHUYẾN MÃI
+$newProducts  = $productModel->get_new_products(8);
+$saleProducts = $productModel->get_hot_sale_products(8);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,23 +59,24 @@ $productModel  = new Product();
             <div class="product-grid">
                 <?php foreach ($newProducts as $p): ?>
                     <?php
-                    $price = (float)$p['gia_goc'];
-                    $sale  = (float)$p['gia_khuyen_mai'];
+                    $price = (float)$p['product_price'];
+                    $sale  = (float)$p['product_sale'];
                     $hasSale = $sale > 0 && $sale < $price;
-                    $thumb   = nh_image_url($p['anh_dai_dien']);
+                    $thumb = $p['product_img'];
+
                     $percent = ($hasSale && $price > 0)
                         ? round(100 - ($sale / $price) * 100)
                         : 0;
                     ?>
-                    <a href="product_detail.php?id=<?= (int)$p['ma_san_pham'] ?>" class="product-card">
+                    <a href="product_detail.php?id=<?= (int)$p['product_id'] ?>" class="product-card">
                         <div class="product-image">
                             <img src="<?= htmlspecialchars($thumb) ?>"
-                                 alt="<?= htmlspecialchars($p['ten_san_pham']) ?>">
+                                 alt="<?= htmlspecialchars($p['product_name']) ?>">
                             <?php if ($percent > 0): ?>
                                 <span class="badge-sale">-<?= $percent ?>%</span>
                             <?php endif; ?>
                         </div>
-                        <h3><?= htmlspecialchars($p['ten_san_pham']) ?></h3>
+                        <h3><?= htmlspecialchars($p['product_name']) ?></h3>
                         <div class="price-row">
                             <?php if ($hasSale): ?>
                                 <span class="price-new">
@@ -105,22 +109,23 @@ $productModel  = new Product();
             <div class="product-grid">
                 <?php foreach ($saleProducts as $p): ?>
                     <?php
-                    $price = (float)$p['gia_goc'];
-                    $sale  = (float)$p['gia_khuyen_mai'];
-                    $thumb = nh_image_url($p['anh_dai_dien']);
+                    $price = (float)$p['product_price'];
+                    $sale  = (float)$p['product_sale'];
+                    $thumb = $p['product_img'];
+
                     $percent = ($sale > 0 && $price > 0)
                         ? round(100 - ($sale / $price) * 100)
                         : 0;
                     ?>
-                    <a href="product_detail.php?id=<?= (int)$p['ma_san_pham'] ?>" class="product-card">
+                    <a href="product_detail.php?id=<?= (int)$p['product_id'] ?>" class="product-card">
                         <div class="product-image">
                             <img src="<?= htmlspecialchars($thumb) ?>"
-                                 alt="<?= htmlspecialchars($p['ten_san_pham']) ?>">
+                                 alt="<?= htmlspecialchars($p['product_name']) ?>">
                             <?php if ($percent > 0): ?>
                                 <span class="badge-sale">-<?= $percent ?>%</span>
                             <?php endif; ?>
                         </div>
-                        <h3><?= htmlspecialchars($p['ten_san_pham']) ?></h3>
+                        <h3><?= htmlspecialchars($p['product_name']) ?></h3>
                         <div class="price-row">
                             <span class="price-new">
                                 <?= number_format($sale, 0, ',', '.') ?>₫

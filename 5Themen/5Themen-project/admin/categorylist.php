@@ -7,7 +7,26 @@ require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/class/category_class.php";
 
 $cg   = new Category();
-$list = $cg->show_category();
+
+// ===================================
+// LOGIC PHÂN TRANG
+// ===================================
+$records_per_page = 6; // Số danh mục trên mỗi trang
+$current_page     = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+
+$total_records = $cg->count_all_categories(); 
+$total_pages   = ceil($total_records / $records_per_page);
+
+// Điều chỉnh trang hiện tại nếu vượt quá giới hạn
+if ($current_page > $total_pages && $total_pages > 0) {
+    $current_page = $total_pages;
+} elseif ($total_pages == 0) {
+    $current_page = 1;
+}
+
+$start_limit = ($current_page - 1) * $records_per_page;
+
+$list = $cg->show_category($start_limit, $records_per_page); // Truy vấn có LIMIT/OFFSET
 
 $msg = "";
 if (isset($_GET['msg'])) {
@@ -20,6 +39,7 @@ if (isset($_GET['msg'])) {
     }
 }
 ?>
+
 
 <style>
     .admin-content-right {
@@ -180,6 +200,38 @@ if (isset($_GET['msg'])) {
         0%   { transform: translate(0, 0); }
         100% { transform: translate(-20px, 20px); }
     }
+    /* ========== PHÂN TRANG STYLE MỚI ========== */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0 10px;
+        margin-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .pagination a, .pagination span {
+        text-decoration: none;
+        color: #4b7bec;
+        padding: 8px 15px;
+        margin: 0 4px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-weight: 600;
+        background-color: #fff;
+        min-width: 40px;
+        text-align: center;
+    }
+    .pagination a:hover {
+        background-color: #4b7bec;
+        color: white;
+        border-color: #4b7bec;
+    }
+    .pagination .current-page {
+        background-color: #3867d6;
+        color: white;
+        border-color: #3867d6;
+        cursor: default;
+    }
 </style>
 
 <div class="admin-content-right">
@@ -209,7 +261,10 @@ if (isset($_GET['msg'])) {
             </thead>
             <tbody>
                 <?php if ($list && $list->num_rows > 0): ?>
-                    <?php $i = 1; while ($r = $list->fetch_assoc()): ?>
+                    <?php 
+                    $i = $start_limit + 1; // Tính STT theo trang
+                    while ($r = $list->fetch_assoc()): 
+                    ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td><?= $r['category_id'] ?></td>
@@ -238,7 +293,27 @@ if (isset($_GET['msg'])) {
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+
+        <?php if ($total_pages >= 1): ?> 
+            <div class="pagination">
+                <?php if ($current_page > 1): ?>
+                    <a href="?page=<?= $current_page - 1 ?>">Trước</a>
+                <?php endif; ?>
+
+                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                    <?php if ($p == $current_page): ?>
+                        <span class="current-page"><?= $p ?></span>
+                    <?php else: ?>
+                        <a href="?page=<?= $p ?>"><?= $p ?></a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+
+                <?php if ($current_page < $total_pages): ?>
+                    <a href="?page=<?= $current_page + 1 ?>">Sau</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        </div>
 </div>
 
 </section>

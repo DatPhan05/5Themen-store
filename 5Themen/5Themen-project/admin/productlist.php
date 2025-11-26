@@ -7,8 +7,56 @@ require_once __DIR__ . "/header.php";
 require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/class/product_class.php";
 
-$pd   = new Product();
-$list = $pd->get_all_products();
+$db = new Database();
+
+// ===================================
+// 1. CẤU HÌNH PHÂN TRANG
+// ===================================
+$products_per_page = 8; // Số sản phẩm trên mỗi trang
+
+// Lấy trang hiện tại từ URL, mặc định là trang 1
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($current_page < 1) {
+    $current_page = 1;
+}
+
+// ===================================
+// 2. TÍNH TOÁN TỔNG SỐ TRANG
+// ===================================
+
+// Lấy tổng số lượng sản phẩm từ bảng tbl_product
+$count_query = $db->select("SELECT COUNT(*) AS total_products FROM tbl_product");
+$total_products = $count_query->fetch_assoc()['total_products'];
+
+// Tính toán tổng số trang
+$total_pages = ceil($total_products / $products_per_page);
+
+// Xác định OFFSET (vị trí bắt đầu lấy dữ liệu)
+$offset = ($current_page - 1) * $products_per_page;
+
+// Kiểm tra và điều chỉnh trang hiện tại nếu vượt quá tổng số trang
+if ($current_page > $total_pages && $total_pages > 0) {
+    $current_page = $total_pages;
+    $offset = ($current_page - 1) * $products_per_page;
+}
+
+// ===================================
+// 3. TRUY VẤN DỮ LIỆU CÓ PHÂN TRANG
+// ===================================
+
+// Câu truy vấn đã được chỉnh sửa để JOIN lấy tên Danh mục và Loại SP, 
+// đồng thời thêm LIMIT và OFFSET.
+$sql = "
+    SELECT 
+        p.*, 
+        c.category_name, 
+        b.brand_name 
+    FROM tbl_product p
+    JOIN tbl_category c ON p.category_id = c.category_id
+    JOIN tbl_brand b ON p.brand_id = b.brand_id
+    LIMIT $products_per_page OFFSET $offset
+";
+$list = $db->select($sql); 
 ?>
 
 <style>
@@ -57,6 +105,7 @@ $list = $pd->get_all_products();
         border-collapse: separate;
         border-spacing: 0;
         font-size: 14px;
+        margin-bottom: 25px; /* Thêm khoảng cách dưới table */
     }
 
     table th {
@@ -140,6 +189,46 @@ $list = $pd->get_all_products();
         background: #e17055;
     }
 
+    /* ========== PHÂN TRANG STYLE ========== */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .pagination a, .pagination span {
+        text-decoration: none;
+        color: #333;
+        padding: 8px 15px;
+        margin: 0 4px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid #ddd;
+        min-width: 45px;
+        text-align: center;
+    }
+
+    .pagination a:hover {
+        background: #00d2d3;
+        color: white;
+        border-color: #00d2d3;
+    }
+
+    .pagination .active {
+        background: #10ac84;
+        color: white;
+        border-color: #10ac84;
+        pointer-events: none; /* Vô hiệu hóa click vào trang hiện tại */
+    }
+
+    .pagination .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     /* ========== BLOB TRANG TRÍ ========== */
     .blob-decor-list {
         position: absolute;
@@ -160,7 +249,7 @@ $list = $pd->get_all_products();
 
     <div class="list-container">
         <h1 class="list-title">
-            <i class="fa-solid fa-boxes-stacked"></i> Danh sách Sản phẩm
+            <i class="fa-solid fa-boxes-stacked"></i> Danh sách Sản phẩm (Trang <?= $current_page ?>/<?= $total_pages ?>)
         </h1>
 
         <table>
@@ -177,7 +266,11 @@ $list = $pd->get_all_products();
             </thead>
             <tbody>
                 <?php if ($list && $list->num_rows > 0): ?>
-                    <?php $i = 1; while ($r = $list->fetch_assoc()): ?>
+                    <?php 
+                    // STT bắt đầu từ vị trí OFFSET + 1
+                    $i = $offset + 1; 
+                    while ($r = $list->fetch_assoc()): 
+                    ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td style="max-width: 250px;"><?= htmlspecialchars($r['product_name']) ?></td>
@@ -217,10 +310,29 @@ $list = $pd->get_all_products();
                 <?php endif; ?>
             </tbody>
         </table>
+
+        <?php if ($total_pages > 1): ?>
+            <div class="pagination">
+                <?php $prev_page = $current_page - 1; ?>
+                <a href="?page=<?= $prev_page ?>" class="<?= ($current_page <= 1) ? 'disabled' : '' ?>">
+                    &laquo; Trước
+                </a>
+
+                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                    <a href="?page=<?= $p ?>" class="<?= ($p == $current_page) ? 'active' : '' ?>">
+                        <?= $p ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php $next_page = $current_page + 1; ?>
+                <a href="?page=<?= $next_page ?>" class="<?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
+                    Sau &raquo;
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
 </section>
-</div> <!-- đóng main-content-wrapper từ header.php -->
-</body>
+</div> </body>
 </html>

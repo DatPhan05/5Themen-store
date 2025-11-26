@@ -38,17 +38,34 @@ class Brand {
     }
 
     /* =====================================================
-       2. LẤY TẤT CẢ LOẠI SẢN PHẨM
+       2. LẤY TẤT CẢ LOẠI SẢN PHẨM (HỖ TRỢ PHÂN TRANG)
        ===================================================== */
-    public function show_brand() {
+    public function show_brand($offset = null, $limit = null) {
         $sql = "
             SELECT b.*, c.category_name
             FROM tbl_brand b
             LEFT JOIN tbl_category c ON b.category_id = c.category_id
             ORDER BY b.brand_id DESC
         ";
+        
+        // Thêm LIMIT và OFFSET cho phân trang
+        if ($offset !== null && $limit !== null) {
+            $offset = (int)$offset;
+            $limit  = (int)$limit;
+            $sql .= " LIMIT $offset, $limit";
+        }
+        
         return $this->db->select($sql);
     }
+    
+    /* ===================== NEW: ĐẾM TỔNG SỐ BẢN GHI ===================== */
+    public function count_all_brands() {
+        $sql = "SELECT COUNT(*) AS total FROM tbl_brand";
+        $result = $this->db->select($sql);
+        $row = $result->fetch_assoc();
+        return (int)$row['total'];
+    }
+    /* =================================================================== */
 
     /* =====================================================
        3. LẤY 1 LOẠI SẢN PHẨM THEO ID

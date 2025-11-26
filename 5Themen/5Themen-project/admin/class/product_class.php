@@ -420,6 +420,31 @@ public function search_products_paging($keyword, $limit, $offset)
 
     return $this->db->select($sql);
 }
+public function get_new_products($limit = 8) {
+    $limit = (int)$limit;
+
+    $sql = "
+        SELECT *
+        FROM tbl_product
+        ORDER BY product_id DESC
+        LIMIT $limit
+    ";
+
+    return $this->db->select($sql);
+}
+public function get_hot_sale_products($limit = 8) {
+    $limit = (int)$limit;
+
+    $sql = "
+        SELECT *
+        FROM tbl_product
+        WHERE product_sale > 0 AND product_sale < product_price
+        ORDER BY (product_price - product_sale) DESC
+        LIMIT $limit
+    ";
+
+    return $this->db->select($sql);
+}
 
 
     

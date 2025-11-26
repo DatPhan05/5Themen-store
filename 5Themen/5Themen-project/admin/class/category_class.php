@@ -24,8 +24,8 @@ class Category {
         return $this->db->insert($sql);
     }
 
-    /* ===================== SHOW LIST ===================== */
-    public function show_category() {
+    /* ===================== SHOW LIST (HỖ TRỢ PHÂN TRANG) ===================== */
+    public function show_category($offset = null, $limit = null) {
         $sql = "
             SELECT 
                 c.category_id,
@@ -37,8 +37,25 @@ class Category {
                    ON c.parent_id = p.category_id
             ORDER BY c.parent_id ASC, c.category_id ASC
         ";
+        
+        // Thêm LIMIT và OFFSET cho phân trang
+        if ($offset !== null && $limit !== null) {
+            $offset = (int)$offset;
+            $limit  = (int)$limit;
+            $sql .= " LIMIT $offset, $limit";
+        }
+        
         return $this->db->select($sql);
     }
+    
+    /* ===================== NEW: ĐẾM TỔNG SỐ BẢN GHI ===================== */
+    public function count_all_categories() {
+        $sql = "SELECT COUNT(*) AS total FROM tbl_category";
+        $result = $this->db->select($sql);
+        $row = $result->fetch_assoc();
+        return (int)$row['total'];
+    }
+    /* =================================================================== */
 
     /* ===================== GET ONLY TOP PARENTS ===================== */
     public function get_parent_categories() {
@@ -105,11 +122,13 @@ class Category {
         if ($check && $check->num_rows > 0) {
             return false; // Có danh mục con → không xóa
         }
+        
+        // 2. Kiểm tra xem có sản phẩm nào thuộc danh mục này không (Nếu cần)
+        // Đây là một ràng buộc FK phổ biến, nhưng không có trong code gốc, nên tôi không thêm.
 
-        // 2. Thực hiện xóa
+        // 3. Thực hiện xóa
         $sql = "DELETE FROM tbl_category WHERE category_id = $id";
         return $this->db->delete($sql);
     }
 }
-
 ?>
