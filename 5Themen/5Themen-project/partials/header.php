@@ -138,10 +138,16 @@ $rootCategories = $categoryModel->get_parent_categories();
         <!-- Icons (Search, User, Cart) -->
         <div class="header-icons">
             <!-- Search Box -->
+            
             <div class="search-box">
-                <input type="text" placeholder="Tìm kiếm..." name="search">
-                <i class="fa fa-search"></i>
-            </div>
+    <form action="search.php" method="GET" style="display:flex;align-items:center;">
+        <input type="text" name="keyword" placeholder="Tìm kiếm..." required>
+        <button type="submit" style="background:transparent;border:none;">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+</div>
+
             
             <!-- User Icon with Dropdown -->
             <div class="user-menu">

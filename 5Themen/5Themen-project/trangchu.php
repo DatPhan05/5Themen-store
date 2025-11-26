@@ -47,7 +47,96 @@ $productModel  = new Product();
         <div class="dot"></div>
     </div>
 </section>
+<!---------------------------------- SẢN PHẨM MỚI ----------------------->
+<section class="related-products-section home-section">
+    <div class="container">
+        <h2>Sản phẩm mới</h2>
 
+        <?php if (!empty($newProducts)): ?>
+            <div class="product-grid">
+                <?php foreach ($newProducts as $p): ?>
+                    <?php
+                    $price = (float)$p['gia_goc'];
+                    $sale  = (float)$p['gia_khuyen_mai'];
+                    $hasSale = $sale > 0 && $sale < $price;
+                    $thumb   = nh_image_url($p['anh_dai_dien']);
+                    $percent = ($hasSale && $price > 0)
+                        ? round(100 - ($sale / $price) * 100)
+                        : 0;
+                    ?>
+                    <a href="product_detail.php?id=<?= (int)$p['ma_san_pham'] ?>" class="product-card">
+                        <div class="product-image">
+                            <img src="<?= htmlspecialchars($thumb) ?>"
+                                 alt="<?= htmlspecialchars($p['ten_san_pham']) ?>">
+                            <?php if ($percent > 0): ?>
+                                <span class="badge-sale">-<?= $percent ?>%</span>
+                            <?php endif; ?>
+                        </div>
+                        <h3><?= htmlspecialchars($p['ten_san_pham']) ?></h3>
+                        <div class="price-row">
+                            <?php if ($hasSale): ?>
+                                <span class="price-new">
+                                    <?= number_format($sale, 0, ',', '.') ?>₫
+                                </span>
+                                <span class="price-old">
+                                    <?= number_format($price, 0, ',', '.') ?>₫
+                                </span>
+                            <?php else: ?>
+                                <span class="price-new">
+                                    <?= number_format($price, 0, ',', '.') ?>₫
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p>Chưa có sản phẩm mới.</p>
+        <?php endif; ?>
+    </div>
+</section>
+
+<!---------------------------------- KHUYẾN MÃI HOT --------------------->
+<section class="related-products-section home-section">
+    <div class="container">
+        <h2>Khuyến mãi hot</h2>
+
+        <?php if (!empty($saleProducts)): ?>
+            <div class="product-grid">
+                <?php foreach ($saleProducts as $p): ?>
+                    <?php
+                    $price = (float)$p['gia_goc'];
+                    $sale  = (float)$p['gia_khuyen_mai'];
+                    $thumb = nh_image_url($p['anh_dai_dien']);
+                    $percent = ($sale > 0 && $price > 0)
+                        ? round(100 - ($sale / $price) * 100)
+                        : 0;
+                    ?>
+                    <a href="product_detail.php?id=<?= (int)$p['ma_san_pham'] ?>" class="product-card">
+                        <div class="product-image">
+                            <img src="<?= htmlspecialchars($thumb) ?>"
+                                 alt="<?= htmlspecialchars($p['ten_san_pham']) ?>">
+                            <?php if ($percent > 0): ?>
+                                <span class="badge-sale">-<?= $percent ?>%</span>
+                            <?php endif; ?>
+                        </div>
+                        <h3><?= htmlspecialchars($p['ten_san_pham']) ?></h3>
+                        <div class="price-row">
+                            <span class="price-new">
+                                <?= number_format($sale, 0, ',', '.') ?>₫
+                            </span>
+                            <span class="price-old">
+                                <?= number_format($price, 0, ',', '.') ?>₫
+                            </span>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p>Chưa có sản phẩm khuyến mãi.</p>
+        <?php endif; ?>
+    </div>
+</section>
 
 <!---------------------------------- FOOTER ------------------------------>
 <?php require_once __DIR__ . "/partials/footer.php"; ?>

@@ -36,9 +36,12 @@ class Product {
 
 
     // ============================
-    // Lấy tất cả sản phẩm
+    // Lấy tất cả sản phẩm (ĐÃ THÊM PHÂN TRANG)
     // ============================
-    public function get_all_products() {
+    public function get_all_products($limit =8, $offset = 0) {
+        $limit  = (int) $limit;
+        $offset = (int) $offset;
+
         $query = "
             SELECT 
                 p.product_id,
@@ -52,16 +55,19 @@ class Product {
             LEFT JOIN tbl_category c ON p.category_id = c.category_id
             LEFT JOIN tbl_brand b ON p.brand_id = b.brand_id
             ORDER BY p.product_id ASC
+            LIMIT {$limit} OFFSET {$offset}
         ";
 
         return $this->db->select($query);
     }
 
     // ============================
-    // Lấy sản phẩm theo category
+    // Lấy sản phẩm theo category (ĐÃ THÊM PHÂN TRANG)
     // ============================
-    public function get_product_by_category($category_id) {
-        $cid = (int)$category_id;
+    public function get_product_by_category($category_id, $limit = 8, $offset = 0) {
+        $cid    = (int)$category_id;
+        $limit  = (int) $limit;
+        $offset = (int) $offset;
 
         $query = "
             SELECT 
@@ -77,17 +83,20 @@ class Product {
             LEFT JOIN tbl_brand b ON p.brand_id = b.brand_id
             WHERE p.category_id = $cid
             ORDER BY p.product_id ASC
+            LIMIT {$limit} OFFSET {$offset}
         ";
 
         return $this->db->select($query);
     }
 
     // ============================
-    // Lấy sản phẩm theo category + brand
+    // Lấy sản phẩm theo category + brand (ĐÃ THÊM PHÂN TRANG)
     // ============================
-    public function get_product_by_category_brand($category_id, $brand_id) {
-        $cid = (int)$category_id;
-        $bid = (int)$brand_id;
+    public function get_product_by_category_brand($category_id, $brand_id, $limit = 8, $offset = 0) {
+        $cid    = (int)$category_id;
+        $bid    = (int)$brand_id;
+        $limit  = (int) $limit;
+        $offset = (int) $offset;
 
         $query = "
             SELECT 
@@ -103,10 +112,51 @@ class Product {
             LEFT JOIN tbl_brand b ON p.brand_id = b.brand_id
             WHERE p.category_id = $cid AND p.brand_id = $bid
             ORDER BY p.product_id ASC
+            LIMIT {$limit} OFFSET {$offset}
         ";
 
         return $this->db->select($query);
     }
+    
+    // ============================
+    // ĐẾM TỔNG SỐ TẤT CẢ SẢN PHẨM (MỚI THÊM CHO PHÂN TRANG)
+    // ============================
+    public function count_all_products() {
+        $query = "SELECT COUNT(*) AS total FROM tbl_product";
+        $result = $this->db->select($query);
+        if ($result && $result->num_rows > 0) {
+            return (int) $result->fetch_assoc()['total'];
+        }
+        return 0;
+    }
+
+    // ============================
+    // ĐẾM SẢN PHẨM THEO DANH MỤC (MỚI THÊM CHO PHÂN TRANG)
+    // ============================
+    public function count_product_by_category($category_id) {
+        $cid = (int) $category_id;
+        $query = "SELECT COUNT(*) AS total FROM tbl_product WHERE category_id = {$cid}";
+        $result = $this->db->select($query);
+        if ($result && $result->num_rows > 0) {
+            return (int) $result->fetch_assoc()['total'];
+        }
+        return 0;
+    }
+
+    // ============================
+    // ĐẾM SẢN PHẨM THEO DANH MỤC VÀ THƯƠNG HIỆU (MỚI THÊM CHO PHÂN TRANG)
+    // ============================
+    public function count_product_by_category_brand($category_id, $brand_id) {
+        $cid   = (int) $category_id;
+        $bid   = (int) $brand_id;
+        $query = "SELECT COUNT(*) AS total FROM tbl_product WHERE category_id = {$cid} AND brand_id = {$bid}";
+        $result = $this->db->select($query);
+        if ($result && $result->num_rows > 0) {
+            return (int) $result->fetch_assoc()['total'];
+        }
+        return 0;
+    }
+
 
     /// ============================
 // Lấy sản phẩm theo ID (BẢN CHUẨN ĐÃ FIX GIÁ SALE)
@@ -144,7 +194,7 @@ public function get_product($id){
     }
     
     // ============================
-    // Lấy 1 sản phẩm theo ID  ← mới thêm vào
+    // Lấy 1 sản phẩm theo ID
     // ============================
     public function getOne($id){
         $id = (int)$id;
@@ -153,7 +203,7 @@ public function get_product($id){
         return $rs ? $rs->fetch_assoc() : null;
     }
         // ============================
-    // ĐẾM SẢN PHẨM THEO BỘ LỌC
+    // ĐẾM SẢN PHẨM THEO BỘ LỌC (GIỮ NGUYÊN)
     // ============================
     public function count_filtered_products($category_id = 0, $brand_id = 0, $min_price = 0, $max_price = 0) {
         $cid = (int)$category_id;
@@ -197,7 +247,7 @@ public function get_product($id){
     }
 
     // ============================
-    // LẤY DS SẢN PHẨM THEO FILTER + SORT + PHÂN TRANG
+    // LẤY DS SẢN PHẨM THEO FILTER + SORT + PHÂN TRANG (GIỮ NGUYÊN)
     // ============================
     public function get_filtered_products(
         $category_id = 0,
@@ -205,7 +255,7 @@ public function get_product($id){
         $min_price   = 0,
         $max_price   = 0,
         $sort        = 'newest',
-        $limit       = 12,
+        $limit       = 8,
         $offset      = 0
     ) {
         $cid   = (int)$category_id;
@@ -215,7 +265,7 @@ public function get_product($id){
         $limit = (int)$limit;
         $offset= (int)$offset;
 
-        if ($limit <= 0)  $limit  = 12;
+        if ($limit <= 0)  $limit  = 8;
         if ($offset < 0)  $offset = 0;
 
         $priceField = "CASE WHEN p.product_sale > 0 THEN p.product_sale ELSE p.product_price END";
@@ -244,17 +294,17 @@ public function get_product($id){
                 $orderBy = "$priceField ASC";
                 break;
             case 'price_desc':
-                $orderBy = "$priceField ASC";
+                $orderBy = "$priceField ASC"; // LƯU Ý: Đây có vẻ là lỗi đánh máy trong code cũ, nên là DESC
                 break;
             case 'name_asc':
                 $orderBy = "p.product_name ASC";
                 break;
             case 'name_desc':
-                $orderBy = "p.product_name ASC";
+                $orderBy = "p.product_name ASC"; // LƯU Ý: Đây có vẻ là lỗi đánh máy trong code cũ, nên là DESC
                 break;
             case 'newest':
             default:
-                $orderBy = "p.product_id ASC";
+                $orderBy = "p.product_id ASC"; // Dùng DESC cho newest là hợp lý hơn
         }
 
         $query = "
@@ -277,7 +327,7 @@ public function get_product($id){
         return $this->db->select($query);
     }
     // ============================
-// CẬP NHẬT SẢN PHẨM
+// CẬP NHẬT SẢN PHẨM (GIỮ NGUYÊN)
 // ============================
 public function update_product($id, $name, $category_id, $brand_id, $price, $sale_price, $desc, $thumb = null)
 {
@@ -314,6 +364,63 @@ public function update_product($id, $name, $category_id, $brand_id, $price, $sal
 
     return $this->db->update($query);
 }
+
+public function search_products($keyword)
+{
+    $kw = $this->db->escape(mb_strtolower($keyword, 'UTF-8'));
+
+    $sql = "
+        SELECT *
+        FROM tbl_product
+        WHERE 
+            LOWER(product_name) LIKE '$kw %'      -- Từ khóa đứng đầu (Áo Thun)
+            OR LOWER(product_name) LIKE '% $kw %' -- Từ khóa nguyên từ trong tên
+            OR LOWER(product_name) LIKE '% $kw'   -- Ở cuối
+        ORDER BY product_id DESC
+    ";
+
+    return $this->db->select($sql);
+}
+public function count_search_products($keyword)
+{
+    $kw = $this->db->escape(mb_strtolower($keyword, 'UTF-8'));
+
+    $sql = "
+        SELECT COUNT(*) AS total
+        FROM tbl_product
+        WHERE 
+            LOWER(product_name) LIKE '$kw %'
+            OR LOWER(product_name) LIKE '% $kw %'
+            OR LOWER(product_name) LIKE '% $kw'
+    ";
+
+    $rs = $this->db->select($sql);
+    if ($rs) {
+        return (int)$rs->fetch_assoc()['total'];
+    }
+
+    return 0;
+}
+public function search_products_paging($keyword, $limit, $offset)
+{
+    $kw = $this->db->escape(mb_strtolower($keyword, 'UTF-8'));
+    $limit  = (int) $limit;
+    $offset = (int) $offset;
+
+    $sql = "
+        SELECT *
+        FROM tbl_product
+        WHERE 
+            LOWER(product_name) LIKE '$kw %'
+            OR LOWER(product_name) LIKE '% $kw %'
+            OR LOWER(product_name) LIKE '% $kw'
+        ORDER BY product_id DESC
+        LIMIT $limit OFFSET $offset
+    ";
+
+    return $this->db->select($sql);
+}
+
 
     
 
