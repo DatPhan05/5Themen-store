@@ -1,22 +1,35 @@
 <?php
-require_once __DIR__ . "/header.php";
-require_once __DIR__ . "/slider.php"; // Giả sử file này chứa Sidebar menu
-require_once __DIR__ . "/Class/category_class.php";
+include "../include/session.php";
+include "../include/database.php";
 
-$cg = new Category();
-$msg = "";
-$msg_type = ""; // Để phân biệt màu sắc thông báo (success/error)
+require_once __DIR__ . "/header.php";
+require_once __DIR__ . "/slider.php";
+require_once __DIR__ . "/class/category_class.php";
+
+$cg       = new Category();
+$msg      = "";
+$msg_type = ""; // success | error
+$old_name = "";
+$old_parent = 0;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['category_name']);
-    $parent_id = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+    $name = trim($_POST['category_name'] ?? '');
+    $old_name = $name;
+
+    $parent_id = (isset($_POST['parent_id']) && $_POST['parent_id'] !== '')
+        ? (int)$_POST['parent_id']
+        : 0;
+    $old_parent = $parent_id;
 
     if ($name !== "") {
         $cg->insert_category($name, $parent_id);
-        $msg = "✨ Đã thêm danh mục thành công!";
+        $msg      = "✨ Đã thêm danh mục thành công!";
         $msg_type = "success";
+        // reset form
+        $old_name   = "";
+        $old_parent = 0;
     } else {
-        $msg = "⚠️ Vui lòng nhập tên danh mục!";
+        $msg      = "⚠️ Vui lòng nhập tên danh mục!";
         $msg_type = "error";
     }
 }
@@ -25,44 +38,32 @@ $parents = $cg->get_parent_categories();
 ?>
 
 <style>
-    /* ================= LAYOUT CHÍNH ================= */
-    /* Đảm bảo admin-content chứa cả sidebar và content-right */
-    .admin-content {
-        display: flex;
-        min-height: 100vh;
-        padding-top: 20px; /* Tránh header che */
-    }
-
-    /* Phần nội dung bên phải */
     .admin-content-right {
-        flex: 1; /* Chiếm phần còn lại */
+        margin-left: 230px;
+        flex: 1;
         padding: 40px;
         display: flex;
-        justify-content: center; /* Căn giữa form */
+        justify-content: center;
         align-items: flex-start;
         position: relative;
     }
 
-    /* ================= FORM CARD (GLASSMORPHISM) ================= */
     .form-container {
         width: 100%;
-        max-width: 600px; /* Giới hạn chiều rộng cho đẹp */
+        max-width: 600px;
         padding: 40px;
         border-radius: 20px;
-        
-        /* Hiệu ứng kính */
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.6);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        
         animation: slideIn 0.5s ease-out;
     }
 
     @keyframes slideIn {
         from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .form-title {
@@ -75,7 +76,6 @@ $parents = $cg->get_parent_categories();
         letter-spacing: 1px;
     }
 
-    /* ================= INPUT FIELDS ================= */
     .form-group {
         margin-bottom: 25px;
         position: relative;
@@ -109,9 +109,8 @@ $parents = $cg->get_parent_categories();
         border-color: #4b7bec;
     }
 
-    /* Style cho Select box */
     select.form-control {
-        appearance: none; /* Xóa mũi tên mặc định */
+        appearance: none;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 15px center;
@@ -119,7 +118,6 @@ $parents = $cg->get_parent_categories();
         cursor: pointer;
     }
 
-    /* ================= BUTTON ================= */
     .btn-submit {
         width: 100%;
         padding: 15px;
@@ -141,7 +139,6 @@ $parents = $cg->get_parent_categories();
         filter: brightness(1.1);
     }
 
-    /* ================= ALERT MESSAGE ================= */
     .alert {
         padding: 15px;
         border-radius: 10px;
@@ -152,7 +149,7 @@ $parents = $cg->get_parent_categories();
         align-items: center;
         gap: 10px;
     }
-    
+
     .alert-success {
         background: rgba(32, 191, 107, 0.15);
         border: 1px solid rgba(32, 191, 107, 0.3);
@@ -165,7 +162,6 @@ $parents = $cg->get_parent_categories();
         color: #fc5c65;
     }
 
-    /* Trang trí background nhẹ */
     .blob-decor {
         position: absolute;
         width: 300px;
@@ -182,13 +178,12 @@ $parents = $cg->get_parent_categories();
 </style>
 
 <div class="admin-content-right">
-    
     <div class="blob-decor"></div>
 
     <div class="form-container">
         <h1 class="form-title"><i class="fa-solid fa-folder-plus"></i> Thêm Danh Mục</h1>
 
-        <?php if (!empty($msg)) : ?>
+        <?php if (!empty($msg)): ?>
             <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
                 <i class="<?= ($msg_type == 'success') ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
                 <?= htmlspecialchars($msg) ?>
@@ -196,20 +191,28 @@ $parents = $cg->get_parent_categories();
         <?php endif; ?>
 
         <form action="" method="POST">
-            
             <div class="form-group">
                 <label class="form-label">Tên danh mục</label>
-                <input type="text" name="category_name" class="form-control" placeholder="Ví dụ: Điện thoại, Laptop..." required autocomplete="off">
+                <input
+                    type="text"
+                    name="category_name"
+                    class="form-control"
+                    placeholder="Ví dụ: Áo, Quần, Giày..."
+                    autocomplete="off"
+                    required
+                    value="<?= htmlspecialchars($old_name) ?>"
+                >
             </div>
 
             <div class="form-group">
-                <label class="form-label">Danh mục (Không bắt buộc)</label>
+                <label class="form-label">Danh mục cha (không bắt buộc)</label>
                 <select name="parent_id" class="form-control">
-                    <option value="">-- Chọn danh mục --</option>
+                    <option value="0">-- Không có danh mục cha --</option>
                     <?php if ($parents): ?>
                         <?php while ($p = $parents->fetch_assoc()): ?>
-                            <option value="<?= $p['category_id'] ?>">
-                                <?= $p['category_name'] ?>
+                            <option value="<?= $p['category_id'] ?>"
+                                <?= ($old_parent == $p['category_id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($p['category_name']) ?>
                             </option>
                         <?php endwhile; ?>
                     <?php endif; ?>
@@ -219,12 +222,11 @@ $parents = $cg->get_parent_categories();
             <button type="submit" class="btn-submit">
                 <i class="fa-solid fa-floppy-disk"></i> Lưu danh mục
             </button>
-            
         </form>
     </div>
-
 </div>
 
-</section> 
+</section>
+</div>
 </body>
 </html>

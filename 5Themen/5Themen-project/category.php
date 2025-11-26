@@ -89,7 +89,34 @@ $breadcrumbs[] = ['text' => $pageTitle];
                         </a>
                     </h3>
 
-                    <p class="product-price"><?= number_format($row['product_price']) ?>đ</p>
+                    <?php
+$price     = (float)$row['product_price'];
+$salePrice = (float)$row['product_sale'];
+
+$hasSale = ($salePrice > 0 && $salePrice < $price);
+?>
+
+<div class="product-price">
+    <?php if ($hasSale): ?>
+        <span class="price-current">
+            <?= number_format($salePrice, 0, ',', '.') ?>đ
+        </span>
+
+        <span class="price-old">
+            <?= number_format($price, 0, ',', '.') ?>đ
+        </span>
+
+        <span class="price-sale-badge">
+            -<?= round((($price - $salePrice) / $price) * 100) ?>%
+        </span>
+
+    <?php else: ?>
+        <span class="price-current">
+            <?= number_format($price, 0, ',', '.') ?>đ
+        </span>
+    <?php endif; ?>
+</div>
+
 
                     <div class="product-color-list">
                         <div class="product-color">

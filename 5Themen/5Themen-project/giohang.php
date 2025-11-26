@@ -39,50 +39,13 @@ function fixImagePath($path)
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
-$cart = $_SESSION['cart'];
+$cart =& $_SESSION['cart'];
 
-/* ================== ADD PRODUCT QUA GET (FALLBACK) ================== */
-if (isset($_GET['action']) && $_GET['action'] === "add") {
-
-    $id   = (int)($_GET['id'] ?? 0);
-    $size = $_GET['size'] ?? 'L';
-    $qty  = isset($_GET['qty']) ? (int)$_GET['qty'] : 1;
-    if ($qty <= 0) $qty = 1;
-
-    if ($id > 0) {
-        $product = $productModel->get_product($id);
-
-        if ($product) {
-            $imgPath = fixImagePath($product['product_img']);
-
-            if (isset($cart[$id])) {
-                $cart[$id]['qty']  += $qty;
-                $cart[$id]['size'] = $size;
-            } else {
-                $cart[$id] = [
-                    "id"    => $id,
-                    "name"  => $product["product_name"],
-                    "price" => (float)$product["product_price"],
-                    "qty"   => $qty,
-                    "size"  => $size,
-                    "img"   => $imgPath,
-                    "image" => $imgPath
-                ];
-            }
-            $_SESSION['cart'] = $cart;
-        }
-    }
-
-    header("Location: giohang.php");
-    exit;
-}
-
-/* ================== DELETE ITEM ================== */
+/* ================== XÓA ITEM ================== */
 if (isset($_GET["delete"])) {
     $id = (int)$_GET["delete"];
     if (isset($cart[$id])) {
         unset($cart[$id]);
-        $_SESSION['cart'] = $cart;
     }
     header("Location: giohang.php");
     exit;
@@ -94,15 +57,12 @@ $breadcrumbs = [
     ['text' => 'Giỏ hàng']
 ];
 
-/* ================== TÍNH TỔNG ================== */
-$total     = 0;
+/* ================== ĐẾM SỐ LƯỢNG SẢN PHẨM ================== */
 $itemCount = 0;
 foreach ($cart as $item) {
-    $total     += $item['price'] * $item['qty'];
-    $itemCount += $item['qty'];
+    $itemCount += (int)$item['qty'];
 }
 ?>
-
 <?php 
 require __DIR__ . "/partials/header.php"; 
 require __DIR__ . "/partials/breadcrumb.php"; 
@@ -586,14 +546,22 @@ body {
     </div>
 <?php endif; ?>
 
+<?php
+// === TÍNH TỔNG LẠI CHẮC CHẮN TỪ GIỎ HÀNG ===
+$grandTotal = 0;
+foreach ($cart as $item) {
+    $grandTotal += (float)$item['price'] * (int)$item['qty'];
+}
+?>
+
             <div class="cart-total">
                 <div class="total-row">
                     <span>Tạm tính:</span>
-                    <span><?= number_format($total,0,',','.') ?>đ</span>
+                    <span><?= number_format($grandTotal,0,',','.') ?>đ</span>
                 </div>
                 <div class="total-row">
                     <strong>Tổng cộng:</strong>
-                    <strong><?= number_format($total,0,',','.') ?>đ</strong>
+                    <strong><?= number_format($grandTotal,0,',','.') ?>đ</strong>
                 </div>
 
                 <button type="button" class="btn-checkout" onclick="processCheckout()">

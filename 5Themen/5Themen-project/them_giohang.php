@@ -5,27 +5,16 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/include/database.php';
 
-// --------------------
-// FIX PATH ẢNH (HÀM QUAN TRỌNG)
-// --------------------
+/* ================== FIX ĐƯỜNG DẪN ẢNH ================== */
 function fixImagePath($path)
 {
     if (!$path) return '';
 
-    // Xóa trường hợp double uploads/uploads
     $path = str_replace('uploads/uploads/', 'uploads/', $path);
 
-    // Nếu DB lưu dạng "uploads/xxx.jpg"
-    if (strpos($path, 'uploads/') === 0) {
-        return 'admin/' . $path;
-    }
+    if (strpos($path, 'uploads/') === 0) return 'admin/' . $path;
+    if (strpos($path, 'admin/uploads/') === 0) return $path;
 
-    // Nếu DB lưu dạng "admin/uploads/xxx.jpg"
-    if (strpos($path, 'admin/uploads/') === 0) {
-        return $path;
-    }
-
-    // Nếu chỉ là tên file "abc.jpg"
     if (!str_contains($path, '/')) {
         return 'admin/uploads/' . $path;
     }
@@ -33,16 +22,15 @@ function fixImagePath($path)
     return $path;
 }
 
-// ----------------------------------------------------
-// Đảm bảo luôn có giỏ hàng
-// ----------------------------------------------------
+/* ================== GIỎ HÀNG SESSION ================== */
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
+$cart =& $_SESSION['cart'];
 
+/* ================== LẤY ACTION & PRODUCT_ID ================== */
 $action = $_GET['action'] ?? 'add';
 
-// Lấy product_id
 $product_id = isset($_POST['product_id'])
     ? (int)$_POST['product_id']
     : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
@@ -52,39 +40,49 @@ if ($product_id <= 0) {
     exit;
 }
 
-// ================= UPDATE QTY =================
+/* =======================================================
+   1. UPDATE QTY
+   ======================================================= */
 if ($action === 'update') {
     $qty = isset($_GET['qty']) ? (int)$_GET['qty'] : 1;
     if ($qty <= 0) $qty = 1;
 
-    if (isset($_SESSION['cart'][$product_id])) {
-        $_SESSION['cart'][$product_id]['qty'] = $qty;
+    // CHỈ SỬA SỐ LƯỢNG TRONG SESSION
+    if (isset($cart[$product_id])) {
+        $cart[$product_id]['qty'] = $qty;
     }
 
     header("Location: giohang.php");
     exit;
 }
 
-// ================= CHANGE SIZE =================
+/* =======================================================
+   2. CHANGE SIZE
+   ======================================================= */
 if ($action === 'changesize') {
     $size = $_GET['size'] ?? 'L';
 
-    if (isset($_SESSION['cart'][$product_id])) {
-        $_SESSION['cart'][$product_id]['size'] = $size;
+    if (isset($cart[$product_id])) {
+        $cart[$product_id]['size'] = $size;
     }
 
     header("Location: giohang.php");
     exit;
 }
 
-// ================= REMOVE =================
+/* =======================================================
+   3. REMOVE
+   ======================================================= */
 if ($action === 'remove') {
-    unset($_SESSION['cart'][$product_id]);
+    unset($cart[$product_id]);
     header("Location: giohang.php");
     exit;
 }
 
-// ================= ADD PRODUCT =================
+/* =======================================================
+   4. ADD PRODUCT
+   ======================================================= */
+
 $size = $_POST['option2'] ?? ($_GET['size'] ?? 'L');
 
 $qty = isset($_POST['quantity'])
@@ -93,7 +91,7 @@ $qty = isset($_POST['quantity'])
 
 if ($qty <= 0) $qty = 1;
 
-// Query sản phẩm
+// Lấy sản phẩm trong DB
 $db   = new Database();
 $conn = $db->link;
 
@@ -107,17 +105,27 @@ if (!$rs || $rs->num_rows === 0) {
 
 $product = $rs->fetch_assoc();
 
-// PATH ẢNH CHUẨN 100%
+// TÍNH GIÁ SALE ĐÚNG
+$finalPrice = ($product['product_sale'] > 0 &&
+               $product['product_sale'] < $product['product_price'])
+               ? (float)$product['product_sale']
+               : (float)$product['product_price'];
+
 $imgPath = fixImagePath($product['product_img']);
 
-if (isset($_SESSION['cart'][$product_id])) {
-    $_SESSION['cart'][$product_id]['qty']  += $qty;
-    $_SESSION['cart'][$product_id]['size'] = $size;
+if (isset($cart[$product_id])) {
+    // Đã có trong giỏ → cộng dồn
+    $cart[$product_id]['qty']   += $qty;
+    $cart[$product_id]['size']   = $size;
+    $cart[$product_id]['price']  = $finalPrice;   // luôn giữ giá đúng
+    $cart[$product_id]['img']    = $imgPath;
+    $cart[$product_id]['image']  = $imgPath;
 } else {
-    $_SESSION['cart'][$product_id] = [
+    // Thêm mới
+    $cart[$product_id] = [
         'id'    => $product_id,
         'name'  => $product['product_name'],
-        'price' => (float)$product['product_price'],
+        'price' => $finalPrice,
         'qty'   => $qty,
         'size'  => $size,
         'img'   => $imgPath,
@@ -125,7 +133,7 @@ if (isset($_SESSION['cart'][$product_id])) {
     ];
 }
 
-// Nếu bấm Mua Ngay → vào giỏ ngay
+// Nếu bấm Mua Ngay → chuyển luôn tới giỏ
 if (isset($_POST['buy_now'])) {
     header("Location: giohang.php?buynow=1");
     exit;

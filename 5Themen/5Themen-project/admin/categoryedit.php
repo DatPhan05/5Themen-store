@@ -1,81 +1,77 @@
 <?php
-// Bổ sung các file cần thiết
-include "../include/session.php"; 
-include "../include/database.php"; 
+include "../include/session.php";
+include "../include/database.php";
 
 require_once __DIR__ . "/header.php";
-require_once __DIR__ . "/slider.php"; // Thêm menu bên trái
-require_once __DIR__ . "/Class/category_class.php";
+require_once __DIR__ . "/slider.php";
+require_once __DIR__ . "/class/category_class.php";
 
-$cg = new category();
-// Lấy ID từ URL (sử dụng khóa chính là 'category_id' theo convention của bạn)
-$id = (int)($_GET['category_id'] ?? 0); 
+$cg = new Category();
+
+$id  = (int)($_GET['category_id'] ?? 0);
 $row = $id ? $cg->get_category($id) : null;
 
-// Xử lý khi không tìm thấy danh mục
 if (!$row) {
-    die('<div style="text-align: center; margin-top: 50px; font-size: 18px; color: #dc3545;">
+    die('<div style="text-align: center; margin-top: 100px; font-size: 18px; color: #dc3545;">
         ❌ Lỗi: Không tìm thấy danh mục ID: ' . htmlspecialchars($id) . '
-        <br><a href="categorylist.php" style="color: #007bff; text-decoration: none;">Quay lại danh sách</a>
+        <br><a href="categorylist.php" style="color: #007bff; text-decoration: none; margin-top:10px;display:inline-block;">
+        ⬅ Quay lại danh sách
+        </a>
     </div>');
 }
 
-$msg = "";
-$msg_type = ""; // success | error
+$msg      = "";
+$msg_type = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['category_name'] ?? '');
 
     if ($name !== "") {
-        $result = $cg->update_category($id, $name);
+        // Chỉ cập nhật tên, giữ nguyên parent_id (class đã xử lý)
+        $result = $cg->update_category($id, $name, null);
 
         if ($result) {
-            $msg = "✔ Đã lưu thay đổi danh mục thành công.";
+            $msg      = "✔ Đã lưu thay đổi danh mục thành công.";
             $msg_type = "success";
-            // Lấy lại dữ liệu mới nhất
-            $row = $cg->get_category($id); 
+            $row      = $cg->get_category($id);
         } else {
-            $msg = "❌ Lỗi: Không thể cập nhật danh mục. Vui lòng kiểm tra Class/Database.";
+            $msg      = "❌ Lỗi: Không thể cập nhật danh mục. Vui lòng thử lại.";
             $msg_type = "error";
         }
     } else {
-        $msg = "⚠️ Vui lòng nhập tên danh mục.";
+        $msg      = "⚠️ Vui lòng nhập tên danh mục.";
         $msg_type = "error";
     }
 }
 ?>
 
 <style>
-    /* ================= LAYOUT CHÍNH ================= */
     .admin-content-right {
-        flex: 1; 
+        margin-left: 230px;
+        flex: 1;
         padding: 40px;
         display: flex;
-        justify-content: center; 
+        justify-content: center;
         align-items: flex-start;
         position: relative;
     }
 
-    /* ================= FORM CARD (GLASSMORPHISM) ================= */
     .form-container {
         width: 100%;
         max-width: 500px;
         padding: 40px;
         border-radius: 20px;
-        
-        /* Hiệu ứng kính */
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.6);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        
         animation: fadeIn 0.5s ease-out;
     }
 
     @keyframes fadeIn {
         from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
+        to   { opacity: 1; transform: scale(1); }
     }
 
     .form-title {
@@ -88,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         letter-spacing: 1px;
     }
 
-    /* ================= INPUT FIELD ================= */
     .form-group {
         margin-bottom: 25px;
     }
@@ -113,23 +108,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: #333;
         transition: all 0.3s ease;
         outline: none;
-        box-sizing: border-box; 
+        box-sizing: border-box;
     }
 
     .form-control:focus {
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 0 0 4px rgba(255, 127, 80, 0.15); /* Màu san hô nhẹ cho focus */
+        box-shadow: 0 0 0 4px rgba(255, 127, 80, 0.15);
         border-color: #ff7f50;
     }
 
-    /* ================= BUTTON ================= */
     .btn-submit {
         width: 100%;
         padding: 15px;
         border: none;
         border-radius: 12px;
-        /* Gradient màu cam/san hô cho nút Sửa */
-        background: linear-gradient(135deg, #ff7f50, #ff6b81); 
+        background: linear-gradient(135deg, #ff7f50, #ff6b81);
         color: white;
         font-size: 16px;
         font-weight: 600;
@@ -145,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         filter: brightness(1.1);
     }
 
-    /* ================= ALERT MESSAGE ================= */
     .alert {
         padding: 15px;
         border-radius: 10px;
@@ -169,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: #fc5c65;
     }
 
-    /* Trang trí background nhẹ */
     .blob-decor {
         position: absolute;
         width: 300px;
@@ -186,13 +177,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </style>
 
 <div class="admin-content-right">
-    
     <div class="blob-decor"></div>
 
     <div class="form-container">
         <h1 class="form-title"><i class="fa-solid fa-tags"></i> SỬA DANH MỤC</h1>
 
-        <?php if (!empty($msg)) : ?>
+        <?php if (!empty($msg)): ?>
             <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
                 <i class="<?= ($msg_type == 'success') ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
                 <?= htmlspecialchars($msg) ?>
@@ -200,20 +190,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="" method="POST">
-            
             <div class="form-group">
                 <label class="form-label">Tên danh mục</label>
-                <input 
-                type="text" 
-                name="category_name" 
-                class="form-control"
-                value="<?= htmlspecialchars($row['category_name']) ?>" 
-                placeholder="Nhập tên danh mục mới"
-                required
+                <input
+                    type="text"
+                    name="category_name"
+                    class="form-control"
+                    value="<?= htmlspecialchars($row['category_name']) ?>"
+                    placeholder="Nhập tên danh mục mới"
+                    required
                 >
             </div>
 
-                <button type="submit" class="btn-submit">
+            <button type="submit" class="btn-submit">
                 <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
             </button>
         </form>
@@ -221,5 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 </section>
+</div>
 </body>
 </html>

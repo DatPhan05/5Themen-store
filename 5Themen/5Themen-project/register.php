@@ -8,43 +8,63 @@ require_once __DIR__ . '/include/database.php';
 $db   = new Database();
 $conn = $db->link;
 
-/***********************************************
- * 2. XỬ LÝ ĐĂNG KÝ
- ***********************************************/
+/***************************************************************************
+ * 2. XỬ LÝ ĐĂNG KÝ (ĐÃ SỬA VỚI PREPARED STATEMENTS để bảo mật và ổn định)
+ ***************************************************************************/
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $fullname = trim($_POST['fullname']);
-    $email    = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    $phone    = trim($_POST['phone']);
-    $address  = trim($_POST['address']);
+    $fullname = trim($_POST['fullname'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $phone    = trim($_POST['phone'] ?? '');
+    $address  = trim($_POST['address'] ?? '');
 
-    // Escape input
-    $emailEscaped = $conn->real_escape_string($email);
-
-    // Kiểm tra trùng email
-    $check = $conn->query("SELECT * FROM tbl_user WHERE email = '$emailEscaped' LIMIT 1");
-    if ($check && $check->num_rows > 0) {
-        echo "<script>alert('Email đã tồn tại. Vui lòng dùng email khác!');</script>";
+    // Kiểm tra đầu vào tối thiểu
+    if (empty($fullname) || empty($email) || empty($password)) {
+        echo "<script>alert('Vui lòng nhập đủ Họ tên, Email và Mật khẩu!');</script>";
     } else {
-
-        // HASH mật khẩu tiêu chuẩn PHP
-        $passHash = password_hash($password, PASSWORD_DEFAULT);
-
-        $fullnameEsc = $conn->real_escape_string($fullname);
-        $phoneEsc    = $conn->real_escape_string($phone);
-        $addressEsc  = $conn->real_escape_string($address);
-
-        $query = "
-            INSERT INTO tbl_user(fullname, email, password, phone, address)
-            VALUES ('$fullnameEsc', '$emailEscaped', '$passHash', '$phoneEsc', '$addressEsc')
-        ";
-
-        if ($conn->query($query)) {
-            header("Location: login.php?registered=1");
-            exit();
+        
+        // --- 1. KIỂM TRA TRÙNG EMAIL (Dùng Prepared Statement) ---
+        $check_sql = "SELECT email FROM tbl_user WHERE email = ? LIMIT 1";
+        $check_stmt = $conn->prepare($check_sql);
+        
+        if (!$check_stmt) {
+            echo "<script>alert('Lỗi hệ thống khi chuẩn bị kiểm tra email!');</script>";
         } else {
-            echo "<script>alert('Đăng ký thất bại. Vui lòng thử lại!');</script>";
+            $check_stmt->bind_param("s", $email);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            $check_stmt->close();
+
+            if ($check_result && $check_result->num_rows > 0) {
+                echo "<script>alert('Email đã tồn tại. Vui lòng dùng email khác!');</script>";
+            } else {
+                // --- 2. HASH MẬT KHẨU VÀ CHÈN DỮ LIỆU ---
+                $passHash = password_hash($password, PASSWORD_DEFAULT); // HASH mật khẩu tiêu chuẩn PHP
+
+                $insert_sql = "
+                    INSERT INTO tbl_user(fullname, email, password, phone, address)
+                    VALUES (?, ?, ?, ?, ?)
+                ";
+
+                $insert_stmt = $conn->prepare($insert_sql);
+                
+                if (!$insert_stmt) {
+                    echo "<script>alert('Lỗi hệ thống khi chuẩn bị chèn dữ liệu!');</script>";
+                } else {
+                    // Gắn tham số (5 strings: sssss)
+                    $insert_stmt->bind_param("sssss", $fullname, $email, $passHash, $phone, $address);
+
+                    if ($insert_stmt->execute()) {
+                        header("Location: login.php?registered=1");
+                        exit();
+                    } else {
+                        echo "<script>alert('Đăng ký thất bại. Vui lòng thử lại: " . $conn->error . "');</script>";
+                    }
+
+                    $insert_stmt->close();
+                }
+            }
         }
     }
 }
@@ -73,19 +93,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="auth-row">
                     <div class="auth-field">
                         <label>Họ tên</label>
-                        <input type="text" name="fullname" required>
+                        <input type="text" name="fullname" required value="<?= htmlspecialchars($fullname ?? '') ?>">
                     </div>
 
                     <div class="auth-field">
                         <label>Số điện thoại</label>
-                        <input type="text" name="phone">
+                        <input type="text" name="phone" value="<?= htmlspecialchars($phone ?? '') ?>">
                     </div>
                 </div>
 
                 <div class="auth-row">
                     <div class="auth-field">
                         <label>Email</label>
-                        <input type="email" name="email" required>
+                        <input type="email" name="email" required value="<?= htmlspecialchars($email ?? '') ?>">
                     </div>
 
                     <div class="auth-field">
@@ -96,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <div class="auth-field">
                     <label>Địa chỉ</label>
-                    <input type="text" name="address">
+                    <input type="text" name="address" value="<?= htmlspecialchars($address ?? '') ?>">
                 </div>
 
                 <button type="submit" class="btn-primary btn-full">Đăng ký</button>

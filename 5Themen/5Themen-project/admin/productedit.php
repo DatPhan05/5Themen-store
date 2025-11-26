@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
     /* ================= LAYOUT CHÍNH ================= */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1; 
         padding: 40px;
         display: flex;

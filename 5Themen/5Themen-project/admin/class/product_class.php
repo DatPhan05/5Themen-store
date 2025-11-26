@@ -108,15 +108,31 @@ class Product {
         return $this->db->select($query);
     }
 
-    // ============================
-    // Lấy sản phẩm theo ID
-    // ============================
-    public function get_product($id){
-        $id = (int)$id;
-        $query = "SELECT * FROM tbl_product WHERE product_id = $id";
-        $rs = $this->db->select($query);
-        return $rs ? $rs->fetch_assoc() : null;
-    }
+    /// ============================
+// Lấy sản phẩm theo ID (BẢN CHUẨN ĐÃ FIX GIÁ SALE)
+// ============================
+public function get_product($id){
+    $id = (int)$id;
+
+    $query = "
+        SELECT 
+            product_id,
+            product_name,
+            product_price,
+            product_sale,
+            product_desc,
+            product_img,
+            category_id,
+            brand_id
+        FROM tbl_product 
+        WHERE product_id = $id 
+        LIMIT 1
+    ";
+
+    $rs = $this->db->select($query);
+    return $rs ? $rs->fetch_assoc() : null;
+}
+
 
     // ============================
     // Xóa sản phẩm
@@ -260,7 +276,46 @@ class Product {
 
         return $this->db->select($query);
     }
+    // ============================
+// CẬP NHẬT SẢN PHẨM
+// ============================
+public function update_product($id, $name, $category_id, $brand_id, $price, $sale_price, $desc, $thumb = null)
+{
+    $id    = (int)$id;
+    $cid   = (int)$category_id;
+    $bid   = (int)$brand_id;
+    $price = (float)$price;
+    $sale  = (float)$sale_price;
+
+    // Escape string
+    $name  = $this->db->escape($name);
+    $desc  = $this->db->escape($desc);
+
+    // Xử lý ảnh — nếu không truyền ảnh mới thì giữ ảnh cũ
+    if ($thumb !== null && $thumb !== "") {
+        $thumb = $this->db->escape($thumb);
+        $sql_thumb = ", product_img = '$thumb'";
+    } else {
+        $sql_thumb = "";
+    }
+
+    $query = "
+        UPDATE tbl_product
+        SET 
+            product_name  = '$name',
+            category_id   = $cid,
+            brand_id      = $bid,
+            product_price = $price,
+            product_sale  = $sale,
+            product_desc  = '$desc'
+            $sql_thumb
+        WHERE product_id = $id
+    ";
+
+    return $this->db->update($query);
+}
+
+    
 
 }
 ?>
-

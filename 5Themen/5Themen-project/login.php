@@ -2,6 +2,7 @@
 require_once __DIR__ . '/include/session.php';
 Session::init(); 
 
+// Tạo CSRF token nếu chưa tồn tại
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -9,6 +10,7 @@ if (empty($_SESSION['csrf_token'])) {
 $errorMessage = $_SESSION['error'] ?? '';
 $oldEmail     = $_SESSION['old']['email'] ?? '';
 
+// Xóa thông báo lỗi và dữ liệu cũ sau khi hiển thị
 unset($_SESSION['error'], $_SESSION['old']);
 ?>
 <!DOCTYPE html>
@@ -33,8 +35,8 @@ unset($_SESSION['error'], $_SESSION['old']);
                 <?php if ($errorMessage): ?>
                 <div class="auth-error"><?= htmlspecialchars($errorMessage) ?></div>
                 <?php endif; ?>
-
-                <form method="POST" action="/5Themen/5Themen-project/login_process.php">
+                
+                <form method="POST" action="login_process.php"> 
 
                     <input type="hidden" name="csrf_token"
                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">

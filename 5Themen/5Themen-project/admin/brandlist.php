@@ -17,6 +17,7 @@ $list = $b->show_brand();
 <style>
     /* ================= LAYOUT & CARD STYLE ================= */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1; 
         padding: 40px;
         position: relative;

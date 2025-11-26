@@ -8,27 +8,17 @@
         margin-top: 10px;
     }
     .admin-content-left {
-        /* Kích thước và vị trí */
-        width: 260px;
-        /* Chiều cao bằng 100% màn hình trừ đi chiều cao header (70px) */
-        min-height: calc(100vh - 70px); 
-        padding: 20px;
-        
-        /* Hiệu ứng Kính mờ (Glassmorphism) */
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        /* Viền mờ bên phải */
-        border-right: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 5px 0 15px rgba(0,0,0,0.05);
-        
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        /* Để sidebar đứng yên nếu nội dung bên phải dài và cần cuộn */
-        position: sticky; 
-        top: 70px; 
-    }
+    position: fixed;
+    top: 70px;              /* đúng bằng chiều cao header của bạn */
+    left: 0;
+    width: 230px;           /* giữ nguyên chiều rộng sidebar */
+    height: calc(100vh - 70px);  /* luôn full chiều cao dưới header */
+    overflow-y: auto;
+    background: #e5e5e5;    /* màu gốc của bạn */
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 999;           /* luôn nằm trên background */
+}
 
     /* Style cho nút "Dashboard" */
     .btn-back {

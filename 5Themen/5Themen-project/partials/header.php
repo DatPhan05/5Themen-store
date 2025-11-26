@@ -41,110 +41,99 @@ $rootCategories = $categoryModel->get_parent_categories();
         </div>
 
         <!-- Menu Navigation -->
-        <nav class="header-menu">
-            <ul id="main-menu">
-                <?php 
-                if ($rootCategories && is_object($rootCategories) && $rootCategories->num_rows > 0):
-                    while ($root = $rootCategories->fetch_assoc()):
-                        $rootId   = $root['category_id'];
-                        $rootName = $root['category_name'];
-                        
-                        // Lấy child categories (Áo Nam, Quần Nam, Giày...)
-                        $childCategories = $categoryModel->get_children($rootId);
+<nav class="header-menu">
+    <ul id="main-menu">
+        <?php 
+        if ($rootCategories && is_object($rootCategories) && $rootCategories->num_rows > 0):
+            while ($root = $rootCategories->fetch_assoc()):
+                
+                $rootId   = $root['category_id'];
+                $rootName = $root['category_name'];
 
-                        // Chuẩn hóa tên để so sánh "sản phẩm"
-                        if (function_exists('mb_strtolower')) {
-                            $rootNameLower = mb_strtolower($rootName, 'UTF-8');
-                        } else {
-                            $rootNameLower = strtolower($rootName);
-                        }
+                // Lấy category con
+                $childCategories = $categoryModel->get_children($rootId);
 
-                        // =========================
-                        // LINK CHO CATEGORY CHA
-                        // =========================
-                        if ($rootNameLower === 'sản phẩm') {
-                            // Click vào "Sản phẩm" -> trang TẤT CẢ SẢN PHẨM
-                            $rootHref = 'category.php';
-                        } elseif ($rootId == 14) {
-                            // THÔNG TIN (ID = 14) – để nguyên theo luồng cũ
-                            $rootHref = 'category.php?cat=14';
-                        } else {
-                            // Các root khác filter theo danh mục
-                            $rootHref = 'category.php?cat=' . $rootId;
-                        }   
-                ?>
-                    <li class="menu-item">
-                        <!-- ROOT CATEGORY LINK (Sản phẩm, Bộ sưu tập, Thông tin...) -->
-                        <a href="<?= htmlspecialchars($rootHref) ?>">
-                            <?= htmlspecialchars($rootName) ?>
-                        </a>
-                        
-                        <!-- MEGA MENU 
-                             CHỈ HIỆN KHI ROOT LÀ "SẢN PHẨM"
-                             VÀ CÓ CATEGORY CON
-                        -->
-                        <?php if ($rootNameLower === 'sản phẩm' 
-                                  && $childCategories 
-                                  && is_object($childCategories) 
-                                  && $childCategories->num_rows > 0): ?>
-                        <div class="mega-menu">
-                            <div class="mega-content">
-                                <!-- Cột 1: link tổng quát -->
-                                <div class="mega-column">
-                                    <a href="category.php">Tất cả sản phẩm</a>
-                                    <a href="category.php?filter=new">Sản phẩm mới</a>
-                                    <a href="category.php?cat=13">Bộ sưu tập</a>
-                                    <a href="news.php">Thông tin</a>
-                                </div>
-                                <?php 
-                                $colCount = 0;
-                                while ($child = $childCategories->fetch_assoc()): 
-                                    $childId   = $child['category_id'];
-                                    $childName = $child['category_name'];
-                                    
-                                    // Lấy brands thuộc child này
-                                    $brands = $brandModel->get_brand_by_category($childId);
-                                    $colCount++;
-                                ?>
-                                    <div class="mega-column">
-                                        <!-- CHILD CATEGORY TITLE (Áo Nam, Quần Nam...) -->
-                                        <h4>
-                                            <a href="category.php?cat=<?= $childId ?>" class="mega-title">
-                                                <?= htmlspecialchars($childName) ?>
-                                            </a>
-                                        </h4>
-                                        
-                                        <?php if ($brands && is_object($brands) && $brands->num_rows > 0): ?>
-                                            <?php while ($brand = $brands->fetch_assoc()): ?>
-                                            <a href="category.php?cat=<?= $childId ?>&brand=<?= $brand['brand_id'] ?>">
-                                                <?= htmlspecialchars($brand['brand_name']) ?>
-                                            </a>
-                                            <?php endwhile; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php 
-                                    // Thêm banner nếu đạt 4 cột CHILD
-                                    // => Tổng cộng: 1 cột tổng quát + 4 child + 1 banner = 6 “ô” nhưng CSS bạn set 5 cột: 4 + 1 banner
-                                    if ($colCount == 4): 
-                                ?>
-                                    <div class="mega-column banner">
-                                        <img src="images/mega-banner.jpg" alt="Banner"
-                                             onerror="this.style.display='none'">
-                                    </div>
-                                <?php 
-                                        break; // Chỉ hiện tối đa 4 cột + 1 banner
-                                    endif;
-                                endwhile; ?>
-                            </div>
-                        </div>
+                // Link khi click vào category cha
+                if (mb_strtolower($rootName, 'UTF-8') === 'sản phẩm') {
+                    $rootHref = 'category.php';
+                } else {
+                    $rootHref = 'category.php?cat=' . $rootId;
+                }
+        ?>
+        <li class="menu-item">
+
+            <!-- LINK CATEGORY CHA -->
+            <a href="<?= htmlspecialchars($rootHref) ?>">
+                <?= htmlspecialchars($rootName) ?>
+            </a>
+
+            <!-- MEGA MENU: chỉ hiện khi category có CHILD -->
+            <?php if ($childCategories && $childCategories->num_rows > 0): ?>
+            <div class="mega-menu">
+                <div class="mega-content">
+
+                    <!-- CỘT 1 — LINK CỐ ĐỊNH (GIỐNG ICONDENIM) -->
+                    <div class="mega-column">
+                        <a href="category.php">Tất cả sản phẩm</a>
+                        <a href="category.php?cat=8">Sản phẩm mới</a>
+                        <a href="category.php?cat=13">Bộ sưu tập</a>
+                        <a href="category.php?cat=14">Thông tin</a>
+                    </div>
+
+                    <!-- CỘT CATEGORY CON (Tối đa 4 cột) -->
+                    <?php 
+                    $colCount = 0;
+                    while ($child = $childCategories->fetch_assoc()):
+                        if ($colCount >= 4) break;
+
+                        $childId   = $child['category_id'];
+                        $childName = $child['category_name'];
+
+                        // Brand theo category con
+                        $brands = $brandModel->get_brand_by_category($childId);
+                    ?>
+                    <div class="mega-column">
+
+                        <!-- Tiêu đề category con -->
+                        <h4>
+                            <a href="category.php?cat=<?= $childId ?>" class="mega-title">
+                                <?= htmlspecialchars($childName) ?>
+                            </a>
+                        </h4>
+
+                        <!-- Danh sách brand thuộc category con -->
+                        <?php if ($brands && $brands->num_rows > 0): ?>
+                            <?php while ($brand = $brands->fetch_assoc()): ?>
+                            <a href="category.php?cat=<?= $childId ?>&brand=<?= $brand['brand_id'] ?>">
+                                <?= htmlspecialchars($brand['brand_name']) ?>
+                            </a>
+                            <?php endwhile; ?>
                         <?php endif; ?>
-                    </li>
-                <?php 
+
+                    </div>
+                    <?php 
+                        $colCount++;
                     endwhile;
-                endif; 
-                ?>
-            </ul>
-        </nav>
+                    ?>
+
+                    <!-- CỘT BANNER (ICONDENIM STYLE) -->
+                    <div class="mega-column banner">
+                        <img src="images/mega-banner.jpg" alt="Banner"
+                             onerror="this.style.display='none'">
+                    </div>
+
+                </div>
+            </div>
+            <?php endif; ?>
+
+        </li>
+        <?php 
+            endwhile;
+        endif; 
+        ?>
+    </ul>
+</nav>
+
 
         <!-- Icons (Search, User, Cart) -->
         <div class="header-icons">

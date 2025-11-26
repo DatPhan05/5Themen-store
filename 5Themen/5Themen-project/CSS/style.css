@@ -1031,6 +1031,37 @@ a {
     border-color: #000;
     color: #fff;
 }
+.product-price {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.price-current {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+}
+
+.price-old {
+    font-size: 11px;
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.price-sale-badge {
+    font-size: 10px;
+    background: #facc15;
+    color: #78350f;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+
 
 /* ============================================================
    PRODUCT GRID

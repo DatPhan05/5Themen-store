@@ -14,6 +14,7 @@ $list = $pd->get_all_products();
 <style>
     /* ========== LAYOUT ========== */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1;
         padding: 40px;
         position: relative;
