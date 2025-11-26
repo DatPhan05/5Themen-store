@@ -53,12 +53,33 @@ $rootCategories = $categoryModel->get_parent_categories();
                 // Lấy category con
                 $childCategories = $categoryModel->get_children($rootId);
 
-                // Link khi click vào category cha
-                if (mb_strtolower($rootName, 'UTF-8') === 'sản phẩm') {
-                    $rootHref = 'category.php';
-                } else {
-                    $rootHref = 'category.php?cat=' . $rootId;
-                }
+                
+                // Link khi click vào category cha (map theo tên, vẫn lấy từ DB)
+$lowerName = mb_strtolower(trim($rootName), 'UTF-8');
+
+switch ($lowerName) {
+    case 'sản phẩm':
+        $rootHref = 'category.php';
+        break;
+
+    case 'sản phẩm mới':
+        $rootHref = 'category_new.php';
+        break;
+
+    case 'khuyến mãi hot':
+        $rootHref = 'category_sale.php';
+        break;
+
+    case 'thông tin':
+        $rootHref = 'info.php';
+        break;
+
+    default:
+        // các category khác: đi theo cat id bình thường
+        $rootHref = 'category.php?cat=' . $rootId;
+        break;
+}
+
         ?>
         <li class="menu-item">
 
@@ -75,9 +96,9 @@ $rootCategories = $categoryModel->get_parent_categories();
                     <!-- CỘT 1 — LINK CỐ ĐỊNH (GIỐNG ICONDENIM) -->
                     <div class="mega-column">
                         <a href="category.php">Tất cả sản phẩm</a>
-                        <a href="category.php?cat=8">Sản phẩm mới</a>
-                        <a href="category.php?cat=13">Bộ sưu tập</a>
-                        <a href="category.php?cat=14">Thông tin</a>
+                        <a href="category_new.php">Sản phẩm mới</a>
+                        <a href="category_sale.php">Khuyến mãi hot</a>
+                        <a href="info.php">Thông tin</a>
                     </div>
 
                     <!-- CỘT CATEGORY CON (Tối đa 4 cột) -->

@@ -445,6 +445,22 @@ public function get_hot_sale_products($limit = 8) {
 
     return $this->db->select($sql);
 }
+public function count_sale_products() {
+    $sql = "SELECT COUNT(*) AS total FROM tbl_product 
+            WHERE product_sale > 0 AND product_sale < product_price";
+
+    $rs = $this->db->select($sql);
+    return $rs ? (int)$rs->fetch_assoc()['total'] : 0;
+}
+public function get_last_id() {
+    $sql = "SELECT MAX(product_id) AS max_id FROM tbl_product";
+    $rs = $this->db->select($sql);
+    if ($rs) {
+        $row = $rs->fetch_assoc();
+        return (int)$row['max_id'];
+    }
+    return 0;
+}
 
 
     

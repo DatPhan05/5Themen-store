@@ -2547,3 +2547,97 @@ a {
         height: 200px;
     }
 }
+/* ============================================================
+   PAGINATION – STYLE ĐẸP CHUẨN 5THEMEN (DÙNG CHUNG)
+   ============================================================ */
+
+.pagination-area {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    padding: 15px 0 10px;
+    margin: 0;
+}
+
+.pagination li {
+    display: inline-block;
+}
+
+.pagination a,
+.pagination span,
+.pagination .page-link {
+    display: block;
+    min-width: 42px;
+    padding: 10px 15px;
+    text-align: center;
+
+    background: #ffffff;
+    color: #fa8231;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+.pagination a:hover {
+    background-color: #fa8231;
+    color: #ffffff;
+    border-color: #fa8231;
+}
+
+/* Trang hiện tại */
+.pagination .active .page-link,
+.pagination .current-page {
+    background-color: #fc5c65;
+    border-color: #fc5c65;
+    color: #ffffff !important;
+    cursor: default;
+}
+
+/* Disable */
+.pagination .disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f1f1;
+    color: #888;
+}
+/* ================= BADGE NEW / HOT SALE =================== */
+
+.product-badge {
+    position: absolute;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 4px;
+    z-index: 20;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Góc trái – HOT SALE */
+.product-badge.hot {
+    left: 8px;
+    top: 8px;
+    background: #fa8231;  /* Màu cam brand */
+}
+
+/* Góc phải – NEW */
+.product-badge.new {
+    right: 8px;
+    top: 8px;
+    background: #0fb9b1; /* Xanh ngọc đẹp */
+}

@@ -14,10 +14,9 @@ $catId   = isset($_GET['cat'])   ? (int)$_GET['cat']   : 0;
 $brandId = isset($_GET['brand']) ? (int)$_GET['brand'] : 0;
 $page    = isset($_GET['page'])  ? (int)$_GET['page']  : 1; // Trang hiện tại
 
-if ($catId == 14) {
-    require_once __DIR__ . "/news.php";
-    exit;
-}
+// Lấy ID sản phẩm mới nhất (dùng để hiển thị badge NEW)
+$maxProductId = $productModel->get_last_id();
+
 
 // 1. Cài đặt Phân Trang
 $limit = 8; // Số lượng sản phẩm trên mỗi trang
@@ -105,70 +104,82 @@ $breadcrumbs[] = ['text' => $pageTitle];
         <?php if ($productList && $productList->num_rows > 0): ?>
             <div class="product-grid">
                 <?php while ($row = $productList->fetch_assoc()): ?>
-                    <div class="product-item">
 
-                        <div class="product-media">
-                            <a href="product_detail.php?id=<?= $row['product_id'] ?>" class="product-thumb">
-                                <img src="<?= htmlspecialchars($row['product_img']) ?>" alt="">
+    <?php
+        $price     = (float)$row['product_price'];
+        $salePrice = (float)$row['product_sale'];
 
-                            </a>
+        $hasSale = ($salePrice > 0 && $salePrice < $price);
+        $isNew   = ($row['product_id'] >= $maxProductId - 20);
+    ?>
 
-                            <div class="product-hover-actions">
-                                <div class="product-hover-actions-inner">
-                                    <a href="them_giohang.php?action=add&id=<?= $row['product_id'] ?>" class="hover-btn">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                    </a>
-                                    <a href="product_detail.php?id=<?= $row['product_id'] ?>" class="hover-btn">
-                                        <i class="fa-regular fa-eye"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+    <div class="product-item">
 
-                        <h3 class="product-name">
-                            <a href="product_detail.php?id=<?= $row['product_id'] ?>">
-                                <?= htmlspecialchars($row['product_name']) ?>
-                            </a>
-                        </h3>
+        <div class="product-media">
 
-                        <?php
-                        $price     = (float)$row['product_price'];
-                        $salePrice = (float)$row['product_sale'];
+            <!-- HOT (góc trái) -->
+            <?php if ($hasSale): ?>
+                <span class="product-badge hot">HOT</span>
+            <?php endif; ?>
 
-                        $hasSale = ($salePrice > 0 && $salePrice < $price);
-                        ?>
+            <!-- NEW (góc phải) -->
+            <?php if ($isNew): ?>
+                <span class="product-badge new">NEW</span>
+            <?php endif; ?>
 
-                        <div class="product-price">
-                            <?php if ($hasSale): ?>
-                                <span class="price-current">
-                                    <?= number_format($salePrice, 0, ',', '.') ?>đ
-                                </span>
+            <a href="product_detail.php?id=<?= $row['product_id'] ?>" class="product-thumb">
+                <img src="<?= htmlspecialchars($row['product_img']) ?>" alt="">
+            </a>
 
-                                <span class="price-old">
-                                    <?= number_format($price, 0, ',', '.') ?>đ
-                                </span>
+            <div class="product-hover-actions">
+                <div class="product-hover-actions-inner">
+                    <a href="them_giohang.php?action=add&id=<?= $row['product_id'] ?>" class="hover-btn">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </a>
+                    <a href="product_detail.php?id=<?= $row['product_id'] ?>" class="hover-btn">
+                        <i class="fa-regular fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                                <span class="price-sale-badge">
-                                    -<?= round((($price - $salePrice) / $price) * 100) ?>%
-                                </span>
+        <h3 class="product-name">
+            <a href="product_detail.php?id=<?= $row['product_id'] ?>">
+                <?= htmlspecialchars($row['product_name']) ?>
+            </a>
+        </h3>
 
-                            <?php else: ?>
-                                <span class="price-current">
-                                    <?= number_format($price, 0, ',', '.') ?>đ
-                                </span>
-                            <?php endif; ?>
-                        </div>
+        <div class="product-price">
+            <?php if ($hasSale): ?>
+                <span class="price-current">
+                    <?= number_format($salePrice, 0, ',', '.') ?>đ
+                </span>
 
+                <span class="price-old">
+                    <?= number_format($price, 0, ',', '.') ?>đ
+                </span>
 
-                        <div class="product-color-list">
-                            <div class="product-color">
-                                <img src="<?= htmlspecialchars($row['product_img']) ?>" alt="">
+                <span class="price-sale-badge">
+                    -<?= round((($price - $salePrice) / $price) * 100) ?>%
+                </span>
 
-                            </div>
-                        </div>
+            <?php else: ?>
+                <span class="price-current">
+                    <?= number_format($price, 0, ',', '.') ?>đ
+                </span>
+            <?php endif; ?>
+        </div>
 
-                    </div>
-                <?php endwhile; ?>
+        <div class="product-color-list">
+            <div class="product-color">
+                <img src="<?= htmlspecialchars($row['product_img']) ?>" alt="">
+            </div>
+        </div>
+
+    </div>
+
+<?php endwhile; ?>
+
             </div>
         <?php else: ?>
             <p style="text-align: center; margin-top: 50px;">

@@ -34,6 +34,14 @@ if (!$product) {
     header("Location: trangchu.php");
     exit;
 }
+// Badge NEW – sản phẩm mới nhất
+$maxProductId = $productModel->get_last_id();
+$isNew = ($product['product_id'] >= $maxProductId - 20);
+
+// Badge HOT SALE – sản phẩm giảm giá
+$price     = (float)$product['product_price'];
+$salePrice = (float)$product['product_sale'];
+$hasSale   = ($salePrice > 0 && $salePrice < $price);
 
 /***********************************************
  * 5. LẤY THÔNG TIN CATEGORY + BRAND
@@ -681,11 +689,27 @@ $mainImg = buildProductImgPath($product['product_img'] ?? '');
     </div>
 
     <!-- Ảnh lớn bên phải -->
-    <div class="pd-main-img">
-        <img id="pd-main-img"
-            src="<?= htmlspecialchars($mainImg) ?>"
-            alt="<?= htmlspecialchars($product['product_name']) ?>">
-    </div>
+    <div class="pd-main-img" style="position: relative;">
+
+    <?php if ($hasSale): ?>
+        <span class="product-badge hot"
+              style="position:absolute; left:12px; top:12px; z-index:20;">
+              HOT
+        </span>
+    <?php endif; ?>
+
+    <?php if ($isNew): ?>
+        <span class="product-badge new"
+              style="position:absolute; right:12px; top:12px; z-index:20;">
+              NEW
+        </span>
+    <?php endif; ?>
+
+    <img id="pd-main-img"
+        src="<?= htmlspecialchars($mainImg) ?>"
+        alt="<?= htmlspecialchars($product['product_name']) ?>">
+</div>
+
 
 </div>
 
@@ -880,45 +904,89 @@ $mainImg = buildProductImgPath($product['product_img'] ?? '');
         <!-- SẢN PHẨM LIÊN QUAN -->
         <?php if ($relatedProducts && $relatedProducts->num_rows > 1): ?>
         <div class="pd-related-section">
-            <div class="pd-related-title">Sản phẩm cùng danh mục</div>
-            <div class="pd-related-grid">
-                <?php
-                $count = 0;
-                while ($rp = $relatedProducts->fetch_assoc()):
-                    if ($rp['product_id'] == $productId) continue;
-                    if ($count >= 5) break;
-                    $count++;
-                    $rpImg = buildProductImgPath($rp['product_img'] ?? '');
-                    $rpPrice     = (float)$rp['product_price'];
-                    $rpSalePrice = (float)$rp['product_sale'];
-                    $rpHasSale   = ($rpSalePrice > 0 && $rpSalePrice < $rpPrice);
-                ?>
-                <div class="pd-related-card">
-                    <a href="product_detail.php?id=<?= (int)$rp['product_id'] ?>">
-                        <div class="pd-related-thumb">
-                            <img src="<?= htmlspecialchars($rpImg) ?>"
-                                 alt="<?= htmlspecialchars($rp['product_name']) ?>">
-                        </div>
-                        <div class="pd-related-body">
-                            <div class="pd-related-name">
-                                <?= htmlspecialchars($rp['product_name']) ?>
-                            </div>
-                            <div class="pd-related-price">
-                                <?php if ($rpHasSale): ?>
-                                    <?= number_format($rpSalePrice, 0, ',', '.') ?>đ
-                                    <span class="pd-related-price-old">
-                                        <?= number_format($rpPrice, 0, ',', '.') ?>đ
-                                    </span>
-                                <?php else: ?>
-                                    <?= number_format($rpPrice, 0, ',', '.') ?>đ
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </a>
+    <div class="pd-related-title">Sản phẩm cùng danh mục</div>
+
+    <div class="product-grid">
+        <?php
+        $count = 0;
+        while ($rp = $relatedProducts->fetch_assoc()):
+            if ($rp['product_id'] == $productId) continue;
+            if ($count >= 8) break;
+            $count++;
+
+            $rpImg = buildProductImgPath($rp['product_img']);
+            $rpPrice     = (float)$rp['product_price'];
+            $rpSalePrice = (float)$rp['product_sale'];
+            $rpHasSale   = ($rpSalePrice > 0 && $rpSalePrice < $rpPrice);
+
+            // Badge NEW (top 20 sản phẩm mới)
+            $rpIsNew = ($rp['product_id'] >= $maxProductId - 20);
+        ?>
+        <div class="product-item">
+
+            <div class="product-media">
+
+                <!-- HOT SALE -->
+                <?php if ($rpHasSale): ?>
+                    <span class="product-badge hot">HOT</span>
+                <?php endif; ?>
+
+                <!-- NEW -->
+                <?php if ($rpIsNew): ?>
+                    <span class="product-badge new">NEW</span>
+                <?php endif; ?>
+
+                <a href="product_detail.php?id=<?= $rp['product_id'] ?>" class="product-thumb">
+                    <img src="<?= htmlspecialchars($rpImg) ?>" alt="">
+                </a>
+
+                <div class="product-hover-actions">
+                    <div class="product-hover-actions-inner">
+                        <a href="them_giohang.php?action=add&id=<?= $rp['product_id'] ?>" class="hover-btn">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                        <a href="product_detail.php?id=<?= $rp['product_id'] ?>" class="hover-btn">
+                            <i class="fa-regular fa-eye"></i>
+                        </a>
+                    </div>
                 </div>
-                <?php endwhile; ?>
             </div>
+
+            <h3 class="product-name">
+                <a href="product_detail.php?id=<?= $rp['product_id'] ?>">
+                    <?= htmlspecialchars($rp['product_name']) ?>
+                </a>
+            </h3>
+
+            <div class="product-price">
+                <?php if ($rpHasSale): ?>
+                    <span class="price-current">
+                        <?= number_format($rpSalePrice, 0, ',', '.') ?>đ
+                    </span>
+                    <span class="price-old">
+                        <?= number_format($rpPrice, 0, ',', '.') ?>đ
+                    </span>
+                    <span class="price-sale-badge">
+                        -<?= round((($rpPrice - $rpSalePrice) / $rpPrice) * 100) ?>%
+                    </span>
+                <?php else: ?>
+                    <span class="price-current">
+                        <?= number_format($rpPrice, 0, ',', '.') ?>đ
+                    </span>
+                <?php endif; ?>
+            </div>
+
+            <div class="product-color-list">
+                <div class="product-color">
+                    <img src="<?= htmlspecialchars($rpImg) ?>" alt="">
+                </div>
+            </div>
+
         </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
         <?php endif; ?>
 
     </div>
