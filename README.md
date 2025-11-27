@@ -71,79 +71,77 @@ HTML, CSS, JavaScript,
 Font Awesome; sử dụng PHP Session để quản lý đăng nhập và giỏ hàng.
 
 ## CẤU TRÚC THƯ MỤC
+## CẤU TRÚC THƯ MỤC
+
 5THEMEN-STORE/
 └── 5Themen/5Themen-project/
-    ├── admin/                     # Khu vực quản trị
-    │   ├── class/                 # Các lớp làm việc với CSDL
-    │   │   ├── brand_class.php
-    │   │   ├── category_class.php
-    │   │   ├── order_class.php
-    │   │   ├── product_class.php
-    │   │   └── user_class.php
-    │   ├── uploads/               # Ảnh sản phẩm (admin upload)
-    │   ├── admin_home.php
-    │   ├── brandadd.php
-    │   ├── branddelete.php
-    │   ├── brandedit.php
-    │   ├── brandlist.php
-    │   ├── categoryadd.php
-    │   ├── categorydelete.php
-    │   ├── categoryedit.php
-    │   ├── categorylist.php
-    │   ├── header.php             # Header riêng cho admin
-    │   ├── login_admin.php
-    │   ├── logout_admin.php
-    │   ├── order_invoice.php
-    │   ├── orders.php
-    │   ├── productadd.php
-    │   ├── productdelete.php
-    │   ├── productedit.php
-    │   └── productlist.php
-    │
-    ├── CSS/
-    │   └── style.css              # Toàn bộ style frontend
-    │
-    ├── images/                    # Ảnh slider, banner, logo, sản phẩm
-    │
-    ├── include/                   # File cấu hình + tiện ích dùng chung
-    │   ├── auth.php               # Kiểm tra đăng nhập
-    │   ├── config.php             # Thông tin cấu hình DB
-    │   ├── database.php           # Lớp Database kết nối MySQL
-    │   ├── helpers.php            # Hàm hỗ trợ (format tiền, redirect,…)
-    │   └── session.php            # Lớp Session helper
-    │
-    ├── js/
-    │   ├── main.js                # JS chung cho giao diện
-    │   ├── megamenu.js            # Xử lý mega menu
-    │   └── slider.js              # Slider banner
-    │
-    ├── partials/                  # Thành phần HTML tái sử dụng
-    │   ├── breadcrumb.php
-    │   ├── footer.php
-    │   └── header.php
-    │
-    ├── account.php
-    ├── category_group.php
-    ├── category_new.php
-    ├── category_sale.php
-    ├── category.php
-    ├── giohang.php
-    ├── info.php
-    ├── login.php
-    ├── login_process.php
-    ├── logout.php
-    ├── order_detail.php
-    ├── order_success.php
-    ├── product_detail.php
-    ├── register.php
-    ├── remove_cart.php
-    ├── reorder.php
-    ├── search.php
-    ├── thanhtoan.php
-    ├── them_giohang.php
-    ├── trangchu.php               # Trang chủ người dùng
-    ├── xuly_thanhtoan.php
-    └── README.md
+├── admin/
+│ ├── class/
+│ │ ├── brand_class.php
+│ │ ├── category_class.php
+│ │ ├── order_class.php
+│ │ ├── product_class.php
+│ │ └── user_class.php
+│ ├── uploads/
+│ ├── admin_home.php
+│ ├── brandadd.php
+│ ├── branddelete.php
+│ ├── brandedit.php
+│ ├── brandlist.php
+│ ├── categoryadd.php
+│ ├── categorydelete.php
+│ ├── categoryedit.php
+│ ├── categorylist.php
+│ ├── header.php
+│ ├── login_admin.php
+│ ├── logout_admin.php
+│ ├── order_invoice.php
+│ ├── orders.php
+│ ├── productadd.php
+│ ├── productdelete.php
+│ ├── productedit.php
+│ └── productlist.php
+├── CSS/
+│ └── style.css
+├── images/
+├── include/
+│ ├── auth.php
+│ ├── config.php
+│ ├── database.php
+│ ├── helpers.php
+│ └── session.php
+├── js/
+│ ├── main.js
+│ ├── megamenu.js
+│ └── slider.js
+├── partials/
+│ ├── breadcrumb.php
+│ ├── footer.php
+│ └── header.php
+├── account.php
+├── category_group.php
+├── category_new.php
+├── category_sale.php
+├── category.php
+├── giohang.php
+├── info.php
+├── login.php
+├── login_process.php
+├── logout.php
+├── order_detail.php
+├── order_success.php
+├── product_detail.php
+├── register.php
+├── remove_cart.php
+├── reorder.php
+├── search.php
+├── thanhtoan.php
+├── them_giohang.php
+├── trangchu.php
+├── xuly_thanhtoan.php
+└── README.md
+
+
 
 ## CÀI ĐẶT VÀ CHẠY DỰ ÁN
 
