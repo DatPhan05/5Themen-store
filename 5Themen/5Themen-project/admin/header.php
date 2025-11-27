@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Quản Trị</title>
 
-    <!-- Font + Icon -->
+    <!-- Font & Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- ❌ BỎ DÒNG NÀY ĐI – KHÔNG DÙNG style.css CHUNG NỮA -->
-    <!-- <link rel="stylesheet" href="../CSS/style.css"> -->
 
     <style>
         :root {
@@ -25,13 +22,12 @@
 
         body {
             font-family: "Poppins", sans-serif;
-            background: linear-gradient(45deg, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%);
+            background: linear-gradient(45deg, #f3e7e9 0%, #e3eeff 100%);
             min-height: 100vh;
-            position: relative;
             padding-top: var(--header-height);
         }
 
-        /* HEADER ADMIN (Glassmorphism) */
+        /* Header Glass Effect */
         header {
             position: fixed;
             top: 0;
@@ -67,8 +63,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255,255,255,0.3);
-            padding: 5px 15px;
+            background: rgba(255,255,255,0.35);
+            padding: 6px 18px;
             border-radius: 30px;
         }
 
@@ -79,10 +75,10 @@
         .main-content-wrapper {
             width: 100%;
             padding: 20px;
-            box-sizing: border-box;
         }
     </style>
 </head>
+
 <body>
 
 <header>
@@ -91,10 +87,17 @@
             <i class="fa-solid fa-shield-halved"></i> TRANG QUẢN TRỊ
         </a>
     </h1>
+
     <div class="header-user-info">
         <i class="fa-solid fa-circle-user"></i>
         <span>Xin chào, Admin</span>
+
+        <!-- Nút đăng xuất -->
+        <a href="logout_admin.php" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
     </div>
 </header>
+
 
 <div class="main-content-wrapper">

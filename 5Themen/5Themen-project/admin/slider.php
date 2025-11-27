@@ -150,21 +150,6 @@
             </ul>
         </div>
 
-        <div class="menu-group">
-            <div class="menu-title">Nội dung & Cấu hình</div>
-            <ul>
-                <li>
-                    <a href="postlist.php">
-                        <i class="fa-solid fa-newspaper"></i> Bài viết nội dung
-                    </a>
-                </li>
-                <li>
-                    <a href="postadd.php">
-                        <i class="fa-solid fa-pen-to-square"></i> Thêm bài viết
-                    </a>
-                </li>
-            </ul>
-        </div>
         <div class="menu-group"> 
             <div class="menu-title">Quản lý Đơn hàng</div>
             <ul>

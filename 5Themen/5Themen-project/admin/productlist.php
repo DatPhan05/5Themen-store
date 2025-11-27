@@ -1,5 +1,4 @@
 <?php
-// Bổ sung các file cần thiết
 include "../include/session.php";
 include "../include/database.php";
 
@@ -9,43 +8,27 @@ require_once __DIR__ . "/class/product_class.php";
 
 $db = new Database();
 
-// ===================================
-// 1. CẤU HÌNH PHÂN TRANG
-// ===================================
-$products_per_page = 8; // Số sản phẩm trên mỗi trang
-
-// Lấy trang hiện tại từ URL, mặc định là trang 1
+/* ================================
+   PHÂN TRANG
+================================ */
+$products_per_page = 8;
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($current_page < 1) {
-    $current_page = 1;
-}
+if ($current_page < 1) $current_page = 1;
 
-// ===================================
-// 2. TÍNH TOÁN TỔNG SỐ TRANG
-// ===================================
-
-// Lấy tổng số lượng sản phẩm từ bảng tbl_product
-$count_query = $db->select("SELECT COUNT(*) AS total_products FROM tbl_product");
+$count_query    = $db->select("SELECT COUNT(*) AS total_products FROM tbl_product");
 $total_products = $count_query->fetch_assoc()['total_products'];
+$total_pages    = ceil($total_products / $products_per_page);
 
-// Tính toán tổng số trang
-$total_pages = ceil($total_products / $products_per_page);
-
-// Xác định OFFSET (vị trí bắt đầu lấy dữ liệu)
 $offset = ($current_page - 1) * $products_per_page;
 
-// Kiểm tra và điều chỉnh trang hiện tại nếu vượt quá tổng số trang
 if ($current_page > $total_pages && $total_pages > 0) {
     $current_page = $total_pages;
     $offset = ($current_page - 1) * $products_per_page;
 }
 
-// ===================================
-// 3. TRUY VẤN DỮ LIỆU CÓ PHÂN TRANG
-// ===================================
-
-// Câu truy vấn đã được chỉnh sửa để JOIN lấy tên Danh mục và Loại SP, 
-// đồng thời thêm LIMIT và OFFSET.
+/* ================================
+   LẤY DANH SÁCH SẢN PHẨM
+================================ */
 $sql = "
     SELECT 
         p.*, 
@@ -56,11 +39,10 @@ $sql = "
     JOIN tbl_brand b ON p.brand_id = b.brand_id
     LIMIT $products_per_page OFFSET $offset
 ";
-$list = $db->select($sql); 
+$list = $db->select($sql);
 ?>
 
 <style>
-    /* ========== LAYOUT ========== */
     .admin-content-right {
         margin-left: 230px;
         flex: 1;
@@ -75,7 +57,6 @@ $list = $db->select($sql);
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.25);
         backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.5);
         box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         overflow-x: auto;
@@ -98,14 +79,13 @@ $list = $db->select($sql);
         margin-right: 8px;
     }
 
-    /* ========== TABLE ========== */
     table {
         width: 100%;
         min-width: 900px;
         border-collapse: separate;
         border-spacing: 0;
         font-size: 14px;
-        margin-bottom: 25px; /* Thêm khoảng cách dưới table */
+        margin-bottom: 25px;
     }
 
     table th {
@@ -117,12 +97,8 @@ $list = $db->select($sql);
         white-space: nowrap;
     }
 
-    table tr:first-child th:first-child {
-        border-top-left-radius: 10px;
-    }
-    table tr:first-child th:last-child {
-        border-top-right-radius: 10px;
-    }
+    table tr:first-child th:first-child { border-top-left-radius: 10px; }
+    table tr:first-child th:last-child  { border-top-right-radius: 10px; }
 
     table td {
         padding: 14px;
@@ -133,17 +109,9 @@ $list = $db->select($sql);
         vertical-align: middle;
     }
 
-    table tbody tr {
-        transition: background 0.25s ease, box-shadow 0.25s ease;
-    }
-
     table tbody tr:hover {
         background: #ffffff;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    table tbody tr:last-child td {
-        border-bottom: none;
     }
 
     .price-col {
@@ -160,7 +128,6 @@ $list = $db->select($sql);
         border: 1px solid #ddd;
     }
 
-    /* ========== BUTTONS ========== */
     .action-link {
         display: inline-flex;
         align-items: center;
@@ -177,6 +144,7 @@ $list = $db->select($sql);
         background: #ffeaa7;
         color: #d63031;
     }
+
     .edit-btn:hover {
         background: #ffd86b;
     }
@@ -185,15 +153,14 @@ $list = $db->select($sql);
         background: #ff7675;
         color: #fff;
     }
+
     .delete-btn:hover {
         background: #e17055;
     }
 
-    /* ========== PHÂN TRANG STYLE ========== */
     .pagination {
         display: flex;
         justify-content: center;
-        align-items: center;
         margin-top: 20px;
     }
 
@@ -204,11 +171,11 @@ $list = $db->select($sql);
         margin: 0 4px;
         border-radius: 8px;
         font-weight: 600;
-        transition: all 0.3s ease;
         background: rgba(255, 255, 255, 0.7);
         border: 1px solid #ddd;
         min-width: 45px;
         text-align: center;
+        transition: all 0.3s;
     }
 
     .pagination a:hover {
@@ -221,7 +188,7 @@ $list = $db->select($sql);
         background: #10ac84;
         color: white;
         border-color: #10ac84;
-        pointer-events: none; /* Vô hiệu hóa click vào trang hiện tại */
+        pointer-events: none;
     }
 
     .pagination .disabled {
@@ -229,7 +196,6 @@ $list = $db->select($sql);
         cursor: not-allowed;
     }
 
-    /* ========== BLOB TRANG TRÍ ========== */
     .blob-decor-list {
         position: absolute;
         width: 350px;
@@ -245,11 +211,14 @@ $list = $db->select($sql);
 </style>
 
 <div class="admin-content-right">
+
     <div class="blob-decor-list"></div>
 
     <div class="list-container">
+
         <h1 class="list-title">
-            <i class="fa-solid fa-boxes-stacked"></i> Danh sách Sản phẩm (Trang <?= $current_page ?>/<?= $total_pages ?>)
+            <i class="fa-solid fa-boxes-stacked"></i> 
+            Danh sách Sản phẩm (Trang <?= $current_page ?>/<?= $total_pages ?>)
         </h1>
 
         <table>
@@ -264,43 +233,46 @@ $list = $db->select($sql);
                     <th>Tùy chỉnh</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if ($list && $list->num_rows > 0): ?>
                     <?php 
-                    // STT bắt đầu từ vị trí OFFSET + 1
-                    $i = $offset + 1; 
-                    while ($r = $list->fetch_assoc()): 
+                        $i = $offset + 1;
+                        while ($r = $list->fetch_assoc()):
                     ?>
-                        <tr>
-                            <td><?= $i++ ?></td>
-                            <td style="max-width: 250px;"><?= htmlspecialchars($r['product_name']) ?></td>
-                            <td><?= htmlspecialchars($r['category_name']) ?></td>
-                            <td><?= htmlspecialchars($r['brand_name']) ?></td>
+                    <tr>
+                        <td><?= $i++ ?></td>
+                        <td style="max-width:250px;"><?= htmlspecialchars($r['product_name']) ?></td>
+                        <td><?= htmlspecialchars($r['category_name']) ?></td>
+                        <td><?= htmlspecialchars($r['brand_name']) ?></td>
 
-                            <td class="price-col">
-                                <?= number_format($r['product_price'], 0, ',', '.') ?> đ
-                            </td>
+                        <td class="price-col">
+                            <?= number_format($r['product_price'], 0, ',', '.') ?> đ
+                        </td>
 
-                            <td>
-                                <?php if (!empty($r['product_img'])): ?>
-                                    <img src="../<?= htmlspecialchars($r['product_img']) ?>" alt="Ảnh sản phẩm">
-                                <?php else: ?>
-                                    <span>N/A</span>
-                                <?php endif; ?>
-                            </td>
+                        <td>
+                            <?php if (!empty($r['product_img'])): ?>
+                                <img src="../<?= htmlspecialchars($r['product_img']) ?>" alt="">
+                            <?php else: ?>
+                                <span>N/A</span>
+                            <?php endif; ?>
+                        </td>
 
-                            <td>
-                                <a href="productedit.php?id=<?= $r['product_id'] ?>" class="action-link edit-btn">
-                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
-                                </a>
-                                <a href="productdelete.php?id=<?= $r['product_id'] ?>"
-                                   onclick="return confirm('Bạn có chắc muốn xóa sản phẩm ID: <?= $r['product_id'] ?>?')"
-                                   class="action-link delete-btn">
-                                    <i class="fa-solid fa-trash-can"></i> Xóa
-                                </a>
-                            </td>
-                        </tr>
+                        <td>
+                            <a href="productedit.php?id=<?= $r['product_id'] ?>" class="action-link edit-btn">
+                                <i class="fa-solid fa-pen-to-square"></i> Sửa
+                            </a>
+
+                            <a href="productdelete.php?id=<?= $r['product_id'] ?>"
+                               onclick="return confirm('Bạn có chắc muốn xóa sản phẩm ID: <?= $r['product_id'] ?>?')"
+                               class="action-link delete-btn">
+                                <i class="fa-solid fa-trash-can"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+
                     <?php endwhile; ?>
+
                 <?php else: ?>
                     <tr>
                         <td colspan="7" style="text-align:center; color:#777; font-style:italic;">
@@ -313,10 +285,9 @@ $list = $db->select($sql);
 
         <?php if ($total_pages > 1): ?>
             <div class="pagination">
-                <?php $prev_page = $current_page - 1; ?>
-                <a href="?page=<?= $prev_page ?>" class="<?= ($current_page <= 1) ? 'disabled' : '' ?>">
-                    &laquo; Trước
-                </a>
+
+                <a href="?page=<?= $current_page - 1 ?>" 
+                   class="<?= ($current_page <= 1) ? 'disabled' : '' ?>">&laquo; Trước</a>
 
                 <?php for ($p = 1; $p <= $total_pages; $p++): ?>
                     <a href="?page=<?= $p ?>" class="<?= ($p == $current_page) ? 'active' : '' ?>">
@@ -324,15 +295,16 @@ $list = $db->select($sql);
                     </a>
                 <?php endfor; ?>
 
-                <?php $next_page = $current_page + 1; ?>
-                <a href="?page=<?= $next_page ?>" class="<?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
-                    Sau &raquo;
-                </a>
+                <a href="?page=<?= $current_page + 1 ?>" 
+                   class="<?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">Sau &raquo;</a>
+
             </div>
         <?php endif; ?>
+
     </div>
 </div>
 
 </section>
-</div> </body>
+</div>
+</body>
 </html>

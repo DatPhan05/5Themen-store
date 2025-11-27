@@ -40,6 +40,36 @@ if ($product_id <= 0) {
     exit;
 }
 
+// flag gọi từ AJAX
+$isAjax = isset($_GET['ajax']) && $_GET['ajax'] == '1';
+
+/* ====== HÀM TRẢ JSON CHUNG ====== */
+function cart_totals_response($product_id = null) {
+    global $cart;
+
+    $grandTotal = 0;
+    $itemCount  = 0;
+    foreach ($cart as $item) {
+        $grandTotal += (float)$item['price'] * (int)$item['qty'];
+        $itemCount  += (int)$item['qty'];
+    }
+
+    $lineTotal = 0;
+    if ($product_id !== null && isset($cart[$product_id])) {
+        $lineTotal = (float)$cart[$product_id]['price'] * (int)$cart[$product_id]['qty'];
+    }
+
+    return [
+        'success'               => true,
+        'qty'                   => $product_id !== null && isset($cart[$product_id]) ? (int)$cart[$product_id]['qty'] : null,
+        'line_total'            => $lineTotal,
+        'line_total_formatted'  => number_format($lineTotal,0,',','.') . 'đ',
+        'grand_total'           => $grandTotal,
+        'grand_total_formatted' => number_format($grandTotal,0,',','.') . 'đ',
+        'item_count'            => $itemCount,
+    ];
+}
+
 /* =======================================================
    1. UPDATE QTY
    ======================================================= */
@@ -47,9 +77,14 @@ if ($action === 'update') {
     $qty = isset($_GET['qty']) ? (int)$_GET['qty'] : 1;
     if ($qty <= 0) $qty = 1;
 
-    // CHỈ SỬA SỐ LƯỢNG TRONG SESSION
     if (isset($cart[$product_id])) {
         $cart[$product_id]['qty'] = $qty;
+    }
+
+    if ($isAjax) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(cart_totals_response($product_id));
+        exit;
     }
 
     header("Location: giohang.php");
@@ -66,6 +101,14 @@ if ($action === 'changesize') {
         $cart[$product_id]['size'] = $size;
     }
 
+    if ($isAjax) {
+        $res = cart_totals_response($product_id);
+        $res['size'] = $size;
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($res);
+        exit;
+    }
+
     header("Location: giohang.php");
     exit;
 }
@@ -75,12 +118,19 @@ if ($action === 'changesize') {
    ======================================================= */
 if ($action === 'remove') {
     unset($cart[$product_id]);
+
+    if ($isAjax) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(cart_totals_response());
+        exit;
+    }
+
     header("Location: giohang.php");
     exit;
 }
 
 /* =======================================================
-   4. ADD PRODUCT
+   4. ADD PRODUCT (HÀNH VI CŨ – GIỮ NGUYÊN)
    ======================================================= */
 
 $size = $_POST['option2'] ?? ($_GET['size'] ?? 'L');
@@ -117,7 +167,7 @@ if (isset($cart[$product_id])) {
     // Đã có trong giỏ → cộng dồn
     $cart[$product_id]['qty']   += $qty;
     $cart[$product_id]['size']   = $size;
-    $cart[$product_id]['price']  = $finalPrice;   // luôn giữ giá đúng
+    $cart[$product_id]['price']  = $finalPrice;
     $cart[$product_id]['img']    = $imgPath;
     $cart[$product_id]['image']  = $imgPath;
 } else {

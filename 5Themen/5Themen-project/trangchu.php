@@ -36,7 +36,7 @@ $maxProductId = $productModel->get_last_id()
 <?php require_once __DIR__ . "/partials/header.php"; ?>
 
 
-<!---------------------------------- SLIDER ------------------------------>
+<!---SLIDER --->
 <section id="Sliders">
     <div class="aspect-ratio-169">
         <img src="images/Slide1.png">
@@ -54,7 +54,7 @@ $maxProductId = $productModel->get_last_id()
         <div class="dot"></div>
     </div>
 </section>
-<!---------------------------------- SẢN PHẨM MỚI ----------------------->
+<!---SẢN PHẨM MỚI--->
 <section class="home-section">
     <div class="container">
         <h2 class="category-title">Sản phẩm mới</h2>
@@ -138,7 +138,7 @@ $maxProductId = $productModel->get_last_id()
 </section>
 
 
-<!---------------------------------- KHUYẾN MÃI HOT --------------------->
+<!--KHUYẾN MÃI HOT-->
 <section class="home-section">
     <div class="container">
         <h2 class="category-title">Khuyến mãi hot</h2>

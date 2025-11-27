@@ -178,7 +178,6 @@ switch ($lowerName) {
                     </a>
                     <ul class="dropdown-user" id="dropdown-user">
                         <li><a href="account.php">Tài khoản</a></li>
-                        <li><a href="my_orders.php">Đơn hàng</a></li>
                         <li><a href="logout.php">Đăng xuất</a></li>
                     </ul>
                 <?php else: ?>

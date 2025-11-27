@@ -9,9 +9,9 @@ require_once __DIR__ . '/include/database.php';
 $db   = new Database();
 $conn = $db->link;
 
-// =======================
+ 
 // 1. BẮT BUỘC ĐĂNG NHẬP
-// =======================
+ 
 if (empty($_SESSION['is_logged_in']) || empty($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -19,9 +19,9 @@ if (empty($_SESSION['is_logged_in']) || empty($_SESSION['user_id'])) {
 
 $user_id = (int)$_SESSION['user_id'];
 
-// =======================
+ 
 // 2. LẤY THÔNG TIN USER
-// =======================
+ 
 $sqlUser = "SELECT * FROM tbl_user WHERE user_id = '$user_id' LIMIT 1";
 $result  = $conn->query($sqlUser);
 
@@ -32,9 +32,9 @@ if (!$result || $result->num_rows === 0) {
 
 $userData = $result->fetch_assoc();
 
-// =======================
+ 
 // HÀM XỬ LÝ ẢNH
-// =======================
+ 
 function buildProductImgPath($img)
 {
     $img = (string)$img;
@@ -43,9 +43,9 @@ function buildProductImgPath($img)
     return 'admin/uploads/' . ltrim($img, '/');
 }
 
-// =======================
+ 
 // 3. LẤY order_id
-// =======================
+ 
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($orderId <= 0) {
     header("Location: account.php?view=orders");
@@ -54,9 +54,9 @@ if ($orderId <= 0) {
 
 $payGateway = strtolower($_GET['pay'] ?? '');
 
-// =======================
+ 
 // 4. LẤY ĐƠN HÀNG + CHI TIẾT
-// =======================
+ 
 $userPhone  = trim($userData['phone'] ?? '');
 $wherePhone = "";
 if ($userPhone !== '') {
@@ -126,9 +126,9 @@ while ($row = $rs->fetch_assoc()) {
     }
 }
 
-// =======================
+ 
 // 5. LABEL STATUS + PAYMENT
-// =======================
+ 
 function odStatusLabel($status)
 {
     $status = strtolower((string)$status);

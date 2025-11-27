@@ -2641,3 +2641,9 @@ a {
     top: 8px;
     background: #0fb9b1; /* Xanh ngọc đẹp */
 }
+.category-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}

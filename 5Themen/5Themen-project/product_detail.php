@@ -918,8 +918,6 @@ $mainImg = buildProductImgPath($product['product_img'] ?? '');
             $rpPrice     = (float)$rp['product_price'];
             $rpSalePrice = (float)$rp['product_sale'];
             $rpHasSale   = ($rpSalePrice > 0 && $rpSalePrice < $rpPrice);
-
-            // Badge NEW (top 20 sản phẩm mới)
             $rpIsNew = ($rp['product_id'] >= $maxProductId - 20);
         ?>
         <div class="product-item">
@@ -995,7 +993,6 @@ $mainImg = buildProductImgPath($product['product_img'] ?? '');
 <?php require_once __DIR__ . "/partials/footer.php"; ?>
 
 <script>
-// Quantity buttons
 function increaseQty(){
     const qty = document.getElementById('quantity');
     qty.value = Math.min(parseInt(qty.value || 1) + 1, 99);
@@ -1004,8 +1001,6 @@ function decreaseQty(){
     const qty = document.getElementById('quantity');
     qty.value = Math.max(parseInt(qty.value || 1) - 1, 1);
 }
-
-// Size highlight
 document.addEventListener('DOMContentLoaded', function(){
     const sizeCurrent = document.querySelector('.size-current');
     const radios = document.querySelectorAll('.size-radio');
@@ -1019,8 +1014,6 @@ document.addEventListener('DOMContentLoaded', function(){
             if (lb) lb.classList.add('active');
         });
     });
-
-    // Gallery thumb click
     const mainImg = document.getElementById('pd-main-img');
     const thumbs  = document.querySelectorAll('.pd-thumb-item');
     thumbs.forEach(tb => {

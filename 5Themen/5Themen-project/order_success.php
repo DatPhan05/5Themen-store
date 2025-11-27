@@ -14,7 +14,6 @@ if (!$order) {
     die("Không tìm thấy đơn hàng!");
 }
 
-// Lấy sản phẩm của đơn hàng
 $sql_items = "SELECT * FROM tbl_order_items WHERE order_id = $id";
 $items = $db->select($sql_items);
 ?>

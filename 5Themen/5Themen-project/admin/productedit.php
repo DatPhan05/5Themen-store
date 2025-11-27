@@ -1,63 +1,63 @@
 <?php
-// Bổ sung các file cần thiết
-include "../include/session.php"; 
-include "../include/database.php"; 
+// =======================================================
+// SỬA SẢN PHẨM (product_edit.php)
+// =======================================================
+
+include "../include/session.php";
+include "../include/database.php";
 
 require_once __DIR__ . "/header.php";
-require_once __DIR__ . "/slider.php"; // Thêm menu bên trái
+require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/Class/product_class.php";
 require_once __DIR__ . "/Class/category_class.php";
 require_once __DIR__ . "/Class/brand_class.php";
 
-$id = (int)($_GET['id'] ?? 0);
-$pd = new Product();
+$id  = (int)($_GET['id'] ?? 0);
+$pd  = new Product();
 $row = $pd->get_product($id);
 
-// Kiểm tra sản phẩm có tồn tại không
-if (!$row) { 
-    die("❌ Lỗi: Không tìm thấy sản phẩm."); 
+if (!$row) {
+    die("❌ Lỗi: Không tìm thấy sản phẩm.");
 }
 
-$cg = new Category();
-$bd = new Brand();
-$cates = $cg->show_category();
+$cg     = new Category();
+$bd     = new Brand();
+$cates  = $cg->show_category();
 $brands = $bd->show_brand();
 
-$msg = "";
-$msg_type = ""; // success | error
+$msg      = "";
+$msg_type = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Lọc và chuẩn hóa dữ liệu
-    $name = trim($_POST['name'] ?? '');
-    $cid  = (int)($_POST['category_id'] ?? 0);
-    $bid  = (int)($_POST['brand_id'] ?? 0);
-    // Loại bỏ dấu phẩy/chấm nếu người dùng nhập và chuyển về int
+
+    $name  = trim($_POST['name'] ?? '');
+    $cid   = (int)($_POST['category_id'] ?? 0);
+    $bid   = (int)($_POST['brand_id'] ?? 0);
     $price = (int)str_replace(['.', ','], '', $_POST['price'] ?? 0);
-    $sale = (int)str_replace(['.', ','], '', $_POST['sale_price'] ?? 0);
-    $desc = trim($_POST['description'] ?? '');
-    $thumb = trim($_POST['thumb'] ?? ''); // Đường dẫn ảnh hiện tại
+    $sale  = (int)str_replace(['.', ','], '', $_POST['sale_price'] ?? 0);
+    $desc  = trim($_POST['description'] ?? '');
+    $thumb = trim($_POST['thumb'] ?? '');
 
     if ($name && $cid && $bid) {
         $thumbVal = $thumb !== "" ? $thumb : null;
-        
-        // Cập nhật sản phẩm
+
         $result = $pd->update_product($id, $name, $cid, $bid, $price, $sale, $desc, $thumbVal);
-        
+
         if ($result) {
-            $msg = "✔ Đã lưu thay đổi sản phẩm thành công.";
+            $msg      = "✔ Đã lưu thay đổi sản phẩm thành công.";
             $msg_type = "success";
-            // Lấy lại dữ liệu mới nhất sau khi cập nhật
-            $row = $pd->get_product($id);
+            $row      = $pd->get_product($id);
         } else {
-            $msg = "❌ Lỗi khi cập nhật sản phẩm. Vui lòng kiểm tra Class/Database.";
+            $msg      = "❌ Lỗi khi cập nhật sản phẩm. Vui lòng kiểm tra Class/Database.";
             $msg_type = "error";
         }
     } else {
-        $msg = "⚠️ Vui lòng nhập đủ thông tin bắt buộc (*).";
+        $msg      = "⚠️ Vui lòng nhập đủ thông tin bắt buộc (*).";
         $msg_type = "error";
     }
 }
 ?>
+
 
 <style>
     /* ================= LAYOUT CHÍNH ================= */
