@@ -1,210 +1,182 @@
 <?php
-// =======================================================
-// PHP LOGIC - ADMIN LOGIN
-// =======================================================
-session_start();
+require_once __DIR__ . "/../include/session.php";
+require_once __DIR__ . "/../include/database.php";
 
-// Kiểm tra xem người dùng đã đăng nhập chưa, nếu rồi thì chuyển hướng
-if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
+Session::init();
+
+// Nếu đã đăng nhập → chuyển về admin_home
+if (Session::get('admin_login') === true) {
     header("Location: admin_home.php");
-    exit();
+    exit;
 }
 
-// Giả định: file database.php chứa class Database và kết nối
-include __DIR__ . "/../include/database.php"; 
-
-$db = new Database(); // Khởi tạo Database
-
+$db = new Database();
 $error = "";
 
+// Xử lý đăng nhập
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Lấy dữ liệu và làm sạch (trim)
+
     $user = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
 
-    // Kiểm tra đầu vào
-    if (empty($user) || empty($pass)) {
-        $error = "Vui lòng nhập đủ tên đăng nhập và mật khẩu.";
+    if ($user === '' || $pass === '') {
+        $error = "Vui lòng nhập đầy đủ thông tin!";
     } else {
-        
-        // CẢNH BÁO BẢO MẬT QUAN TRỌNG: 
-        // md5() là phương pháp hashing lỗi thời và không an toàn.
-        // Bạn nên sử dụng PHP password_hash() và password_verify().
-        // ********************************************************************
-        // Nếu không thể thay đổi DB ngay, tạm thời vẫn dùng md5 cho việc TEST:
-        $hashed_pass = md5($pass);
-        // ********************************************************************
-        
-        // Sử dụng Prepared Statements để chống SQL Injection
-        // Giả định class Database của bạn có hàm prepare() hoặc tương đương.
-        // Nếu không có, bạn phải đảm bảo hàm select() xử lý an toàn.
-        
-        // Để giữ tính tương thích với hàm select() cũ:
-        // Đảm bảo hàm escape() trong class Database được gọi cho $user
-        $user_safe = $db->escape($user); 
-        
-        $query = "SELECT * FROM tbl_admin 
-                  WHERE admin_user='$user_safe' AND admin_pass='$hashed_pass' LIMIT 1";
 
-        $result = $db->select($query);
+        
+         // Kiểm tra tài khoản + mật khẩu bcrypt
+          $user_safe = $db->escape($user);
+          $sql = "
+           SELECT * 
+           FROM tbl_admin 
+           WHERE admin_user = '$user_safe'
+           LIMIT 1";
 
-        if ($result && $result->num_rows > 0) {
-            // Lấy thông tin admin
-            // $admin_info = $result->fetch_assoc(); 
-            
-            $_SESSION['admin_login'] = true;
-            // Lưu thêm thông tin nếu cần, ví dụ: $_SESSION['admin_id'] = $admin_info['id'];
-            
-            header("Location: admin_home.php");
-            exit();
-        } else {
-            $error = "Sai tài khoản hoặc mật khẩu!";
-        }
+          $result = $db->select($sql);
+
+          if ($result && $result->num_rows > 0) {
+
+          $admin = $result->fetch_assoc();
+
+          // KIỂM TRA MẬT KHẨU BCRYPT
+          if (password_verify($pass, $admin['admin_pass'])) {
+
+          Session::set('admin_login', true);
+          Session::set('admin_name', $admin['admin_user']);
+          Session::set('admin_id', $admin['admin_id'] ?? 0);
+
+          header("Location: admin_home.php");
+          exit;
+
+    } else {
+        $error = "Sai tài khoản hoặc mật khẩu!";
+    }
+
+} else {
+    $error = "Sai tài khoản hoặc mật khẩu!";
+}
+
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <title>Đăng nhập Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        /* ======================================================= */
-        /* CSS CHO GIAO DIỆN GLASSMORPHISM/MINIMALISM */
-        /* ======================================================= */
-        
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
         :root {
-            --bg-color: #f0f2f5;
             --glass-bg: rgba(255, 255, 255, 0.15);
             --border-color: rgba(255, 255, 255, 0.4);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --main-color: #007bff; /* Màu xanh dương */
-            --error-color: #dc3545;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --main: #007bff;
+            --error: #dc3545;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #a1c4fd, #c2e9fb); /* Gradient nền nhẹ nhàng */
-            overflow: hidden;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
         }
 
-        /* Hiệu ứng trang trí background */
-        .admin-login-box::before,
-        .admin-login-box::after {
-            content: '';
-            position: absolute;
-            width: 250px;
-            height: 250px;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            filter: blur(50px);
-            z-index: -1;
-        }
-
-        .admin-login-box::before {
-            top: -50px;
-            left: -50px;
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-        }
-
-        .admin-login-box::after {
-            bottom: -50px;
-            right: -50px;
-            background: linear-gradient(135deg, #ff7f50, #ffcba4);
-        }
-        
-        /* Box chính Glassmorphism */
         .admin-login-box {
             position: relative;
             width: 100%;
             max-width: 400px;
             padding: 40px;
             border-radius: 20px;
-            background: var(--glass-bg); /* Nền kính mờ */
+            background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px var(--shadow-color);
+            box-shadow: 0 10px 30px var(--shadow);
             text-align: center;
-            z-index: 10;
         }
 
-        .admin-login-box h2 {
+        .admin-login-box::before,
+        .admin-login-box::after {
+            content: '';
+            position: absolute;
+            width: 250px; height: 250px;
+            border-radius: 50%;
+            filter: blur(50px);
+            z-index: -1;
+        }
+
+        .admin-login-box::before {
+            top: -50px; left: -50px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        }
+
+        .admin-login-box::after {
+            bottom: -50px; right: -50px;
+            background: linear-gradient(135deg, #ff7f50, #ffcba4);
+        }
+
+        h2 {
             font-size: 24px;
             font-weight: 600;
             color: #333;
             margin-bottom: 30px;
-            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        /* Trường nhập liệu */
         .admin-login-box form input {
             width: 100%;
             padding: 15px 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255,255,255,0.6);
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.7);
-            color: #333;
+            background: rgba(255,255,255,0.7);
             font-size: 16px;
             outline: none;
-            transition: all 0.3s ease;
-            box-sizing: border-box; 
+            transition: 0.3s;
         }
 
         .admin-login-box form input:focus {
-            background: rgba(255, 255, 255, 1);
-            border-color: var(--main-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-        }
-        
-        .admin-login-box form input::placeholder {
-            color: #777;
+            background: white;
+            border-color: var(--main);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
         }
 
-        /* Nút Đăng nhập */
         .admin-btn {
             width: 100%;
             padding: 15px;
             margin-top: 10px;
             border: none;
             border-radius: 10px;
-            background: linear-gradient(90deg, #007bff, #00b4d8); 
+            background: linear-gradient(90deg, #007bff, #00b4d8);
             color: white;
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: 0.3s;
         }
 
         .admin-btn:hover {
             filter: brightness(1.1);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.4);
         }
 
-        /* Thông báo lỗi */
         .error-message {
             margin-bottom: 20px;
             padding: 10px;
             border-radius: 8px;
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--error-color);
+            background-color: rgba(220,53,69,0.1);
+            color: var(--error);
+            border: 1px solid rgba(220,53,69,0.3);
             font-size: 14px;
             font-weight: 500;
-            border: 1px solid rgba(220, 53, 69, 0.3);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -228,8 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form method="POST">
         <input type="text" name="username" placeholder="Tên đăng nhập" required autocomplete="off">
         <input type="password" name="password" placeholder="Mật khẩu" required autocomplete="current-password">
-
-        <button type="submit" class="admin-btn">ĐĂNG NHẬP</button>
+        <button type="submit" class="admin-btn">Đăng nhập</button>
     </form>
 </div>
 

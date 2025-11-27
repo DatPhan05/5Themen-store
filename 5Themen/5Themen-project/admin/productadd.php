@@ -1,7 +1,6 @@
 <?php
-// Bổ sung các file cần thiết (Giả định nằm ngoài thư mục admin 1 cấp)
-include "../include/session.php"; 
-include "../include/database.php"; 
+include "../include/session.php";
+include "../include/database.php";
 
 require_once __DIR__ . "/header.php";
 require_once __DIR__ . "/slider.php";
@@ -12,77 +11,74 @@ require_once __DIR__ . "/class/brand_class.php";
 $cg = new Category();
 $bd = new Brand();
 
-// Lấy danh sách để điền vào Select Box
-$cates = $cg->show_category();
+$cates  = $cg->show_category();
 $brands = $bd->show_brand();
 
-$msg = "";
-$msg_type = ""; // success | error
+$msg      = "";
+$msg_type = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Lọc và chuyển đổi dữ liệu POST
-    $name = trim($_POST['product_name'] ?? '');
-    $cid = (int)($_POST['category_id'] ?? 0);
-    $bid = (int)($_POST['brand_id'] ?? 0);
+    /* ===============================
+       Lọc & chuyển đổi dữ liệu POST
+    =============================== */
+    $name  = trim($_POST['product_name'] ?? '');
+    $cid   = (int)($_POST['category_id'] ?? 0);
+    $bid   = (int)($_POST['brand_id'] ?? 0);
     $price = (int)str_replace(['.', ','], '', $_POST['product_price'] ?? 0);
-    $sale = (int)str_replace(['.', ','], '', $_POST['product_sale'] ?? 0);
-    $desc = trim($_POST['product_desc'] ?? '');
-
-    // File ảnh gốc
+    $sale  = (int)str_replace(['.', ','], '', $_POST['product_sale'] ?? 0);
+    $desc  = trim($_POST['product_desc'] ?? '');
     $thumb = $_FILES['product_img']['name'] ?? '';
 
-    // Kiểm tra các trường bắt buộc
+    /* ===============================
+       Kiểm tra dữ liệu bắt buộc
+    =============================== */
     if ($name && $cid && $bid && $price >= 0 && !empty($thumb)) {
 
         /* ===============================
-            1. Thiết lập thư mục upload
-            - Thư mục THẬT:  /admin/uploads/
-            - Đường dẫn lưu DB: admin/uploads/ten-file.jpg
+           1. Thiết lập thư mục upload
         =============================== */
-        // Thư mục thật trên ổ đĩa
-        $upload_dir_full = __DIR__ . "/uploads/"; // admin/uploads/
-
+        $upload_dir_full = __DIR__ . "/uploads/";
         if (!is_dir($upload_dir_full)) {
-            mkdir($upload_dir_full, 0777, true); 
+            mkdir($upload_dir_full, 0777, true);
         }
 
         /* ===============================
-            2. Xử lý tên file an toàn
+           2. Xử lý tên file an toàn
         =============================== */
         $ext      = pathinfo($thumb, PATHINFO_EXTENSION);
-        $fileBase = pathinfo($thumb, PATHINFO_FILENAME); 
+        $fileBase = pathinfo($thumb, PATHINFO_FILENAME);
 
-        $safeBaseName = iconv('UTF-8','ASCII//TRANSLIT//IGNORE', $fileBase);
+        $safeBaseName = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileBase);
         $safeBaseName = strtolower($safeBaseName);
-        $safeBaseName = preg_replace('/[^a-z0-9]+/', '-', $safeBaseName); 
-        $safeBaseName = preg_replace('/-+/', '-', $safeBaseName); 
+        $safeBaseName = preg_replace('/[^a-z0-9]+/', '-', $safeBaseName);
+        $safeBaseName = preg_replace('/-+/', '-', $safeBaseName);
         $safeBaseName = trim($safeBaseName, '-');
 
-        $newFileName = $safeBaseName . "." . $ext;
-
-        // Xử lý trùng tên
-        $i = 1;
+        $newFileName  = $safeBaseName . "." . $ext;
+        $i            = 1;
         $tempFileName = $newFileName;
+
         while (file_exists($upload_dir_full . $tempFileName)) {
             $tempFileName = $safeBaseName . "-" . $i . "." . $ext;
             $i++;
         }
+
         $newFileName = $tempFileName;
 
         /* ===============================
-            3. Đường dẫn thực & đường dẫn lưu DB
+           3. Đường dẫn thực & đường dẫn DB
         =============================== */
-        $real_path = $upload_dir_full . $newFileName;           // D:\...\admin\uploads\ao-thun-1.jpg
-        $save_path = "admin/uploads/" . $newFileName;           // LƯU VÀO DB: admin/uploads/ao-thun-1.jpg
+        $real_path = $upload_dir_full . $newFileName;
+        $save_path = "admin/uploads/" . $newFileName;
 
         /* ===============================
-            4. Upload file
+           4. Upload file
         =============================== */
         if (move_uploaded_file($_FILES['product_img']['tmp_name'], $real_path)) {
 
             /* ===============================
-                5. Lưu database
+               5. Lưu vào database
             =============================== */
             (new Product())->insert_product($name, $cid, $bid, $price, $sale, $desc, $save_path);
 
@@ -90,12 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_type = "success";
 
         } else {
-            $msg      = "❌ Lỗi khi upload file! Vui lòng kiểm tra quyền ghi thư mục 'admin/uploads'.";
+            $msg      = "❌ Lỗi upload file! Kiểm tra quyền ghi thư mục.";
             $msg_type = "error";
         }
 
     } else {
-        $msg      = "⚠️ Vui lòng điền đầy đủ Tên sản phẩm, Danh mục, Loại, Giá và chọn Ảnh!";
+        $msg      = "⚠️ Vui lòng điền đầy đủ thông tin và chọn ảnh!";
         $msg_type = "error";
     }
 }
@@ -105,10 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ================= LAYOUT CHÍNH ================= */
     .admin-content-right {
         margin-left: 230px;
-        flex: 1; 
+        flex: 1;
         padding: 40px;
         display: flex;
-        justify-content: center; 
+        justify-content: center;
         align-items: flex-start;
         position: relative;
     }
@@ -121,16 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        animation: slideIn 0.5s ease-out;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        animation: fadeIn .5s ease-out;
     }
 
-    /* (Các style khác giữ nguyên) */
-    @keyframes slideIn {
+    @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .form-title {
@@ -140,112 +134,143 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin-bottom: 30px;
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
 
-    .form-group { margin-bottom: 25px; position: relative; }
+    .form-group { margin-bottom: 25px; }
     .form-label {
-        display: block; font-size: 14px; font-weight: 600; color: #555;
-        margin-bottom: 8px; margin-left: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        color: #555;
     }
+
     .form-control {
-        width: 100%; padding: 14px 18px; border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.8); background: rgba(255, 255, 255, 0.5);
-        font-family: "Poppins", sans-serif; font-size: 15px; color: #333;
-        transition: all 0.3s ease; outline: none; box-sizing: border-box;
-    }
-    .form-control:focus {
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 0 0 4px rgba(16, 172, 132, 0.15); 
-        border-color: #10ac84;
-    }
-    select.form-control {
-        appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat; background-position: right 15px center; background-size: 16px; cursor: pointer;
-    }
-    textarea.form-control { min-height: 120px; resize: vertical; }
-    .price-group { display: flex; gap: 20px; }
-    .price-group .form-group { flex: 1; }
-
-    /* ================= CUSTOM FILE INPUT STYLE (QUAN TRỌNG) ================= */
-    /* Ẩn input file mặc định */
-    .file-input-hidden {
-        width: 0.1px;
-        height: 0.1px;
-        opacity: 0;
-        overflow: hidden;
-        position: absolute;
-        z-index: -1;
-    }
-
-    /* Style cho label (nút Chọn tệp) */
-    .file-input-label {
-        display: flex;
-        align-items: center;
         width: 100%;
         padding: 14px 18px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.8);
         background: rgba(255, 255, 255, 0.5);
-        font-family: "Poppins", sans-serif;
         font-size: 15px;
         color: #333;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        transition: .3s;
+    }
+    .form-control:focus {
+        background: #fff;
+        border-color: #10ac84;
+        box-shadow: 0 0 0 4px rgba(16, 172, 132, 0.15);
+        outline: none;
     }
 
-    .file-input-label:hover {
-        background: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 0 0 2px rgba(16, 172, 132, 0.1);
+    textarea.form-control { min-height: 120px; }
+
+    .price-group {
+        display: flex;
+        gap: 20px;
     }
-    
-    /* Style cho nút "Chọn Tệp" nhỏ bên trong label */
+
+    /* ================= CUSTOM FILE INPUT ================= */
+    .file-input-hidden {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+
     .file-select-button {
-        background-color: #10ac84;
-        color: white;
+        background: #10ac84;
+        color: #fff;
         padding: 5px 15px;
         border-radius: 8px;
-        font-weight: 500;
         font-size: 14px;
         margin-right: 15px;
-        white-space: nowrap;
-        box-shadow: 0 2px 5px rgba(16, 172, 132, 0.3);
     }
-    
-    /* Style cho văn bản hiển thị tên file */
+
     .file-name-display {
-        color: #777; /* Màu xám cho tên file chưa chọn */
         font-style: italic;
+        color: #777;
         overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     /* ================= BUTTON ================= */
     .btn-submit {
-        width: 100%; padding: 15px; border: none; border-radius: 12px;
-        background: linear-gradient(135deg, #10ac84, #00d2d3); 
-        color: white; font-size: 16px; font-weight: 600; cursor: pointer;
-        transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 172, 132, 0.3);
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #10ac84, #00d2d3);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .3s;
         margin-top: 10px;
     }
     .btn-submit:hover {
-        transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 172, 132, 0.4); filter: brightness(1.1);
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 8px 18px rgba(16, 172, 132, 0.4);
     }
-    
-    /* (Các style alert và blob-decor giữ nguyên) */
-    .alert { padding: 15px; border-radius: 10px; margin-bottom: 25px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-    .alert-success { background: rgba(32, 191, 107, 0.15); border: 1px solid rgba(32, 191, 107, 0.3); color: #20bf6b; }
-    .alert-error { background: rgba(252, 92, 101, 0.15); border: 1px solid rgba(252, 92, 101, 0.3); color: #fc5c65; }
-    .blob-decor { position: absolute; width: 300px; height: 300px; background: linear-gradient(180deg, #a1c4fd 0%, #c2e9fb 100%); border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+    /* ================= ALERT ================= */
+    .alert {
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 10px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+    .alert-success {
+        background: rgba(32, 191, 107, 0.15);
+        color: #20bf6b;
+        border: 1px solid rgba(32, 191, 107, 0.3);
+    }
+    .alert-error {
+        background: rgba(252, 92, 101, 0.15);
+        color: #fc5c65;
+        border: 1px solid rgba(252, 92, 101, 0.3);
+    }
+
+    .blob-decor {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(180deg, #a1c4fd, #c2e9fb);
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: .4;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+    }
 </style>
 
 <div class="admin-content-right">
-    
+
     <div class="blob-decor"></div>
 
     <div class="form-container">
-        <h1 class="form-title"><i class="fa-solid fa-square-plus"></i> Thêm sản phẩm mới</h1>
+
+        <h1 class="form-title">
+            <i class="fa-solid fa-square-plus"></i> Thêm sản phẩm mới
+        </h1>
 
         <?php if (!empty($msg)) : ?>
             <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
@@ -255,10 +280,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="" method="POST" enctype="multipart/form-data">
-            
+
             <div class="form-group">
                 <label class="form-label">Tên sản phẩm (*)</label>
-                <input type="text" name="product_name" class="form-control" placeholder="Nhập tên sản phẩm" required autocomplete="off">
+                <input type="text" name="product_name" class="form-control"
+                       placeholder="Nhập tên sản phẩm" required autocomplete="off">
             </div>
 
             <div class="price-group">
@@ -269,9 +295,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($cates && $cates->num_rows > 0): 
                             $cates->data_seek(0);
                             while ($c = $cates->fetch_assoc()): ?>
-                                <option value="<?= $c['category_id'] ?>"><?= htmlspecialchars($c['category_name']) ?></option>
-                            <?php endwhile; 
-                        endif; ?>
+                                <option value="<?= $c['category_id'] ?>">
+                                    <?= htmlspecialchars($c['category_name']) ?>
+                                </option>
+                        <?php endwhile; endif; ?>
                     </select>
                 </div>
 
@@ -282,35 +309,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($brands && $brands->num_rows > 0): 
                             $brands->data_seek(0);
                             while ($b = $brands->fetch_assoc()): ?>
-                                <option value="<?= $b['brand_id'] ?>"><?= htmlspecialchars($b['brand_name']) ?></option>
-                            <?php endwhile; 
-                        endif; ?>
+                                <option value="<?= $b['brand_id'] ?>">
+                                    <?= htmlspecialchars($b['brand_name']) ?>
+                                </option>
+                        <?php endwhile; endif; ?>
                     </select>
                 </div>
             </div>
-            
+
             <div class="price-group">
                 <div class="form-group">
-                    <label class="form-label">Giá (Ví dụ: 100000) (*)</label>
-                    <input type="text" name="product_price" class="form-control" placeholder="Giá gốc" required pattern="[0-9]*" title="Vui lòng nhập số">
+                    <label class="form-label">Giá (*)</label>
+                    <input type="text" name="product_price" class="form-control"
+                           placeholder="Giá gốc" required pattern="[0-9]*">
                 </div>
-                
+
                 <div class="form-group">
-                    <label class="form-label">Khuyến mãi (0 nếu không có)</label>
-                    <input type="text" name="product_sale" class="form-control" placeholder="Giá khuyến mãi" pattern="[0-9]*" title="Vui lòng nhập số">
+                    <label class="form-label">Khuyến mãi</label>
+                    <input type="text" name="product_sale" class="form-control"
+                           placeholder="Giá khuyến mãi" pattern="[0-9]*">
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Mô tả chi tiết</label>
-                <textarea name="product_desc" class="form-control" rows="5" placeholder="Nhập mô tả sản phẩm chi tiết..."></textarea>
+                <textarea name="product_desc" class="form-control"
+                          rows="5" placeholder="Nhập mô tả sản phẩm..."></textarea>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Ảnh sản phẩm (*)</label>
-                
-                <input type="file" name="product_img" id="product_img_input" class="file-input-hidden" accept="image/*" required>
-                
+
+                <input type="file" name="product_img" id="product_img_input"
+                       class="file-input-hidden" accept="image/*" required>
+
                 <label for="product_img_input" class="file-input-label">
                     <span class="file-select-button">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Chọn tệp
@@ -320,10 +352,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </span>
                 </label>
             </div>
+
             <button type="submit" class="btn-submit">
                 <i class="fa-solid fa-square-plus"></i> Thêm sản phẩm
             </button>
-            
+
         </form>
     </div>
 </div>
@@ -331,20 +364,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.getElementById('product_img_input');
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileInput       = document.getElementById('product_img_input');
         const fileNameDisplay = document.getElementById('file_name_display');
 
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files && fileInput.files.length > 0) {
-                // Hiển thị tên file đầu tiên được chọn
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
                 fileNameDisplay.textContent = fileInput.files[0].name;
-                // Đổi màu chữ cho dễ nhìn
-                fileNameDisplay.style.color = '#333'; 
+                fileNameDisplay.style.color = '#333';
                 fileNameDisplay.style.fontStyle = 'normal';
             } else {
                 fileNameDisplay.textContent = 'Chưa có tệp nào được chọn';
-                fileNameDisplay.style.color = '#777'; 
+                fileNameDisplay.style.color = '#777';
                 fileNameDisplay.style.fontStyle = 'italic';
             }
         });

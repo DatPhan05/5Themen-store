@@ -1,15 +1,6 @@
 <?php
 /**
- * BREADCRUMB COMPONENT - DÙNG CHUNG
- * 
- * Sử dụng:
- * $breadcrumbs = [
- *     ['text' => 'Trang chủ', 'url' => 'trangchu.php'],
- *     ['text' => 'Áo Nam', 'url' => 'category.php?cat=4'],
- *     ['text' => 'Áo Thun'] // Link cuối không cần URL
- * ];
- * include 'breadcrumb.php';
- */
+ * BREADCRUMB COMPONENT - DÙNG CHUNG*/
 
 if (!isset($breadcrumbs) || !is_array($breadcrumbs)) {
     return; // Không có dữ liệu thì không hiển thị

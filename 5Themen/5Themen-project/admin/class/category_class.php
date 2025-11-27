@@ -1,7 +1,6 @@
 <?php
 
-$rootPath = dirname(__DIR__, 2); 
-
+$rootPath = dirname(__DIR__, 2);
 require_once $rootPath . '/include/database.php';
 require_once $rootPath . '/include/helpers.php';
 
@@ -12,19 +11,24 @@ class Category {
         $this->db = new Database();
     }
 
-    /* ===================== INSERT ===================== */
+    /* =====================================================
+       1. Thêm danh mục
+       ===================================================== */
     public function insert_category($name, $parent_id = 0) {
         $name   = $this->db->escape($name);
-        $parent = (int)$parent_id;   // 0 = không có cha
+        $parent = (int)$parent_id;
 
         $sql = "
             INSERT INTO tbl_category (category_name, parent_id)
             VALUES ('$name', $parent)
         ";
+
         return $this->db->insert($sql);
     }
 
-    /* ===================== SHOW LIST (HỖ TRỢ PHÂN TRANG) ===================== */
+    /* =====================================================
+       2. Lấy danh sách danh mục (hỗ trợ phân trang)
+       ===================================================== */
     public function show_category($offset = null, $limit = null) {
         $sql = "
             SELECT 
@@ -37,72 +41,94 @@ class Category {
                    ON c.parent_id = p.category_id
             ORDER BY c.parent_id ASC, c.category_id ASC
         ";
-        
-        // Thêm LIMIT và OFFSET cho phân trang
+
         if ($offset !== null && $limit !== null) {
             $offset = (int)$offset;
             $limit  = (int)$limit;
             $sql .= " LIMIT $offset, $limit";
         }
-        
+
         return $this->db->select($sql);
     }
-    
-    /* ===================== NEW: ĐẾM TỔNG SỐ BẢN GHI ===================== */
+
+    /* =====================================================
+       2.1. Đếm tổng số danh mục
+       ===================================================== */
     public function count_all_categories() {
-        $sql = "SELECT COUNT(*) AS total FROM tbl_category";
+        $sql    = "SELECT COUNT(*) AS total FROM tbl_category";
         $result = $this->db->select($sql);
-        $row = $result->fetch_assoc();
+        $row    = $result->fetch_assoc();
         return (int)$row['total'];
     }
-    /* =================================================================== */
 
-    /* ===================== GET ONLY TOP PARENTS ===================== */
+    /* =====================================================
+       3. Lấy danh mục cha (parent_id = 0)
+       ===================================================== */
     public function get_parent_categories() {
         $sql = "
-            SELECT * FROM tbl_category
+            SELECT *
+            FROM tbl_category
             WHERE parent_id = 0 OR parent_id IS NULL
             ORDER BY category_id ASC
         ";
+
         return $this->db->select($sql);
     }
 
-    /* ===================== GET CHILDREN ===================== */
+    /* =====================================================
+       4. Lấy danh mục con theo parent_id
+       ===================================================== */
     public function get_children($parent_id) {
-        $id = (int)$parent_id;
+        $id  = (int)$parent_id;
+
         $sql = "
-            SELECT * FROM tbl_category 
-            WHERE parent_id = $id 
+            SELECT *
+            FROM tbl_category
+            WHERE parent_id = $id
             ORDER BY category_id ASC
         ";
+
         return $this->db->select($sql);
     }
 
-    /* ===================== GET ONE ===================== */
+    /* =====================================================
+       5. Lấy 1 danh mục theo ID
+       ===================================================== */
     public function get_category($id) {
-        $id  = (int)$id;
-        $sql = "SELECT * FROM tbl_category WHERE category_id = $id LIMIT 1";
-        $rs  = $this->db->select($sql);
+        $id = (int)$id;
+
+        $sql = "
+            SELECT *
+            FROM tbl_category
+            WHERE category_id = $id
+            LIMIT 1
+        ";
+
+        $rs = $this->db->select($sql);
         return $rs ? $rs->fetch_assoc() : null;
     }
 
-    /* ===================== UPDATE ===================== */
+    /* =====================================================
+       6. Cập nhật danh mục
+       ===================================================== */
     public function update_category($id, $name, $parent_id = null) {
         $id   = (int)$id;
         $name = $this->db->escape($name);
 
-        // Nếu không truyền parent_id -> chỉ cập nhật tên (giữ nguyên cha)
+        // Nếu không truyền parent_id → chỉ cập nhật tên
         if ($parent_id === null) {
             $sql = "
-                UPDATE tbl_category 
+                UPDATE tbl_category
                 SET category_name = '$name'
                 WHERE category_id = $id
             ";
         } else {
             $parent = (int)$parent_id;
+
             $sql = "
-                UPDATE tbl_category 
-                SET category_name = '$name', parent_id = $parent
+                UPDATE tbl_category
+                SET category_name = '$name',
+                    parent_id     = $parent
                 WHERE category_id = $id
             ";
         }
@@ -110,24 +136,29 @@ class Category {
         return $this->db->update($sql);
     }
 
-    /* ===================== DELETE (Safe delete) ===================== */
+    /* =====================================================
+       7. Xóa danh mục (Safe Delete)
+       ===================================================== */
     public function delete_category($id) {
         $id = (int)$id;
 
-        // 1. Không cho xóa danh mục cha nếu còn danh mục con
+        // Không cho xóa nếu tồn tại danh mục con
         $check = $this->db->select("
-            SELECT * FROM tbl_category WHERE parent_id = $id LIMIT 1
+            SELECT *
+            FROM tbl_category
+            WHERE parent_id = $id
+            LIMIT 1
         ");
 
         if ($check && $check->num_rows > 0) {
-            return false; // Có danh mục con → không xóa
+            return false; 
         }
-        
-        // 2. Kiểm tra xem có sản phẩm nào thuộc danh mục này không (Nếu cần)
-        // Đây là một ràng buộc FK phổ biến, nhưng không có trong code gốc, nên tôi không thêm.
 
-        // 3. Thực hiện xóa
-        $sql = "DELETE FROM tbl_category WHERE category_id = $id";
+        $sql = "
+            DELETE FROM tbl_category
+            WHERE category_id = $id
+        ";
+
         return $this->db->delete($sql);
     }
 }

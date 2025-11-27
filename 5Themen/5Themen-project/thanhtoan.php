@@ -6,17 +6,17 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . "/include/session.php";
 require_once __DIR__ . "/include/database.php";
 
-// ==============================
+
 // 0. GIỎ HÀNG TRỐNG → VỀ GIỎ
-// ==============================
+
 if (empty($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     header("Location: giohang.php");
     exit;
 }
 
-// ==============================
+
 // 1. TÍNH TỔNG TIỀN TỪ GIỎ
-// ==============================
+
 $total = 0;
 foreach ($_SESSION['cart'] as $pid => $item) {
     $price = isset($item['price']) ? (float)$item['price'] : 0;
@@ -27,15 +27,15 @@ foreach ($_SESSION['cart'] as $pid => $item) {
 }
 $total = (float)$total;
 
-// Không cho đơn 0đ
+  
 if ($total <= 0) {
     header("Location: giohang.php");
     exit;
 }
 
-// ==============================
+
 // 2. LẤY DỮ LIỆU TỪ FORM
-// ==============================
+
 $fullname = trim($_POST['fullname'] ?? '');
 $phone    = trim($_POST['phone'] ?? '');
 $address  = trim($_POST['address'] ?? '');
@@ -47,9 +47,9 @@ $step   = strtolower($_GET['step']   ?? 'select');  // select | qr
 $error   = null;
 $orderId = null;
 
-// ==============================
+
 // 3. HÀM LƯU ĐƠN HÀNG VÀ CHI TIẾT
-// ==============================
+
 function saveOrder(mysqli $conn, float $total, string $method, string $fullname, string $phone, string $address): int|false
 {
     // Lấy user_id nếu đã login, không thì = 0
@@ -90,9 +90,9 @@ function saveOrder(mysqli $conn, float $total, string $method, string $fullname,
     return $orderId;
 }
 
-// ==============================
+
 // 4. KIỂM TRA METHOD HỢP LỆ
-// ==============================
+
 $allowedMethods = ['cod', 'vnpay', 'momo'];
 
 if (!in_array($method, $allowedMethods, true)) {
@@ -103,10 +103,10 @@ if (!in_array($method, $allowedMethods, true)) {
     $db   = new Database();
     $conn = $db->link;
 
-    // ==============================
+    
     // 4.1. XÁC ĐỊNH CÓ PHẢI LẦN ĐẦU TẠO ĐƠN KHÔNG
-    //     (VNPAY & MOMO sẽ quay lại nhiều lần: step=select, step=qr)
-    // ==============================
+     
+    
     $needCreateOrder = false;
 
     if ($method === 'cod') {
@@ -125,9 +125,9 @@ if (!in_array($method, $allowedMethods, true)) {
         }
     }
 
-    // ==============================
+    
     // 4.2. VALIDATE THÔNG TIN ĐƠN HÀNG (chỉ khi TẠO MỚI)
-    // ==============================
+    
     if ($needCreateOrder) {
 
         if ($fullname === '' || $phone === '' || $address === '') {
@@ -135,9 +135,9 @@ if (!in_array($method, $allowedMethods, true)) {
         } elseif (!preg_match('/^(0[0-9]{9})$/', $phone)) {
             $error = "Số điện thoại không hợp lệ.";
         } else {
-            // ==============================
+            
             // 4.3. LƯU ĐƠN HÀNG
-            // ==============================
+            
             $orderId = saveOrder($conn, $total, $method, $fullname, $phone, $address);
 
             if (!$orderId) {
@@ -166,9 +166,9 @@ if (!in_array($method, $allowedMethods, true)) {
     }
 }
 
-// ==============================
+
 // 5. BẮT ĐẦU XUẤT HTML
-// ==============================
+
 require __DIR__ . "/partials/header.php";
 ?>
 

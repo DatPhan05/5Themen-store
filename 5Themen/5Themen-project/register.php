@@ -77,9 +77,140 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Đăng ký - 5Themen</title>
     <link rel="stylesheet" href="CSS/style.css">
     <script src="https://kit.fontawesome.com/1147679ae7.js" crossorigin="anonymous"></script>
+    <style>
+        /* CSS Tích hợp: Đồng bộ với phong cách Admin Dashboard (Glassmorphism) */
+
+        /* Background Blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite alternate;
+        }
+        .blob-1 { width: 400px; height: 400px; background: #ff9a9e; top: 50px; left: -50px; }
+        .blob-2 { width: 350px; height: 350px; background: #a18cd1; bottom: 50px; right: -50px; }
+
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(20px, 40px); } }
+
+        .auth {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+            background: linear-gradient(135deg, #f0f0f5, #e0e0e0);
+            padding: 40px 20px;
+            overflow: hidden; 
+        }
+        .auth-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        /* CARD STYLE - GLASSMORPHISM */
+        .auth-card-register {
+            position: relative;
+            z-index: 10;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            
+            /* Glassmorphism Styles */
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+        }
+
+        .auth-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .auth-field {
+            flex-grow: 1;
+        }
+        .auth-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .auth-field input[type="text"],
+        .auth-field input[type="email"],
+        .auth-field input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #000;
+            border-radius: 10px;
+            box-sizing: border-box;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+        .auth-field input:focus {
+            border-color: #20bf6b;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(32, 191, 107, 0.25);
+        }
+        
+        /* BUTTON STYLE */
+        .btn-primary {
+            background: linear-gradient(90deg, #20bf6b, #0fb9b1); 
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(32, 191, 107, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0fb9b1, #20bf6b);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(32, 191, 107, 0.4);
+        }
+        .btn-full { width: 100%; }
+        
+        .auth-card-register p {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+        }
+        .auth-card-register p a {
+            color: #4b7bec;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-card-register p a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Media query cho mobile */
+        @media (max-width: 600px) {
+            .auth-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
 
 <?php require_once __DIR__ . "/partials/header.php"; ?>
 
@@ -92,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <div class="auth-row">
                     <div class="auth-field">
-                        <label>Họ tên</label>
+                        <label>Họ tên *</label>
                         <input type="text" name="fullname" required value="<?= htmlspecialchars($fullname ?? '') ?>">
                     </div>
 
@@ -104,12 +235,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <div class="auth-row">
                     <div class="auth-field">
-                        <label>Email</label>
+                        <label>Email *</label>
                         <input type="email" name="email" required value="<?= htmlspecialchars($email ?? '') ?>">
                     </div>
 
                     <div class="auth-field">
-                        <label>Mật khẩu</label>
+                        <label>Mật khẩu *</label>
                         <input type="password" name="password" required>
                     </div>
                 </div>
@@ -121,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <button type="submit" class="btn-primary btn-full">Đăng ký</button>
 
-                <p style="margin-top:10px;">
+                <p>
                     Đã có tài khoản?
                     <a href="login.php">Đăng nhập</a>
                 </p>

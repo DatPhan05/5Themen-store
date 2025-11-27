@@ -1,23 +1,21 @@
 <?php
 include "../include/session.php";
 include "../include/database.php";
-
 require_once __DIR__ . "/header.php";
 require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/class/category_class.php";
 
-$cg = new Category();
-
+$cg  = new Category();
 $id  = (int)($_GET['category_id'] ?? 0);
 $row = $id ? $cg->get_category($id) : null;
 
 if (!$row) {
     die('<div style="text-align: center; margin-top: 100px; font-size: 18px; color: #dc3545;">
-        ❌ Lỗi: Không tìm thấy danh mục ID: ' . htmlspecialchars($id) . '
-        <br><a href="categorylist.php" style="color: #007bff; text-decoration: none; margin-top:10px;display:inline-block;">
-        ⬅ Quay lại danh sách
-        </a>
-    </div>');
+            ❌ Lỗi: Không tìm thấy danh mục ID: ' . htmlspecialchars($id) . '
+            <br><a href="categorylist.php" style="color: #007bff; text-decoration: none; margin-top:10px; display:inline-block;">
+            ⬅ Quay lại danh sách
+            </a>
+        </div>');
 }
 
 $msg      = "";
@@ -27,9 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['category_name'] ?? '');
 
     if ($name !== "") {
-        // Chỉ cập nhật tên, giữ nguyên parent_id (class đã xử lý)
         $result = $cg->update_category($id, $name, null);
-
         if ($result) {
             $msg      = "✔ Đã lưu thay đổi danh mục thành công.";
             $msg_type = "success";
@@ -55,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         align-items: flex-start;
         position: relative;
     }
-
     .form-container {
         width: 100%;
         max-width: 500px;
@@ -65,58 +60,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         animation: fadeIn 0.5s ease-out;
     }
-
     @keyframes fadeIn {
         from { opacity: 0; transform: scale(0.95); }
-        to   { opacity: 1; transform: scale(1); }
+        to { opacity: 1; transform: scale(1); }
     }
-
     .form-title {
         font-size: 26px;
         font-weight: 700;
-        color: #333;
-        margin-bottom: 30px;
         text-align: center;
+        margin-bottom: 30px;
+        color: #333;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-
-    .form-group {
-        margin-bottom: 25px;
-    }
-
+    .form-group { margin-bottom: 25px; }
     .form-label {
-        display: block;
         font-size: 14px;
         font-weight: 600;
-        color: #555;
         margin-bottom: 8px;
-        margin-left: 5px;
+        display: block;
+        color: #555;
     }
-
     .form-control {
         width: 100%;
         padding: 14px 18px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.8);
         background: rgba(255, 255, 255, 0.5);
-        font-family: "Poppins", sans-serif;
         font-size: 16px;
         color: #333;
-        transition: all 0.3s ease;
         outline: none;
-        box-sizing: border-box;
+        transition: 0.3s ease;
     }
-
     .form-control:focus {
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 0 0 4px rgba(255, 127, 80, 0.15);
         border-color: #ff7f50;
+        box-shadow: 0 0 0 4px rgba(255, 127, 80, 0.15);
     }
-
     .btn-submit {
         width: 100%;
         padding: 15px;
@@ -127,45 +110,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: 0.3s ease;
         box-shadow: 0 4px 15px rgba(255, 127, 80, 0.3);
-        margin-top: 10px;
     }
-
     .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(255, 127, 80, 0.4);
         filter: brightness(1.1);
     }
-
     .alert {
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 25px;
         font-size: 14px;
-        font-weight: 500;
         display: flex;
         align-items: center;
         gap: 10px;
+        font-weight: 500;
     }
-    
     .alert-success {
         background: rgba(32, 191, 107, 0.15);
         border: 1px solid rgba(32, 191, 107, 0.3);
         color: #20bf6b;
     }
-
     .alert-error {
         background: rgba(252, 92, 101, 0.15);
         border: 1px solid rgba(252, 92, 101, 0.3);
         color: #fc5c65;
     }
-
     .blob-decor {
         position: absolute;
         width: 300px;
         height: 300px;
-        background: linear-gradient(180deg, #ffafc0 0%, #ffcba4 100%);
+        background: linear-gradient(180deg, #ffafc0, #ffcba4);
         border-radius: 50%;
         filter: blur(80px);
         opacity: 0.4;
@@ -180,11 +157,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="blob-decor"></div>
 
     <div class="form-container">
-        <h1 class="form-title"><i class="fa-solid fa-tags"></i> SỬA DANH MỤC</h1>
+        <h1 class="form-title"><i class="fa-solid fa-tags"></i> Sửa Danh Mục</h1>
 
         <?php if (!empty($msg)): ?>
-            <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
-                <i class="<?= ($msg_type == 'success') ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
+            <div class="alert <?= $msg_type === 'success' ? 'alert-success' : 'alert-error' ?>">
+                <i class="<?= $msg_type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
                 <?= htmlspecialchars($msg) ?>
             </div>
         <?php endif; ?>
@@ -192,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="" method="POST">
             <div class="form-group">
                 <label class="form-label">Tên danh mục</label>
-                <input
+                <input 
                     type="text"
                     name="category_name"
                     class="form-control"
@@ -209,7 +186,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-</section>
-</div>
 </body>
 </html>

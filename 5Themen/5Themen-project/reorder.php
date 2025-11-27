@@ -61,17 +61,15 @@ $sql = "
 
 $rs = $conn->query($sql);
 if (!$rs || $rs->num_rows === 0) {
-    // Không có quyền hoặc order không tồn tại
+     
     header("Location: account.php?view=orders");
     exit;
 }
-
-// Đảm bảo có giỏ
+ 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
-
-// Hàm xử lý path ảnh giống chỗ khác
+ 
 function buildProductImgPath($img)
 {
     $img = (string)$img;
@@ -79,8 +77,7 @@ function buildProductImgPath($img)
     if (strpos($img, 'admin/uploads/') === 0) return $img;
     return 'admin/uploads/' . ltrim($img, '/');
 }
-
-// Thêm từng item vào giỏ
+ 
 while ($row = $rs->fetch_assoc()) {
     $pid   = (int)$row['product_id'];
     $qty   = (int)$row['qty'];
@@ -89,10 +86,10 @@ while ($row = $rs->fetch_assoc()) {
 
     $imgPath = buildProductImgPath($row['product_img'] ?? '');
 
-    // Nếu đã có product trong giỏ -> cộng dồn số lượng
+    
     if (isset($_SESSION['cart'][$pid])) {
         $_SESSION['cart'][$pid]['qty']  += $qty;
-        $_SESSION['cart'][$pid]['size'] = $size; // cập nhật size theo đơn cũ
+        $_SESSION['cart'][$pid]['size'] = $size; 
     } else {
         $_SESSION['cart'][$pid] = [
             'id'    => $pid,
@@ -106,6 +103,6 @@ while ($row = $rs->fetch_assoc()) {
     }
 }
 
-// Sau khi copy xong → quay về giỏ hàng
+ 
 header("Location: giohang.php");
 exit;

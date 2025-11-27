@@ -1,21 +1,28 @@
 <?php
-include "../include/session.php";
-include "../include/database.php";
-// GỌI FILE HEADER VỪA SỬA
-include "header.php"; 
+require_once "../include/session.php";
+Session::init();
+
+/* ===== CHẶN NGƯỜI DÙNG KHÔNG ĐĂNG NHẬP VÀO ADMIN ===== */
+if (!Session::get('admin_login')) {
+    header("Location: login_admin.php");
+    exit();
+}
+
+require_once "../include/database.php";
+require_once "header.php";
 
 $db = new Database();
 $query = $db->select("
     SELECT 
         (SELECT COUNT(*) FROM tbl_category) AS cat_total,
-        (SELECT COUNT(*) FROM tbl_brand) AS brand_total,
-        (SELECT COUNT(*) FROM tbl_product) AS product_total
+        (SELECT COUNT(*) FROM tbl_brand)    AS brand_total,
+        (SELECT COUNT(*) FROM tbl_product)  AS product_total
 ");
 $data = $query->fetch_assoc();
 ?>
 
 <style>
-    /* Background Blobs trang trí riêng cho Dashboard */
+    /* Background blobs trang trí dashboard */
     .blob {
         position: absolute;
         border-radius: 50%;
@@ -27,12 +34,15 @@ $data = $query->fetch_assoc();
     .blob-1 { width: 400px; height: 400px; background: #ff9a9e; top: 50px; left: -50px; }
     .blob-2 { width: 350px; height: 350px; background: #a18cd1; bottom: 50px; right: -50px; }
 
-    @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(20px, 40px); } }
+    @keyframes float {
+        0%   { transform: translate(0, 0); }
+        100% { transform: translate(20px, 40px); }
+    }
 
     .dashboard-container {
         width: 100%;
         max-width: 1200px;
-        margin: 0 auto; /* Căn giữa container */
+        margin: 0 auto;
         padding: 40px 20px;
         text-align: center;
     }
@@ -52,46 +62,100 @@ $data = $query->fetch_assoc();
         flex-wrap: wrap;
     }
 
-    /* ... (Giữ nguyên phần CSS Card Item và Animation nút bấm ở bài trước) ... */
+    /* Card item */
     .box-item {
-        width: 300px;
+        width: 250px;
         padding: 40px 30px;
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.25);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         text-align: center;
         transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         overflow: hidden;
     }
-    .box-item:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.5); }
-    
-    /* Icon Style */
-    .icon-wrapper { width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; }
-    .box-category .icon-wrapper { background: linear-gradient(135deg, #4b7bec, #3867d6); }
-    .box-brand .icon-wrapper    { background: linear-gradient(135deg, #fa8231, #fc5c65); }
-    .box-product .icon-wrapper  { background: linear-gradient(135deg, #20bf6b, #0fb9b1); }
-    .box-post .icon-wrapper     { background: linear-gradient(135deg, #8854d0, #a55eea); }
-    .box-order .icon-wrapper    { background: linear-gradient(135deg, #4866b2ff, #b0db39ff);
-}
- 
-    /* Text Style */
-    .box-item h2 { font-size: 3.2rem; margin: 0; font-weight: 700; color: #333; }
-    .box-item p { font-size: 1rem; color: #666; margin-top: 5px; font-weight: 600; text-transform: uppercase; }
 
-    /* Menu Expand */
-    .action-container { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s ease-in-out; }
-    .box-item:hover .action-container { max-height: 200px; opacity: 1; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.06); }
-    
-    .btn-action { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; padding: 12px 20px; margin-bottom: 10px; border-radius: 50px; font-weight: 600; font-size: 13px; color: white; transition: 0.3s; }
+    .box-item:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Icon wrapper */
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: white;
+    }
+
+    .box-category .icon-wrapper { background: linear-gradient(135deg, #4b7bec, #3867d6); }
+    .box-brand    .icon-wrapper { background: linear-gradient(135deg, #fa8231, #fc5c65); }
+    .box-product  .icon-wrapper { background: linear-gradient(135deg, #20bf6b, #0fb9b1); }
+    .box-order    .icon-wrapper { background: linear-gradient(135deg, #4866b2ff, #b0db39ff); }
+
+    /* Text */
+    .box-item h2 {
+        font-size: 3.2rem;
+        margin: 0;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .box-item p {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* Menu expand */
+    .action-container {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.5s ease-in-out;
+    }
+
+    .box-item:hover .action-container {
+        max-height: 200px;
+        opacity: 1;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .btn-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: white;
+        transition: 0.3s;
+    }
+
     .box-category .btn-action { background: linear-gradient(90deg, #4b7bec, #3867d6); }
-    .box-brand .btn-action    { background: linear-gradient(90deg, #fa8231, #fc5c65); }
-    .box-product .btn-action  { background: linear-gradient(90deg, #20bf6b, #0fb9b1); }
-    .box-post .btn-action     { background: linear-gradient(90deg, #8854d0, #a55eea); }
-    .box-order .btn-action    { background: linear-gradient(90deg,  #f6b93b, #e58e26);}
-    .btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+    .box-brand    .btn-action { background: linear-gradient(90deg, #fa8231, #fc5c65); }
+    .box-product  .btn-action { background: linear-gradient(90deg, #20bf6b, #0fb9b1); }
+    .box-order    .btn-action { background: linear-gradient(90deg, #f6b93b, #e58e26); }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
 </style>
 
 <div class="blob blob-1"></div>
@@ -101,52 +165,68 @@ $data = $query->fetch_assoc();
     <div class="dashboard-title">Tổng quan hệ thống</div>
 
     <div class="dashboard-box">
+
+        <!-- Danh mục -->
         <div class="box-item box-category">
             <div class="icon-wrapper"><i class="fa-solid fa-folder-tree"></i></div>
             <h2><?= $data['cat_total'] ?></h2>
             <p>Danh mục</p>
+
             <div class="action-container">
-                <a href="categoryadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm danh mục mới</a>
-                <a href="categorylist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách danh mục</a>
+                <a href="categoryadd.php" class="btn-action">
+                    <i class="fa-solid fa-plus"></i> Thêm danh mục mới
+                </a>
+                <a href="categorylist.php" class="btn-action">
+                    <i class="fa-solid fa-list"></i> Danh sách danh mục
+                </a>
             </div>
         </div>
 
+        <!-- Loại sản phẩm -->
         <div class="box-item box-brand">
             <div class="icon-wrapper"><i class="fa-solid fa-award"></i></div>
             <h2><?= $data['brand_total'] ?></h2>
             <p>Loại sản phẩm</p>
+
             <div class="action-container">
-                <a href="brandadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm loại sản phảm mới</a>
-                <a href="brandlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách loại sản phẩm</a>
+                <a href="brandadd.php" class="btn-action">
+                    <i class="fa-solid fa-plus"></i> Thêm loại sản phẩm mới
+                </a>
+                <a href="brandlist.php" class="btn-action">
+                    <i class="fa-solid fa-list"></i> Danh sách loại sản phẩm
+                </a>
             </div>
         </div>
 
+        <!-- Sản phẩm -->
         <div class="box-item box-product">
             <div class="icon-wrapper"><i class="fa-solid fa-box-open"></i></div>
             <h2><?= $data['product_total'] ?></h2>
             <p>Sản phẩm</p>
+
             <div class="action-container">
-                <a href="productadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm sản phẩm mới</a>
-                <a href="productlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách sản phẩm</a>
-            </div>  
+                <a href="productadd.php" class="btn-action">
+                    <i class="fa-solid fa-plus"></i> Thêm sản phẩm mới
+                </a>
+                <a href="productlist.php" class="btn-action">
+                    <i class="fa-solid fa-list"></i> Danh sách sản phẩm
+                </a>
+            </div>
         </div>
-        <div class="box-item box-post">
-            <div class="icon-wrapper"><i class="fa-solid fa-pen-to-square"></i></div>
-            <h2><?= $data['product_total'] ?></h2>
-            <p>Bài viết</p>
-            <div class="action-container">
-                <a href="postadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm bài viết mới</a>
-                <a href="postlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách bài viết</a>
-            </div>  
-        </div>
+
+        <!-- Đơn hàng -->
         <div class="box-item box-order">
             <div class="icon-wrapper"><i class="fa-solid fa-cart-shopping"></i></div>
             <h2><?= $data['product_total'] ?></h2>
             <p>Đơn hàng</p>
+
             <div class="action-container">
-                <a href="orders.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách đơn hàng</a>
-            </div>  
+                <a href="orders.php" class="btn-action">
+                    <i class="fa-solid fa-list"></i> Danh sách đơn hàng
+                </a>
+            </div>
         </div>
+
     </div>
 </div>
 

@@ -8,20 +8,14 @@ require_once __DIR__ . '/include/database.php';
 
 $db   = new Database();
 $conn = $db->link;
-
-// =======================
 // 1. BẮT BUỘC ĐĂNG NHẬP
-// =======================
 if (empty($_SESSION['is_logged_in']) || empty($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
 $user_id = (int)$_SESSION['user_id'];
-
-// =======================
 // 2. LẤY THÔNG TIN USER
-// =======================
 $sqlUser = "SELECT * FROM tbl_user WHERE user_id = '$user_id' LIMIT 1";
 $result  = $conn->query($sqlUser);
 
@@ -31,20 +25,13 @@ if (!$result || $result->num_rows === 0) {
 }
 
 $userData = $result->fetch_assoc();
-
-// =======================
 // 3. LẤY order_id TỪ URL
-// =======================
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($orderId <= 0) {
     header("Location: account.php?view=orders");
     exit;
 }
-
-// =======================
 // 4. LẤY THÔNG TIN ĐƠN HÀNG + CHI TIẾT
-//    Đảm bảo chỉ xem được đơn thuộc SĐT của mình
-// =======================
 $userPhone  = trim($userData['phone'] ?? '');
 $wherePhone = "";
 
@@ -81,12 +68,10 @@ $sql = "
 $rs = $conn->query($sql);
 
 if (!$rs || $rs->num_rows === 0) {
-    // Không tìm thấy đơn hoặc không thuộc user này
     header("Location: account.php?view=orders");
     exit;
 }
 
-// Gom dữ liệu
 $orderInfo  = null;
 $orderItems = [];
 
@@ -116,9 +101,7 @@ while ($row = $rs->fetch_assoc()) {
     }
 }
 
-// =======================
 // 5. HÀM STATUS + TEXT THANH TOÁN
-// =======================
 function odStatusLabel($status)
 {
     $status = strtolower((string)$status);
@@ -158,7 +141,6 @@ function paymentLabel($method)
 [$statusText, $statusClass] = odStatusLabel($orderInfo['status'] ?? 'processing');
 $paymentText                = paymentLabel($orderInfo['payment_method'] ?? 'cod');
 
-// Breadcrumb cho partial
 $breadcrumbs = [
     ['text' => 'Trang chủ',  'url' => 'trangchu.php'],
     ['text' => 'Tài khoản',  'url' => 'account.php?view=orders'],

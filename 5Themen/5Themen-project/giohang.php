@@ -63,9 +63,9 @@ foreach ($cart as $item) {
     $itemCount += (int)$item['qty'];
 }
 ?>
-<?php 
-require __DIR__ . "/partials/header.php"; 
-require __DIR__ . "/partials/breadcrumb.php"; 
+<?php
+require __DIR__ . "/partials/header.php";
+require __DIR__ . "/partials/breadcrumb.php";
 ?>
 
 <!-- ======================= CSS TÍCH HỢP TRỰC TIẾP ======================= -->
@@ -486,7 +486,7 @@ body {
         <div class="cart-right">
             <div class="cart-right-header">
                 <h2 class="section-title">Giỏ hàng</h2>
-                <div class="cart-right-subtitle">
+                <div class="cart-right-subtitle" id="cart-item-count">
                     <?= $itemCount > 0 ? ("Đã chọn " . $itemCount . " sản phẩm") : "Chưa có sản phẩm nào" ?>
                 </div>
             </div>
@@ -503,38 +503,47 @@ body {
             $lineTotal = $price * $qty;
         ?>
 
-        <div class="cart-item">
+        <div class="cart-item" data-id="<?= (int)$id ?>">
             <img src="<?= htmlspecialchars($imagePath) ?>" class="cart-thumb" alt="<?= htmlspecialchars($name) ?>">
 
             <div class="item-info">
                 <div>
                     <div class="item-name"><?= htmlspecialchars($name) ?></div>
-                    <div class="item-meta">Size đang chọn: <strong><?= htmlspecialchars($size) ?></strong></div>
+                    <div class="item-meta">
+                        Size đang chọn:
+                        <strong class="js-size-text"><?= htmlspecialchars($size) ?></strong>
+                    </div>
                 </div>
 
-                <!-- SIZE -->
+                <!-- SIZE (AJAX, không submit form) -->
                 <div class="item-size">
-                    <form action="them_giohang.php" method="GET">
-                        <input type="hidden" name="action" value="changesize">
-                        <input type="hidden" name="id" value="<?= (int)$id ?>">
-                        <select name="size" onchange="this.form.submit()">
-                            <option value="S"  <?= $size==='S'?'selected':'' ?>>S</option>
-                            <option value="M"  <?= $size==='M'?'selected':'' ?>>M</option>
-                            <option value="L"  <?= $size==='L'?'selected':'' ?>>L</option>
-                            <option value="XL" <?= $size==='XL'?'selected':'' ?>>XL</option>
-                        </select>
-                    </form>
+                    <select name="size"
+                            class="js-cart-size"
+                            data-id="<?= (int)$id ?>">
+                        <option value="S"  <?= $size==='S'?'selected':'' ?>>S</option>
+                        <option value="M"  <?= $size==='M'?'selected':'' ?>>M</option>
+                        <option value="L"  <?= $size==='L'?'selected':'' ?>>L</option>
+                        <option value="XL" <?= $size==='XL'?'selected':'' ?>>XL</option>
+                    </select>
                 </div>
 
-                <!-- QTY -->
+                <!-- QTY (AJAX) -->
                 <div class="qty-box">
-                    <a href="them_giohang.php?action=update&id=<?= (int)$id ?>&qty=<?= max(1,$qty-1) ?>">−</a>
-                    <span><?= $qty ?></span>
-                    <a href="them_giohang.php?action=update&id=<?= (int)$id ?>&qty=<?= $qty+1 ?>">+</a>
+                    <a href="them_giohang.php?action=update&id=<?= (int)$id ?>&qty=<?= max(1,$qty-1) ?>"
+                       class="js-qty-btn"
+                       data-id="<?= (int)$id ?>"
+                       data-change="-1">−</a>
+
+                    <span class="js-qty"><?= $qty ?></span>
+
+                    <a href="them_giohang.php?action=update&id=<?= (int)$id ?>&qty=<?= $qty+1 ?>"
+                       class="js-qty-btn"
+                       data-id="<?= (int)$id ?>"
+                       data-change="1">+</a>
                 </div>
             </div>
 
-            <div class="price"><?= number_format($lineTotal,0,',','.') ?>đ</div>
+            <div class="price js-line-total"><?= number_format($lineTotal,0,',','.') ?>đ</div>
 
             <a href="giohang.php?delete=<?= (int)$id ?>" class="remove" title="Xóa sản phẩm">&times;</a>
         </div>
@@ -557,11 +566,11 @@ foreach ($cart as $item) {
             <div class="cart-total">
                 <div class="total-row">
                     <span>Tạm tính:</span>
-                    <span><?= number_format($grandTotal,0,',','.') ?>đ</span>
+                    <span id="cart-subtotal"><?= number_format($grandTotal,0,',','.') ?>đ</span>
                 </div>
                 <div class="total-row">
                     <strong>Tổng cộng:</strong>
-                    <strong><?= number_format($grandTotal,0,',','.') ?>đ</strong>
+                    <strong id="cart-total"><?= number_format($grandTotal,0,',','.') ?>đ</strong>
                 </div>
 
                 <button type="button" class="btn-checkout" onclick="processCheckout()">
@@ -594,6 +603,74 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('change', () => {
             shipLabels.forEach(l => l.classList.remove('active'));
             label.classList.add('active');
+        });
+    });
+
+    /* ===== AJAX: THAY ĐỔI SỐ LƯỢNG ===== */
+    document.querySelectorAll('.js-qty-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const id      = this.dataset.id;
+            const change  = parseInt(this.dataset.change, 10);
+            const row     = document.querySelector('.cart-item[data-id="'+id+'"]');
+            if (!row) return;
+
+            const qtySpan = row.querySelector('.js-qty');
+            let current   = parseInt(qtySpan.textContent, 10) || 1;
+            let newQty    = current + change;
+            if (newQty < 1) newQty = 1;
+
+            fetch(`them_giohang.php?action=update&ajax=1&id=${id}&qty=${newQty}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        window.location.href = this.href; // fallback
+                        return;
+                    }
+
+                    qtySpan.textContent = data.qty;
+                    const lineEl = row.querySelector('.js-line-total');
+                    if (lineEl) lineEl.textContent = data.line_total_formatted;
+
+                    const subtotalEl = document.getElementById('cart-subtotal');
+                    const totalEl    = document.getElementById('cart-total');
+                    if (subtotalEl) subtotalEl.textContent = data.grand_total_formatted;
+                    if (totalEl)    totalEl.textContent    = data.grand_total_formatted;
+
+                    const countEl = document.getElementById('cart-item-count');
+                    if (countEl) {
+                        if (data.item_count > 0) {
+                            countEl.textContent = `Đã chọn ${data.item_count} sản phẩm`;
+                        } else {
+                            countEl.textContent = 'Chưa có sản phẩm nào';
+                        }
+                    }
+                })
+                .catch(() => {
+                    window.location.href = this.href; // fallback nếu lỗi JS
+                });
+        });
+    });
+
+    /* ===== AJAX: THAY ĐỔI SIZE ===== */
+    document.querySelectorAll('.js-cart-size').forEach(select => {
+        select.addEventListener('change', function() {
+            const id   = this.dataset.id;
+            const size = this.value;
+            const row  = document.querySelector('.cart-item[data-id="'+id+'"]');
+            const sizeText = row ? row.querySelector('.js-size-text') : null;
+
+            fetch(`them_giohang.php?action=changesize&ajax=1&id=${id}&size=${encodeURIComponent(size)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && sizeText) {
+                        sizeText.textContent = data.size;
+                    }
+                })
+                .catch(() => {
+                    // Nếu lỗi thì thôi, không reload
+                });
         });
     });
 });

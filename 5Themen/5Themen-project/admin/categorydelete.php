@@ -1,19 +1,14 @@
 <?php
-include "../include/session.php";
-include "../include/database.php";
+require_once "../include/session.php";
+require_once "../include/database.php";
 require_once __DIR__ . "/class/category_class.php";
 
 $redirect_url = "categorylist.php";
 
-if (!isset($_REQUEST['category_id'])) {
-    header("Location: " . $redirect_url);
-    exit;
-}
-
-$id = (int)($_REQUEST['category_id']);
+$id = isset($_REQUEST['category_id']) ? (int)$_REQUEST['category_id'] : 0;
 
 if ($id > 0) {
-    $cg = new Category();
+    $cg     = new Category();
     $result = $cg->delete_category($id);
 
     if ($result) {
@@ -23,7 +18,8 @@ if ($id > 0) {
         header("Location: {$redirect_url}?msg=has_child");
         exit;
     }
-} else {
-    header("Location: " . $redirect_url);
-    exit;
 }
+
+header("Location: {$redirect_url}");
+exit;
+?>

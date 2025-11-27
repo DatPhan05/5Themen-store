@@ -6,18 +6,14 @@ require_once __DIR__ . "/header.php";
 require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/class/category_class.php";
 
-$cg   = new Category();
+$cg = new Category();
 
-// ===================================
-// LOGIC PHÂN TRANG
-// ===================================
-$records_per_page = 6; // Số danh mục trên mỗi trang
+$records_per_page = 6;
 $current_page     = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
 
-$total_records = $cg->count_all_categories(); 
+$total_records = $cg->count_all_categories();
 $total_pages   = ceil($total_records / $records_per_page);
 
-// Điều chỉnh trang hiện tại nếu vượt quá giới hạn
 if ($current_page > $total_pages && $total_pages > 0) {
     $current_page = $total_pages;
 } elseif ($total_pages == 0) {
@@ -25,21 +21,21 @@ if ($current_page > $total_pages && $total_pages > 0) {
 }
 
 $start_limit = ($current_page - 1) * $records_per_page;
+$list        = $cg->show_category($start_limit, $records_per_page);
 
-$list = $cg->show_category($start_limit, $records_per_page); // Truy vấn có LIMIT/OFFSET
+$msg      = "";
+$msg_type = "";
 
-$msg = "";
 if (isset($_GET['msg'])) {
     if ($_GET['msg'] === 'deleted') {
-        $msg = "✔ Đã xóa danh mục thành công.";
+        $msg      = "✔ Đã xóa danh mục thành công.";
         $msg_type = "success";
     } elseif ($_GET['msg'] === 'has_child') {
-        $msg = "⚠ Không thể xóa danh mục vì vẫn còn danh mục con.";
+        $msg      = "⚠ Không thể xóa danh mục vì vẫn còn danh mục con.";
         $msg_type = "error";
     }
 }
 ?>
-
 
 <style>
     .admin-content-right {
@@ -51,15 +47,12 @@ if (isset($_GET['msg'])) {
 
     .list-container {
         width: 100%;
-        max-width: 100%;
-        margin: 0 auto;
         padding: 30px;
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         animation: fadeIn 0.5s ease-out;
     }
 
@@ -71,22 +64,17 @@ if (isset($_GET['msg'])) {
     .list-title {
         font-size: 28px;
         font-weight: 700;
-        color: #333;
-        margin-bottom: 20px;
         text-align: center;
+        margin-bottom: 20px;
         text-transform: uppercase;
+        color: #333;
         letter-spacing: 1px;
-    }
-
-    .list-title i {
-        margin-right: 8px;
     }
 
     .alert {
         padding: 12px 15px;
         border-radius: 8px;
         margin-bottom: 20px;
-        font-size: 14px;
         font-weight: 500;
         display: flex;
         align-items: center;
@@ -94,14 +82,14 @@ if (isset($_GET['msg'])) {
     }
 
     .alert-success {
-        background: rgba(32, 191, 107, 0.15);
-        border: 1px solid rgba(32, 191, 107, 0.3);
+        background: rgba(32,191,107,0.15);
+        border: 1px solid rgba(32,191,107,0.3);
         color: #20bf6b;
     }
 
     .alert-error {
-        background: rgba(252, 92, 101, 0.15);
-        border: 1px solid rgba(252, 92, 101, 0.3);
+        background: rgba(252,92,101,0.15);
+        border: 1px solid rgba(252,92,101,0.3);
         color: #fc5c65;
     }
 
@@ -109,18 +97,14 @@ if (isset($_GET['msg'])) {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        text-align: left;
         font-size: 14px;
-        overflow: hidden;
     }
 
     table th {
         background: linear-gradient(90deg, #4b7bec, #3867d6);
         color: white;
-        padding: 15px 15px;
-        font-weight: 600;
+        padding: 15px;
         text-transform: uppercase;
-        white-space: nowrap;
     }
 
     table tr:first-child th:first-child { border-top-left-radius: 10px; }
@@ -129,58 +113,42 @@ if (isset($_GET['msg'])) {
     table td {
         padding: 15px;
         border-bottom: 1px solid #eee;
-        background: rgba(255, 255, 255, 0.7);
-        color: #333;
+        background: rgba(255,255,255,0.7);
         font-weight: 500;
     }
 
-    table tbody tr {
-        transition: background 0.3s ease;
-    }
-
     table tbody tr:hover {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255,255,255,0.9);
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
-    table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    table td:nth-child(4) {
-        color: #777;
-        font-style: italic;
-    }
+    table tbody tr:last-child td { border-bottom: none; }
 
     .action-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        text-decoration: none;
         padding: 6px 12px;
+        text-decoration: none;
         border-radius: 6px;
         font-weight: 600;
         margin-right: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         font-size: 13px;
-        transition: all 0.2s ease;
-        white-space: nowrap;
     }
 
     .edit-btn {
         background: #ffeaa7;
         color: #d63031;
     }
-    .edit-btn:hover {
-        background: #fed330;
-    }
+
+    .edit-btn:hover { background: #fed330; }
 
     .delete-btn {
         background: #ff7675;
         color: white;
     }
-    .delete-btn:hover {
-        background: #e17055;
-    }
+
+    .delete-btn:hover { background: #e17055; }
 
     .blob-decor-list {
         position: absolute;
@@ -200,37 +168,38 @@ if (isset($_GET['msg'])) {
         0%   { transform: translate(0, 0); }
         100% { transform: translate(-20px, 20px); }
     }
-    /* ========== PHÂN TRANG STYLE MỚI ========== */
+
     .pagination {
         display: flex;
         justify-content: center;
         padding: 20px 0 10px;
         margin-top: 15px;
-        border-top: 1px solid rgba(255, 255, 255, 0.5);
+        border-top: 1px solid rgba(255,255,255,0.5);
     }
+
     .pagination a, .pagination span {
-        text-decoration: none;
-        color: #4b7bec;
         padding: 8px 15px;
         margin: 0 4px;
-        border: 1px solid #ddd;
         border-radius: 6px;
-        transition: all 0.2s;
+        border: 1px solid #ddd;
         font-weight: 600;
-        background-color: #fff;
-        min-width: 40px;
+        background: #fff;
+        color: #4b7bec;
+        transition: 0.2s;
         text-align: center;
+        min-width: 40px;
     }
+
     .pagination a:hover {
-        background-color: #4b7bec;
+        background: #4b7bec;
         color: white;
         border-color: #4b7bec;
     }
+
     .pagination .current-page {
-        background-color: #3867d6;
+        background: #3867d6;
         color: white;
         border-color: #3867d6;
-        cursor: default;
     }
 </style>
 
@@ -238,13 +207,11 @@ if (isset($_GET['msg'])) {
     <div class="blob-decor-list"></div>
 
     <div class="list-container">
-        <h1 class="list-title">
-            <i class="fa-solid fa-list-check"></i> Danh sách Danh mục
-        </h1>
+        <h1 class="list-title"><i class="fa-solid fa-list-check"></i> Danh sách Danh mục</h1>
 
         <?php if (!empty($msg)): ?>
-            <div class="alert <?= ($msg_type == 'success') ? 'alert-success' : 'alert-error' ?>">
-                <i class="<?= ($msg_type == 'success') ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
+            <div class="alert <?= $msg_type === 'success' ? 'alert-success' : 'alert-error' ?>">
+                <i class="<?= $msg_type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle' ?>"></i>
                 <?= htmlspecialchars($msg) ?>
             </div>
         <?php endif; ?>
@@ -259,23 +226,22 @@ if (isset($_GET['msg'])) {
                     <th>Tùy chỉnh</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if ($list && $list->num_rows > 0): ?>
-                    <?php 
-                    $i = $start_limit + 1; // Tính STT theo trang
-                    while ($r = $list->fetch_assoc()): 
-                    ?>
+                    <?php $i = $start_limit + 1; ?>
+                    <?php while ($r = $list->fetch_assoc()): ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td><?= $r['category_id'] ?></td>
                             <td><?= htmlspecialchars($r['category_name']) ?></td>
-                            <td>
-                                <?= $r['parent_id'] == 0 ? "—" : htmlspecialchars($r['parent_name'] ?? '—') ?>
-                            </td>
+                            <td><?= $r['parent_id'] == 0 ? "—" : htmlspecialchars($r['parent_name'] ?? '—') ?></td>
+
                             <td>
                                 <a href="categoryedit.php?category_id=<?= $r['category_id'] ?>" class="action-link edit-btn">
                                     <i class="fa-solid fa-pen-to-square"></i> Sửa
                                 </a>
+
                                 <a href="categorydelete.php?category_id=<?= $r['category_id'] ?>"
                                    onclick="return confirm('Bạn có chắc muốn xóa danh mục ID: <?= $r['category_id'] ?>?')"
                                    class="action-link delete-btn">
@@ -284,9 +250,10 @@ if (isset($_GET['msg'])) {
                             </td>
                         </tr>
                     <?php endwhile; ?>
+
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #777; font-style: italic;">
+                        <td colspan="5" style="text-align:center; color:#777; font-style:italic;">
                             Chưa có danh mục nào được thêm.
                         </td>
                     </tr>
@@ -294,7 +261,7 @@ if (isset($_GET['msg'])) {
             </tbody>
         </table>
 
-        <?php if ($total_pages >= 1): ?> 
+        <?php if ($total_pages >= 1): ?>
             <div class="pagination">
                 <?php if ($current_page > 1): ?>
                     <a href="?page=<?= $current_page - 1 ?>">Trước</a>
@@ -313,10 +280,9 @@ if (isset($_GET['msg'])) {
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-        </div>
+
+    </div>
 </div>
 
-</section>
-</div>
 </body>
 </html>
