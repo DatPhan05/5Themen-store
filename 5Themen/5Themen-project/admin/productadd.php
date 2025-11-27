@@ -37,9 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* ===============================
             1. Thiết lập thư mục upload
+            - Thư mục THẬT:  /admin/uploads/
+            - Đường dẫn lưu DB: admin/uploads/ten-file.jpg
         =============================== */
-        $upload_dir_relative = "../uploads/"; 
-        $upload_dir_full = __DIR__ . "/../uploads/";
+        // Thư mục thật trên ổ đĩa
+        $upload_dir_full = __DIR__ . "/uploads/"; // admin/uploads/
 
         if (!is_dir($upload_dir_full)) {
             mkdir($upload_dir_full, 0777, true); 
@@ -48,25 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* ===============================
             2. Xử lý tên file an toàn
         =============================== */
-
-        $ext = pathinfo($thumb, PATHINFO_EXTENSION);
+        $ext      = pathinfo($thumb, PATHINFO_EXTENSION);
         $fileBase = pathinfo($thumb, PATHINFO_FILENAME); 
 
         $safeBaseName = iconv('UTF-8','ASCII//TRANSLIT//IGNORE', $fileBase);
         $safeBaseName = strtolower($safeBaseName);
-        
-        // Thay thế ký tự không hợp lệ bằng dấu '-'
         $safeBaseName = preg_replace('/[^a-z0-9]+/', '-', $safeBaseName); 
-        
-        // Loại bỏ nhiều dấu "---" thành "-"
         $safeBaseName = preg_replace('/-+/', '-', $safeBaseName); 
-        
-        // Loại bỏ dấu '-' ở đầu hoặc cuối
         $safeBaseName = trim($safeBaseName, '-');
 
         $newFileName = $safeBaseName . "." . $ext;
 
-        // Xử lý trùng lặp tên file
+        // Xử lý trùng tên
         $i = 1;
         $tempFileName = $newFileName;
         while (file_exists($upload_dir_full . $tempFileName)) {
@@ -78,29 +73,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* ===============================
             3. Đường dẫn thực & đường dẫn lưu DB
         =============================== */
-        $real_path = $upload_dir_full . $newFileName;
-        $save_path = "uploads/" . $newFileName; 
+        $real_path = $upload_dir_full . $newFileName;           // D:\...\admin\uploads\ao-thun-1.jpg
+        $save_path = "admin/uploads/" . $newFileName;           // LƯU VÀO DB: admin/uploads/ao-thun-1.jpg
 
         /* ===============================
             4. Upload file
         =============================== */
         if (move_uploaded_file($_FILES['product_img']['tmp_name'], $real_path)) {
-            
+
             /* ===============================
                 5. Lưu database
             =============================== */
             (new Product())->insert_product($name, $cid, $bid, $price, $sale, $desc, $save_path);
 
-            $msg = "✨ Đã thêm sản phẩm thành công!";
+            $msg      = "✨ Đã thêm sản phẩm thành công!";
             $msg_type = "success";
 
         } else {
-            $msg = "❌ Lỗi khi upload file! Vui lòng kiểm tra quyền ghi thư mục 'uploads'.";
+            $msg      = "❌ Lỗi khi upload file! Vui lòng kiểm tra quyền ghi thư mục 'admin/uploads'.";
             $msg_type = "error";
         }
-        
+
     } else {
-        $msg = "⚠️ Vui lòng điền đầy đủ Tên sản phẩm, Danh mục, Loại, Giá và chọn Ảnh!";
+        $msg      = "⚠️ Vui lòng điền đầy đủ Tên sản phẩm, Danh mục, Loại, Giá và chọn Ảnh!";
         $msg_type = "error";
     }
 }
@@ -109,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
     /* ================= LAYOUT CHÍNH ================= */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1; 
         padding: 40px;
         display: flex;

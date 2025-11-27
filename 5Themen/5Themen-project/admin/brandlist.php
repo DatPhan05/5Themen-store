@@ -9,14 +9,32 @@ require_once __DIR__ . "/slider.php";
 require_once __DIR__ . "/class/brand_class.php"; 
 
 $b = new Brand();
-// Chú ý: Cần đảm bảo hàm show_brand() trong class Brand trả về cả tên Danh mục (category_name) 
-// để cột "Danh mục" hiển thị đúng.
-$list = $b->show_brand();
+
+// ===================================
+// LOGIC PHÂN TRANG
+// ===================================
+$records_per_page = 8; // Số loại sản phẩm trên mỗi trang
+$current_page     = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+
+$total_records = $b->count_all_brands(); // Lấy tổng số
+$total_pages   = ceil($total_records / $records_per_page);
+
+// Điều chỉnh trang hiện tại nếu vượt quá giới hạn
+if ($current_page > $total_pages && $total_pages > 0) {
+    $current_page = $total_pages;
+} elseif ($total_pages == 0) {
+    $current_page = 1;
+}
+
+$start_limit = ($current_page - 1) * $records_per_page;
+
+$list = $b->show_brand($start_limit, $records_per_page); // Truy vấn có LIMIT/OFFSET
 ?>
 
 <style>
     /* ================= LAYOUT & CARD STYLE ================= */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1; 
         padding: 40px;
         position: relative;
@@ -149,10 +167,37 @@ $list = $b->show_brand();
         right: 5%;
         animation: float 10s infinite alternate;
     }
-    
-    @keyframes float { 
-        0% { transform: translate(0, 0); } 
-        100% { transform: translate(-20px, 20px); } 
+    /* ========== PHÂN TRANG STYLE MỚI ========== */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0 10px;
+        margin-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .pagination a, .pagination span {
+        text-decoration: none;
+        color: #fa8231; /* Màu phù hợp với Brand */
+        padding: 8px 15px;
+        margin: 0 4px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-weight: 600;
+        background-color: #fff;
+        min-width: 40px;
+        text-align: center;
+    }
+    .pagination a:hover {
+        background-color: #fa8231;
+        color: white;
+        border-color: #fa8231;
+    }
+    .pagination .current-page {
+        background-color: #fc5c65;
+        color: white;
+        border-color: #fc5c65;
+        cursor: default;
     }
 </style>
 
@@ -176,7 +221,7 @@ $list = $b->show_brand();
             <tbody>
                 <?php if ($list && $list->num_rows > 0): ?>
                     <?php 
-                        $i = 1; 
+                        $i = $start_limit + 1; // Tính STT theo trang
                         while ($r = $list->fetch_assoc()): 
                     ?>
                         <tr>
@@ -203,7 +248,26 @@ $list = $b->show_brand();
             </tbody>
         </table>
 
-    </div>
+        <?php if ($total_pages >= 1): ?> 
+            <div class="pagination">
+                <?php if ($current_page > 1): ?>
+                    <a href="?page=<?= $current_page - 1 ?>">Trước</a>
+                <?php endif; ?>
+
+                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                    <?php if ($p == $current_page): ?>
+                        <span class="current-page"><?= $p ?></span>
+                    <?php else: ?>
+                        <a href="?page=<?= $p ?>"><?= $p ?></a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+
+                <?php if ($current_page < $total_pages): ?>
+                    <a href="?page=<?= $current_page + 1 ?>">Sau</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        </div>
 </div>
 
 </section>

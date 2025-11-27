@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
     /* ================= LAYOUT CHÍNH ================= */
     .admin-content-right {
+        margin-left: 230px;
         flex: 1; 
         padding: 40px;
         display: flex;
@@ -243,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group">
                 <label class="form-label">Tên sản phẩm (*)</label>
-                <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($row['ten_san_pham']) ?>" placeholder="Nhập tên sản phẩm" required autocomplete="off">
+                <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($row['product_name']) ?>" placeholder="Nhập tên sản phẩm" required autocomplete="off">
             </div>
 
             <div class="price-group">
@@ -254,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($cates) : 
                             $cates->data_seek(0); // Reset con trỏ
                             while ($c = $cates->fetch_assoc()) : ?>
-                                <option value="<?= $c['category_id'] ?>" <?= $row['id_danh_muc'] == $c['category_id'] ? 'selected' : '' ?>>
+                                <option value="<?= $c['category_id'] ?>" <?= $row['category_id'] == $c['category_id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($c['category_name']) ?>
                                 </option>
                             <?php endwhile; 
@@ -269,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($brands) : 
                             $brands->data_seek(0); // Reset con trỏ
                             while ($b = $brands->fetch_assoc()) : ?>
-                                <option value="<?= $b['brand_id'] ?>" <?= $row['id_loai'] == $b['brand_id'] ? 'selected' : '' ?>>
+                                <option value="<?= $b['brand_id'] ?>" <?= $row['brand_id'] == $b['brand_id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($b['brand_name']) ?>
                                 </option>
                             <?php endwhile; 
@@ -281,32 +282,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="price-group">
                 <div class="form-group">
                     <label class="form-label">Giá (Ví dụ: 100000)</label>
-                    <input type="text" name="price" class="form-control" value="<?= (int)$row['gia'] ?>" placeholder="Giá gốc" pattern="[0-9]*" title="Vui lòng nhập số">
+                    <input type="text" name="price" class="form-control" value="<?= (int)$row['product_price'] ?>" placeholder="Giá gốc" pattern="[0-9]*" title="Vui lòng nhập số">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Giá khuyến mãi (0 nếu không có)</label>
-                    <input type="text" name="sale_price" class="form-control" value="<?= (int)$row['gia_khuyen_mai'] ?>" placeholder="Giá khuyến mãi" pattern="[0-9]*" title="Vui lòng nhập số">
+                    <input type="text" name="sale_price" class="form-control" value="<?= (int)$row['product_sale'] ?>" placeholder="Giá khuyến mãi" pattern="[0-9]*" title="Vui lòng nhập số">
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Mô tả chi tiết</label>
-                <textarea name="description" class="form-control" rows="5" placeholder="Nhập mô tả sản phẩm chi tiết..."><?= htmlspecialchars($row['mo_ta'] ?? '') ?></textarea>
+                <textarea name="description" class="form-control" rows="5" placeholder="Nhập mô tả sản phẩm chi tiết..."><?= htmlspecialchars($row['product_desc'] ?? '') ?></textarea>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Ảnh (Đường dẫn lưu DB: uploads/ten_file.jpg)</label>
-                <input type="text" name="thumb" class="form-control" value="<?= htmlspecialchars($row['anh'] ?? '') ?>" placeholder="Đường dẫn ảnh">
+                <input type="text" name="thumb" class="form-control" value="<?= htmlspecialchars($row['product_img'] ?? '') ?>" placeholder="Đường dẫn ảnh">
                 
-                <?php if (!empty($row['anh'])): ?>
+                <?php if (!empty($row['product_img'])): ?>
                     <div style="margin-top: 15px; text-align: center;">
                         <p style="font-size: 14px; color: #555; margin-bottom: 5px;">Ảnh hiện tại:</p>
                         
 
-[Image of product thumbnail]
 
-                        <img src="<?= htmlspecialchars("../" . $row['anh']) ?>" alt="Ảnh sản phẩm" style="max-width: 150px; height: auto; border-radius: 8px; border: 1px solid #ccc;">
+
+                        <img src="<?= htmlspecialchars("../" . $row['product_img']) ?>" alt="Ảnh sản phẩm" style="max-width: 150px; height: auto; border-radius: 8px; border: 1px solid #ccc;">
                     </div>
                 <?php endif; ?>
             </div>

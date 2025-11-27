@@ -73,7 +73,10 @@ $data = $query->fetch_assoc();
     .box-category .icon-wrapper { background: linear-gradient(135deg, #4b7bec, #3867d6); }
     .box-brand .icon-wrapper    { background: linear-gradient(135deg, #fa8231, #fc5c65); }
     .box-product .icon-wrapper  { background: linear-gradient(135deg, #20bf6b, #0fb9b1); }
-
+    .box-post .icon-wrapper     { background: linear-gradient(135deg, #8854d0, #a55eea); }
+    .box-order .icon-wrapper    { background: linear-gradient(135deg, #4866b2ff, #b0db39ff);
+}
+ 
     /* Text Style */
     .box-item h2 { font-size: 3.2rem; margin: 0; font-weight: 700; color: #333; }
     .box-item p { font-size: 1rem; color: #666; margin-top: 5px; font-weight: 600; text-transform: uppercase; }
@@ -86,6 +89,8 @@ $data = $query->fetch_assoc();
     .box-category .btn-action { background: linear-gradient(90deg, #4b7bec, #3867d6); }
     .box-brand .btn-action    { background: linear-gradient(90deg, #fa8231, #fc5c65); }
     .box-product .btn-action  { background: linear-gradient(90deg, #20bf6b, #0fb9b1); }
+    .box-post .btn-action     { background: linear-gradient(90deg, #8854d0, #a55eea); }
+    .box-order .btn-action    { background: linear-gradient(90deg,  #f6b93b, #e58e26);}
     .btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
 </style>
 
@@ -101,18 +106,18 @@ $data = $query->fetch_assoc();
             <h2><?= $data['cat_total'] ?></h2>
             <p>Danh mục</p>
             <div class="action-container">
-                <a href="categoryadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm mới</a>
-                <a href="categorylist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách</a>
+                <a href="categoryadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm danh mục mới</a>
+                <a href="categorylist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách danh mục</a>
             </div>
         </div>
 
         <div class="box-item box-brand">
             <div class="icon-wrapper"><i class="fa-solid fa-award"></i></div>
             <h2><?= $data['brand_total'] ?></h2>
-            <p>Thương hiệu</p>
+            <p>Loại sản phẩm</p>
             <div class="action-container">
-                <a href="brandadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm mới</a>
-                <a href="brandlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách</a>
+                <a href="brandadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm loại sản phảm mới</a>
+                <a href="brandlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách loại sản phẩm</a>
             </div>
         </div>
 
@@ -121,9 +126,26 @@ $data = $query->fetch_assoc();
             <h2><?= $data['product_total'] ?></h2>
             <p>Sản phẩm</p>
             <div class="action-container">
-                <a href="productadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm mới</a>
-                <a href="productlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách</a>
-            </div>
+                <a href="productadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm sản phẩm mới</a>
+                <a href="productlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách sản phẩm</a>
+            </div>  
+        </div>
+        <div class="box-item box-post">
+            <div class="icon-wrapper"><i class="fa-solid fa-pen-to-square"></i></div>
+            <h2><?= $data['product_total'] ?></h2>
+            <p>Bài viết</p>
+            <div class="action-container">
+                <a href="postadd.php" class="btn-action"><i class="fa-solid fa-plus"></i> Thêm bài viết mới</a>
+                <a href="postlist.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách bài viết</a>
+            </div>  
+        </div>
+        <div class="box-item box-order">
+            <div class="icon-wrapper"><i class="fa-solid fa-cart-shopping"></i></div>
+            <h2><?= $data['product_total'] ?></h2>
+            <p>Đơn hàng</p>
+            <div class="action-container">
+                <a href="orders.php" class="btn-action"><i class="fa-solid fa-list"></i> Danh sách đơn hàng</a>
+            </div>  
         </div>
     </div>
 </div>

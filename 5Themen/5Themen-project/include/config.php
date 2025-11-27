@@ -7,3 +7,4 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'website_5themen_store_demo');
+define('BASE_URL', '/5Themen/5Themen-project/');

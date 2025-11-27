@@ -1,14 +1,17 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../include/session.php';
+Session::init();  // dùng chung Session helper
+
 require_once __DIR__ . '/../admin/class/category_class.php';
 require_once __DIR__ . '/../admin/class/brand_class.php';
 
 $categoryModel = new Category();
 $brandModel    = new Brand();
 
-// Lấy tất cả ROOT categories (parent_id = NULL)
+/**
+ * LẤY DANH MỤC GỐC (CATEGORY CHA)
+ * Dùng get_parent_categories() thay vì show_category()
+ */
 $rootCategories = $categoryModel->get_parent_categories();
 ?>
 
@@ -25,7 +28,7 @@ $rootCategories = $categoryModel->get_parent_categories();
 <body>
 
 <!-- ============================================================
-     HEADER ICONDENIM STYLE – FIXED + FULL WIDTH
+     HEADER ICONDENIM STYLE – DÙNG CSS CHUNG
      ============================================================= -->
 <div class="header-main">
     <div class="header-wrap">
@@ -38,128 +41,153 @@ $rootCategories = $categoryModel->get_parent_categories();
         </div>
 
         <!-- Menu Navigation -->
-        <nav class="header-menu">
-            <ul id="main-menu">
-                <?php 
-                if ($rootCategories && is_object($rootCategories) && $rootCategories->num_rows > 0):
-                    while ($root = $rootCategories->fetch_assoc()):
-                        $rootId   = $root['category_id'];
-                        $rootName = $root['category_name'];
-                        
-                        // Lấy child categories (Áo Nam, Quần Nam, Giày...)
-                        $childCategories = $categoryModel->get_children($rootId);
+<nav class="header-menu">
+    <ul id="main-menu">
+        <?php 
+        if ($rootCategories && is_object($rootCategories) && $rootCategories->num_rows > 0):
+            while ($root = $rootCategories->fetch_assoc()):
+                
+                $rootId   = $root['category_id'];
+                $rootName = $root['category_name'];
 
-                        // =========================
-                        // CHỈNH Ở ĐÂY:
-                        // Nếu root là "Sản phẩm" -> href = category.php (tất cả sản phẩm)
-                        // Các root khác -> href = category.php?cat=<id>
-                        // =========================
-                        if (function_exists('mb_strtolower')) {
-                            $rootNameLower = mb_strtolower($rootName, 'UTF-8');
-                        } else {
-                            $rootNameLower = strtolower($rootName);
-                        }
+                // Lấy category con
+                $childCategories = $categoryModel->get_children($rootId);
 
-                        if ($rootNameLower === 'sản phẩm') {
-                            // Click vào "Sản phẩm" -> trang TẤT CẢ SẢN PHẨM
-                            $rootHref = 'category.php';
-                        } else {
-                            // Các root khác vẫn filter theo danh mục
-                            $rootHref = 'category.php?cat=' . $rootId;
-                        }
-                ?>
-                    <li class="menu-item">
-                        <!-- ROOT CATEGORY LINK (Sản phẩm, Sản phẩm mới, Bộ sưu tập, Thông tin) -->
-                        <a href="<?= htmlspecialchars($rootHref) ?>">
-                            <?= htmlspecialchars($rootName) ?>
-                        </a>
-                        
-                        <!-- MEGA MENU - Chỉ hiện nếu có child categories -->
-                        <?php if ($childCategories && is_object($childCategories) && $childCategories->num_rows > 0): ?>
-                        <div class="mega-menu">
-                            <div class="mega-content">
-                                <div class="mega-column">
-                                    <a href="category.php">Tất cả sản phẩm</a>
-                                    <a href="category.php?filter=new">Sản phẩm mới</a>
-                                    <a href="category.php?cat=13">Bộ sưu tập</a>
-                                    <a href="category.php?cat=14">Thông tin</a>
-                                </div>
-                                <?php 
-                                $colCount = 0;
-                                while ($child = $childCategories->fetch_assoc()): 
-                                    $childId   = $child['category_id'];
-                                    $childName = $child['category_name'];
-                                    
-                                    // Lấy brands thuộc child này
-                                    $brands = $brandModel->get_brand_by_category($childId);
-                                    $colCount++;
-                                ?>
-                                    <div class="mega-column">
-                                        <!-- CHILD CATEGORY TITLE (Áo Nam, Quần Nam...) -->
-                                        <h4>
-                                            <a href="category.php?cat=<?= $childId ?>" class="mega-title">
-                                                <?= htmlspecialchars($childName) ?>
-                                            </a>
-                                        </h4>
-                                        
-                                        <?php if ($brands && is_object($brands) && $brands->num_rows > 0): ?>
-                                            <?php while ($brand = $brands->fetch_assoc()): ?>
-                                            <a href="category.php?cat=<?= $childId ?>&brand=<?= $brand['brand_id'] ?>">
-                                                <?= htmlspecialchars($brand['brand_name']) ?>
-                                            </a>
-                                            <?php endwhile; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php 
-                                    // Thêm banner nếu đạt 4 cột
-                                    if ($colCount == 4): 
-                                ?>
-                                    <div class="mega-column banner">
-                                        <img src="images/mega-banner.jpg" alt="Banner"
-                                             onerror="this.style.display='none'">
-                                    </div>
-                                <?php 
-                                        break; // Chỉ hiện tối đa 4 cột + 1 banner
-                                    endif;
-                                endwhile; ?>
-                            </div>
-                        </div>
+                
+                // Link khi click vào category cha (map theo tên, vẫn lấy từ DB)
+$lowerName = mb_strtolower(trim($rootName), 'UTF-8');
+
+switch ($lowerName) {
+    case 'sản phẩm':
+        $rootHref = 'category.php';
+        break;
+
+    case 'sản phẩm mới':
+        $rootHref = 'category_new.php';
+        break;
+
+    case 'khuyến mãi hot':
+        $rootHref = 'category_sale.php';
+        break;
+
+    case 'thông tin':
+        $rootHref = 'info.php';
+        break;
+
+    default:
+        // các category khác: đi theo cat id bình thường
+        $rootHref = 'category.php?cat=' . $rootId;
+        break;
+}
+
+        ?>
+        <li class="menu-item">
+
+            <!-- LINK CATEGORY CHA -->
+            <a href="<?= htmlspecialchars($rootHref) ?>">
+                <?= htmlspecialchars($rootName) ?>
+            </a>
+
+            <!-- MEGA MENU: chỉ hiện khi category có CHILD -->
+            <?php if ($childCategories && $childCategories->num_rows > 0): ?>
+            <div class="mega-menu">
+                <div class="mega-content">
+
+                    <!-- CỘT 1 — LINK CỐ ĐỊNH (GIỐNG ICONDENIM) -->
+                    <div class="mega-column">
+                        <a href="category.php">Tất cả sản phẩm</a>
+                        <a href="category_new.php">Sản phẩm mới</a>
+                        <a href="category_sale.php">Khuyến mãi hot</a>
+                        <a href="info.php">Thông tin</a>
+                    </div>
+
+                    <!-- CỘT CATEGORY CON (Tối đa 4 cột) -->
+                    <?php 
+                    $colCount = 0;
+                    while ($child = $childCategories->fetch_assoc()):
+                        if ($colCount >= 4) break;
+
+                        $childId   = $child['category_id'];
+                        $childName = $child['category_name'];
+
+                        // Brand theo category con
+                        $brands = $brandModel->get_brand_by_category($childId);
+                    ?>
+                    <div class="mega-column">
+
+                        <!-- Tiêu đề category con -->
+                        <h4>
+                            <a href="category.php?cat=<?= $childId ?>" class="mega-title">
+                                <?= htmlspecialchars($childName) ?>
+                            </a>
+                        </h4>
+
+                        <!-- Danh sách brand thuộc category con -->
+                        <?php if ($brands && $brands->num_rows > 0): ?>
+                            <?php while ($brand = $brands->fetch_assoc()): ?>
+                            <a href="category.php?cat=<?= $childId ?>&brand=<?= $brand['brand_id'] ?>">
+                                <?= htmlspecialchars($brand['brand_name']) ?>
+                            </a>
+                            <?php endwhile; ?>
                         <?php endif; ?>
-                    </li>
-                <?php 
+
+                    </div>
+                    <?php 
+                        $colCount++;
                     endwhile;
-                endif; 
-                ?>
-            </ul>
-        </nav>
+                    ?>
+
+                    <!-- CỘT BANNER (ICONDENIM STYLE) -->
+                    <div class="mega-column banner">
+                        <img src="images/mega-banner.jpg" alt="Banner"
+                             onerror="this.style.display='none'">
+                    </div>
+
+                </div>
+            </div>
+            <?php endif; ?>
+
+        </li>
+        <?php 
+            endwhile;
+        endif; 
+        ?>
+    </ul>
+</nav>
+
 
         <!-- Icons (Search, User, Cart) -->
         <div class="header-icons">
             <!-- Search Box -->
-            <div class="search-box">
-                <input type="text" placeholder="Tìm kiếm..." name="search">
-                <i class="fa fa-search"></i>
-            </div>
             
-            <!-- User Icon with Dropdown -->
-             <div class="user-menu">
-                <?php if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true): ?>
-                    <a href="#" id="user-toggle">
-                    <i class="fa fa-user"></i>
-                    </a>
-                    <ul class="dropdown-user" id="dropdown-user">
-                    <li><a href="account.php">Tài khoản</a></li>
-                    <li><a href="order_history.php">Đơn hàng</a></li>
-                    <li><a href="logout.php">Đăng xuất</a></li>
-                </ul>
-                <?php else: ?>
-                    <a href="login.php"><i class="fa fa-user"></i></a>
-                    <?php endif; ?>
-                </div>
+            <div class="search-box">
+    <form action="search.php" method="GET" style="display:flex;align-items:center;">
+        <input type="text" name="keyword" placeholder="Tìm kiếm..." required>
+        <button type="submit" style="background:transparent;border:none;">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+</div>
 
             
+            <!-- User Icon with Dropdown -->
+            <div class="user-menu">
+                <?php if (!empty($_SESSION['is_logged_in']) && !empty($_SESSION['user_id'])): ?>
+                    <a href="#" id="user-toggle">
+                        <i class="fa fa-user"></i>
+                    </a>
+                    <ul class="dropdown-user" id="dropdown-user">
+                        <li><a href="account.php">Tài khoản</a></li>
+                        <li><a href="my_orders.php">Đơn hàng</a></li>
+                        <li><a href="logout.php">Đăng xuất</a></li>
+                    </ul>
+                <?php else: ?>
+                    <a href="login.php"><i class="fa fa-user"></i></a>
+                <?php endif; ?>
+            </div>
+
             <!-- Cart Icon -->
-            <a href="giohang.php">
+            <a href="giohang.php" style="position:relative;">
                 <i class="fa fa-shopping-cart"></i>
                 <?php if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
                 <span class="cart-count"
@@ -199,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- BREADCRUMB FIX - FORCE CONTAINER WIDTH -->
+<!-- BREADCRUMB FIX - FORCE CONTAINER WIDTH (GIỮ NGUYÊN THEO BẢN CŨ CỦA BẠN) -->
 <script>
 (function() {
     'use strict';
@@ -220,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'display: block !important; box-sizing: border-box !important;'
         );
         
-        // FORCE container - ĐẢM BẢO PADDING GIỐNG NHAU
+        // FORCE container
         const container = breadcrumb.querySelector('.container');
         if (container) {
             container.removeAttribute('style');
@@ -242,8 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 'padding: 0 !important; list-style: none !important;'
             );
         }
-        
-        console.log('✅ Breadcrumb forced: 90px margin, container padding 10px');
     }
     
     // Chạy nhiều lần để đảm bảo

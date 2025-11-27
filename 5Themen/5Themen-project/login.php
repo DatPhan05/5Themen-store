@@ -1,26 +1,16 @@
 <?php
-/***********************************************
- * 1. IMPORT SESSION
- ***********************************************/
 require_once __DIR__ . '/include/session.php';
+Session::init(); 
 
-/***********************************************
- * 2. TẠO CSRF TOKEN
- ***********************************************/
+// Tạo CSRF token nếu chưa tồn tại
 if (empty($_SESSION['csrf_token'])) {
-    try {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    } catch (Exception $e) {
-        $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
-    }
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-/***********************************************
- * 3. LẤY FLASH DATA
- ***********************************************/
 $errorMessage = $_SESSION['error'] ?? '';
 $oldEmail     = $_SESSION['old']['email'] ?? '';
 
+// Xóa thông báo lỗi và dữ liệu cũ sau khi hiển thị
 unset($_SESSION['error'], $_SESSION['old']);
 ?>
 <!DOCTYPE html>
@@ -29,7 +19,6 @@ unset($_SESSION['error'], $_SESSION['old']);
     <meta charset="UTF-8">
     <title>Đăng nhập - 5Themen</title>
     <link rel="stylesheet" href="CSS/style.css">
-    <script src="https://kit.fontawesome.com/1147679ae7.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -42,51 +31,33 @@ unset($_SESSION['error'], $_SESSION['old']);
         <div class="auth-card auth-card-login">
 
             <div class="auth-col">
-                <h2>Bạn đã có tài khoản 5Themen</h2>
 
                 <?php if ($errorMessage): ?>
-                    <div class="auth-error" role="alert">
-                        <?= htmlspecialchars($errorMessage) ?>
-                    </div>
+                <div class="auth-error"><?= htmlspecialchars($errorMessage) ?></div>
                 <?php endif; ?>
+                
+                <form method="POST" action="login_process.php"> 
 
-                <form method="POST" action="login_process.php" class="auth-form" novalidate>
-
-                    <!-- CSRF token -->
                     <input type="hidden" name="csrf_token"
                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
                     <div class="auth-field">
-                        <label for="email">Email / Số điện thoại *</label>
-                        <input id="email"
-                               type="text"
-                               name="email"
-                               value="<?= htmlspecialchars($oldEmail) ?>"
-                               required
-                               autocomplete="username"
-                               placeholder="Email hoặc số điện thoại">
+                        <label>Email / Số điện thoại *</label>
+                        <input type="text" name="email"
+                               value="<?= htmlspecialchars($oldEmail) ?>" required>
                     </div>
 
                     <div class="auth-field">
-                        <label for="password">Mật khẩu *</label>
-                        <input id="password"
-                               type="password"
-                               name="password"
-                               required
-                               autocomplete="current-password">
-                    </div>
-
-                    <div class="auth-remember">
-                        <input id="remember" type="checkbox" name="remember" value="1">
-                        <label for="remember">Ghi nhớ đăng nhập</label>
+                        <label>Mật khẩu *</label>
+                        <input type="password" name="password" required>
                     </div>
 
                     <button type="submit" class="btn-primary btn-full">Đăng nhập</button>
+
                 </form>
             </div>
 
             <div class="auth-col auth-col-right">
-                <h2>Khách hàng mới</h2>
                 <a href="register.php" class="btn-primary btn-full">Đăng ký</a>
             </div>
 

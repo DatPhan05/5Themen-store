@@ -1,26 +1,24 @@
+<?php ob_start(); ?>
 <style>
-    .admin-content-left {
-        /* Kích thước và vị trí */
-        width: 260px;
-        /* Chiều cao bằng 100% màn hình trừ đi chiều cao header (70px) */
-        min-height: calc(100vh - 70px); 
-        padding: 20px;
-        
-        /* Hiệu ứng Kính mờ (Glassmorphism) */
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        /* Viền mờ bên phải */
-        border-right: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 5px 0 15px rgba(0,0,0,0.05);
-        
+    /* BỔ SUNG: layout chung cho khối admin */
+    .admin-content {
         display: flex;
-        flex-direction: column;
-        gap: 20px;
-        /* Để sidebar đứng yên nếu nội dung bên phải dài và cần cuộn */
-        position: sticky; 
-        top: 70px; 
+        gap: 0;
+        min-height: calc(100vh - var(--header-height, 70px));
+        margin-top: 10px;
     }
+    .admin-content-left {
+    position: fixed;
+    top: 70px;              /* đúng bằng chiều cao header của bạn */
+    left: 0;
+    width: 230px;           /* giữ nguyên chiều rộng sidebar */
+    height: calc(100vh - 70px);  /* luôn full chiều cao dưới header */
+    overflow-y: auto;
+    background: #e5e5e5;    /* màu gốc của bạn */
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 999;           /* luôn nằm trên background */
+}
 
     /* Style cho nút "Dashboard" */
     .btn-back {
@@ -156,16 +154,28 @@
             <div class="menu-title">Nội dung & Cấu hình</div>
             <ul>
                 <li>
-                    <a href="category_content_list.php">
+                    <a href="postlist.php">
                         <i class="fa-solid fa-newspaper"></i> Bài viết nội dung
                     </a>
                 </li>
                 <li>
-                    <a href="category_content_add.php">
+                    <a href="postadd.php">
                         <i class="fa-solid fa-pen-to-square"></i> Thêm bài viết
                     </a>
                 </li>
             </ul>
         </div>
+        <div class="menu-group"> 
+            <div class="menu-title">Quản lý Đơn hàng</div>
+            <ul>
+                <li>
+                    <a href="orders.php">
+                        <i class="fa-solid fa-newspaper"></i> Danh sách đơn hàng
+                    </a>
+                </li>
+               
+            </ul>
+        </div>
     </div>
+
     

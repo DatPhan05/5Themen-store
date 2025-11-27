@@ -1,59 +1,71 @@
 <?php
-/***********************************************
- * 1. IMPORT SESSION + DATABASE
- ***********************************************/
 require_once __DIR__ . '/include/session.php';
 require_once __DIR__ . '/include/database.php';
+
+// Khởi tạo Session và Database
+Session::init();
 
 $db   = new Database();
 $conn = $db->link;
 
-/***********************************************
- * 2. KIỂM TRA CSRF TOKEN
- ***********************************************/
+// =========================
+// 1. KIỂM TRA CSRF TOKEN (Giữ nguyên, rất tốt)
+// =========================
 if (
-    !isset($_POST['csrf_token']) 
-    || !isset($_SESSION['csrf_token']) 
-    || $_POST['csrf_token'] !== $_SESSION['csrf_token']
+    !isset($_POST['csrf_token']) ||
+    !isset($_SESSION['csrf_token']) ||
+    $_POST['csrf_token'] !== $_SESSION['csrf_token']
 ) {
-    $_SESSION['error'] = "Yêu cầu không hợp lệ!";
+    $_SESSION['error'] = "Phiên đăng nhập không hợp lệ!";
     header("Location: login.php");
     exit;
 }
 
-/***********************************************
- * 3. LẤY DỮ LIỆU FORM
- ***********************************************/
+// =========================
+// 2. LẤY DỮ LIỆU FORM
+// =========================
 $email    = trim($_POST['email'] ?? '');
 $password = trim($_POST['password'] ?? '');
 
 $_SESSION['old']['email'] = $email;
 
 if ($email === '' || $password === '') {
-    $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin!";
+    $_SESSION['error'] = "Vui lòng nhập đủ thông tin!";
     header("Location: login.php");
     exit;
 }
 
-/***********************************************
- * 4. Escape input chống SQL Injection
- ***********************************************/
-$emailEscaped = $conn->real_escape_string($email);
-
-/***********************************************
- * 5. QUERY KIỂM TRA USER
- ***********************************************/
+// =========================================================================
+// 3. TÌM USER THEO EMAIL / PHONE (ĐÃ SỬA VỚI PREPARED STATEMENT để bảo mật)
+// =========================================================================
 $sql = "
-    SELECT *
+    SELECT user_id, fullname, email, password
     FROM tbl_user
-    WHERE email = '$emailEscaped'
-       OR phone = '$emailEscaped'
+    WHERE email = ? OR phone = ?
     LIMIT 1
 ";
 
-$result = $conn->query($sql);
+// Chuẩn bị statement
+$stmt = $conn->prepare($sql);
 
-if (!$result || $result->num_rows === 0) {
+if (!$stmt) {
+    // Lỗi hệ thống: không thể chuẩn bị truy vấn
+    $_SESSION['error'] = "Lỗi hệ thống: Không thể xử lý truy vấn!";
+    header("Location: login.php");
+    exit;
+}
+
+// Gắn tham số (bind parameters) - 'ss' nghĩa là 2 chuỗi (string)
+$stmt->bind_param("ss", $email, $email);
+
+// Thực thi truy vấn
+$stmt->execute();
+
+// Lấy kết quả
+$result = $stmt->get_result();
+
+if ($result->num_rows < 1) {
+    $stmt->close();
     $_SESSION['error'] = "Tài khoản không tồn tại!";
     header("Location: login.php");
     exit;
@@ -61,28 +73,28 @@ if (!$result || $result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-/***********************************************
- * 6. KIỂM TRA MẬT KHẨU HASH
- ***********************************************/
+// Đóng statement
+$stmt->close();
+
+// =========================
+// 4. KIỂM TRA MẬT KHẨU HASH (Giữ nguyên, đây là phương pháp đúng)
+// =========================
 if (!password_verify($password, $user['password'])) {
     $_SESSION['error'] = "Mật khẩu không đúng!";
     header("Location: login.php");
     exit;
 }
 
-/***********************************************
- * 7. TẠO SESSION ĐĂNG NHẬP
- ***********************************************/
-Session::set('user_login', true);
-Session::set('user_id', $user['user_id']);
-Session::set('user_name', $user['fullname']);
+// =========================
+// 5. LƯU SESSION ĐĂNG NHẬP
+// =========================
+$_SESSION['is_logged_in'] = true;
+$_SESSION['user_id']      = $user['user_id'];
+$_SESSION['user_name']    = $user['fullname'] ?? $user['email'];
 
-
-// Xoá CSRF token sau khi login
+// Không cần CSRF token cũ nữa (Đúng, chống Replay Attack)
 unset($_SESSION['csrf_token']);
 
-/***********************************************
- * 8. TRẢ VỀ TRANG TÀI KHOẢN
- ***********************************************/
 header("Location: account.php");
 exit;
+?>
