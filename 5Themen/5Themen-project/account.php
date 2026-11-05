@@ -94,16 +94,18 @@ if ($view === 'password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($newPass !== $rePass) {
         $msg = "Xác nhận mật khẩu mới không khớp.";
     } else {
-        $oldEsc = $conn->real_escape_string($oldPass);
         $sqlCheck = "SELECT password FROM tbl_user WHERE user_id = '$user_id' LIMIT 1";
         $rsCheck  = $conn->query($sqlCheck);
 
         if ($rsCheck && $rsCheck->num_rows > 0) {
             $row = $rsCheck->fetch_assoc();
-            if ($row['password'] !== $oldEsc) {
+            // Kiểm tra mật khẩu cũ (hỗ trợ cả hash bcrypt và tài khoản cũ dạng plaintext)
+            $isOldPassValid = password_verify($oldPass, $row['password']) || ($row['password'] === $oldPass);
+            if (!$isOldPassValid) {
                 $msg = "Mật khẩu cũ không đúng.";
             } else {
-                $newEsc = $conn->real_escape_string($newPass);
+                $newHash = password_hash($newPass, PASSWORD_DEFAULT);
+                $newEsc = $conn->real_escape_string($newHash);
                 $sqlUpdatePass = "UPDATE tbl_user SET password = '$newEsc' WHERE user_id = '$user_id' LIMIT 1";
                 if ($conn->query($sqlUpdatePass)) {
                     $msg = "Đổi mật khẩu thành công!";

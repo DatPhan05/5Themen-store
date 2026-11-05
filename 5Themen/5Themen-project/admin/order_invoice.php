@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/auth_check.php";
 require_once __DIR__ . "/class/order_class.php";
 
 $orderModel = new Order();

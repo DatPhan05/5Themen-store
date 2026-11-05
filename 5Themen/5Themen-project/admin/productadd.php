@@ -44,50 +44,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         /* ===============================
-           2. Xử lý tên file an toàn
+           2. Xử lý tên file & kiểm tra định dạng an toàn
         =============================== */
-        $ext      = pathinfo($thumb, PATHINFO_EXTENSION);
-        $fileBase = pathinfo($thumb, PATHINFO_FILENAME);
+        $ext          = pathinfo($thumb, PATHINFO_EXTENSION);
+        $extLower     = strtolower($ext);
+        $allowedExts  = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
-        $safeBaseName = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileBase);
-        $safeBaseName = strtolower($safeBaseName);
-        $safeBaseName = preg_replace('/[^a-z0-9]+/', '-', $safeBaseName);
-        $safeBaseName = preg_replace('/-+/', '-', $safeBaseName);
-        $safeBaseName = trim($safeBaseName, '-');
+        if (!in_array($extLower, $allowedExts, true)) {
+            $msg      = "❌ Định dạng file không hợp lệ! Chỉ chấp nhận ảnh: JPG, JPEG, PNG, WEBP, GIF.";
+            $msg_type = "error";
+        } elseif ($_FILES['product_img']['size'] > 5 * 1024 * 1024) {
+            $msg      = "❌ Dung lượng ảnh vượt quá giới hạn cho phép (tối đa 5MB)!";
+            $msg_type = "error";
+        } elseif (@getimagesize($_FILES['product_img']['tmp_name']) === false) {
+            $msg      = "❌ Tệp tải lên không phải là hình ảnh hợp lệ!";
+            $msg_type = "error";
+        } else {
+            $fileBase = pathinfo($thumb, PATHINFO_FILENAME);
 
-        $newFileName  = $safeBaseName . "." . $ext;
-        $i            = 1;
-        $tempFileName = $newFileName;
+            $safeBaseName = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileBase);
+            $safeBaseName = strtolower($safeBaseName);
+            $safeBaseName = preg_replace('/[^a-z0-9]+/', '-', $safeBaseName);
+            $safeBaseName = preg_replace('/-+/', '-', $safeBaseName);
+            $safeBaseName = trim($safeBaseName, '-');
+            if (empty($safeBaseName)) {
+                $safeBaseName = 'product-' . time();
+            }
 
-        while (file_exists($upload_dir_full . $tempFileName)) {
-            $tempFileName = $safeBaseName . "-" . $i . "." . $ext;
-            $i++;
-        }
+            $newFileName  = $safeBaseName . "." . $extLower;
+            $i            = 1;
+            $tempFileName = $newFileName;
 
-        $newFileName = $tempFileName;
+            while (file_exists($upload_dir_full . $tempFileName)) {
+                $tempFileName = $safeBaseName . "-" . $i . "." . $extLower;
+                $i++;
+            }
 
-        /* ===============================
-           3. Đường dẫn thực & đường dẫn DB
-        =============================== */
-        $real_path = $upload_dir_full . $newFileName;
-        $save_path = "admin/uploads/" . $newFileName;
-
-        /* ===============================
-           4. Upload file
-        =============================== */
-        if (move_uploaded_file($_FILES['product_img']['tmp_name'], $real_path)) {
+            $newFileName = $tempFileName;
 
             /* ===============================
-               5. Lưu vào database
+               3. Đường dẫn thực & đường dẫn DB
             =============================== */
-            (new Product())->insert_product($name, $cid, $bid, $price, $sale, $desc, $save_path);
+            $real_path = $upload_dir_full . $newFileName;
+            $save_path = "admin/uploads/" . $newFileName;
 
-            $msg      = "✨ Đã thêm sản phẩm thành công!";
-            $msg_type = "success";
+            /* ===============================
+               4. Upload file
+            =============================== */
+            if (move_uploaded_file($_FILES['product_img']['tmp_name'], $real_path)) {
 
-        } else {
-            $msg      = "❌ Lỗi upload file! Kiểm tra quyền ghi thư mục.";
-            $msg_type = "error";
+                /* ===============================
+                   5. Lưu vào database
+                =============================== */
+                (new Product())->insert_product($name, $cid, $bid, $price, $sale, $desc, $save_path);
+
+                $msg      = "✨ Đã thêm sản phẩm thành công!";
+                $msg_type = "success";
+
+            } else {
+                $msg      = "❌ Lỗi upload file! Kiểm tra quyền ghi thư mục.";
+                $msg_type = "error";
+            }
         }
 
     } else {

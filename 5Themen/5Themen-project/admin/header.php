@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . "/auth_check.php";
+$adminDisplayName = Session::get('admin_name', 'Admin');
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -90,7 +94,7 @@
 
     <div class="header-user-info">
         <i class="fa-solid fa-circle-user"></i>
-        <span>Xin chào, Admin</span>
+        <span>Xin chào, <?= htmlspecialchars($adminDisplayName) ?></span>
 
         <!-- Nút đăng xuất -->
         <a href="logout_admin.php" class="logout-btn">
