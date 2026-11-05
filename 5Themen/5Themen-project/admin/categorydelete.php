@@ -1,5 +1,5 @@
 <?php
-require_once "../include/session.php";
+require_once __DIR__ . "/auth_check.php";
 require_once "../include/database.php";
 require_once __DIR__ . "/class/category_class.php";
 

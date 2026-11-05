@@ -3,8 +3,8 @@
 // XỬ LÝ XÓA SẢN PHẨM (product_delete.php)
 // =======================================================
 
-// Include session và database để class hoạt động
-include "../include/session.php";
+// Include auth check, session và database để class hoạt động
+require_once __DIR__ . "/auth_check.php";
 include "../include/database.php";
 require_once __DIR__ . "/Class/product_class.php";
 

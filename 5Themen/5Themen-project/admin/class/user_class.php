@@ -51,27 +51,30 @@ class User {
        3. Đổi mật khẩu
        ===================================================== */
     public function changePassword($userId, $oldPass, $newPass) {
-        $userId  = (int)$userId;
-        $oldPass = $this->db->escape($oldPass);
-        $newPass = $this->db->escape($newPass);
+        $userId = (int)$userId;
 
         // Lấy mật khẩu hiện tại
-        $sql    = "SELECT password FROM tbl_user WHERE user_id = $userId";
+        $sql    = "SELECT password FROM tbl_user WHERE user_id = $userId LIMIT 1";
         $result = $this->db->select($sql);
 
-        if (!$result) return false;
+        if (!$result || $result->num_rows === 0) return false;
 
         $row = $result->fetch_assoc();
 
-        // Kiểm tra mật khẩu cũ
-        if ($row['password'] !== $oldPass) {
+        // Kiểm tra mật khẩu cũ (hỗ trợ hash và mật khẩu cũ plaintext)
+        $isValid = password_verify($oldPass, $row['password']) || ($row['password'] === $oldPass);
+        if (!$isValid) {
             return "wrong_old_pass";
         }
+
+        // Băm mật khẩu mới bằng thuật toán an toàn
+        $newHashed = password_hash($newPass, PASSWORD_DEFAULT);
+        $newHashedEsc = $this->db->escape($newHashed);
 
         // Cập nhật mật khẩu mới
         $query = "
             UPDATE tbl_user
-            SET password = '$newPass'
+            SET password = '$newHashedEsc'
             WHERE user_id = $userId
         ";
 

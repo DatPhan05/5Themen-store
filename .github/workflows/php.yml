@@ -1,0 +1,26 @@
+name: PHP Syntax & Lint Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    name: Check PHP Syntax
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mysqli, pdo, mbstring
+
+    - name: Syntax Check (php -l)
+      run: |
+        find . -type f -name "*.php" -print0 | xargs -0 -n 1 -P 4 php -l
+

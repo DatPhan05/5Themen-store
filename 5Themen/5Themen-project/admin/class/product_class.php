@@ -342,9 +342,8 @@ class Product {
             SELECT COUNT(*) AS total
             FROM tbl_product
             WHERE 
-                LOWER(product_name) LIKE '$kw %'
-                OR LOWER(product_name) LIKE '% $kw %'
-                OR LOWER(product_name) LIKE '% $kw'
+                LOWER(product_name) LIKE '%$kw%'
+                OR LOWER(product_desc) LIKE '%$kw%'
         ";
 
         $rs = $this->db->select($sql);
@@ -360,9 +359,8 @@ class Product {
             SELECT *
             FROM tbl_product
             WHERE 
-                LOWER(product_name) LIKE '$kw %'
-                OR LOWER(product_name) LIKE '% $kw %'
-                OR LOWER(product_name) LIKE '% $kw'
+                LOWER(product_name) LIKE '%$kw%'
+                OR LOWER(product_desc) LIKE '%$kw%'
             ORDER BY product_id DESC
             LIMIT $limit OFFSET $offset
         ";
